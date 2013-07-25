@@ -158,6 +158,15 @@ tabsize=4
 
 TODO: \cite{golodetz11}
 
+\begin{itemize}
+\item The waterfall is a well-known hierarchical segmentation approach based on the watershed transform. Both were introduced by Beucher in \cite{?}.
+\item It's very useful in a variety of domains, e.g.~TODO.
+\item There are various different ways to implement it: TODO. Of these, a state-of-the-art one is Marcotegui's approach in \cite{marcotegui05}.
+\item However, existing algorithms involve a non-trivial amount of work to implement. We implemented Marcotegui's approach in \emph{centipede} and \emph{millipede} and it took quite a bit of effort. In addition, Marcotegui's approach deals inconsistently with non-minimal plateaux in an image.
+\item As a result, we have developed two new tree-based algorithms for the waterfall which address these issues. The first, Nicholls' algorithm, is especially simple to implement and performs well, even though it does not deal consistently with non-minimal plateaux. The second, Golodetz's algorithm, is somewhat less simple to implement (although it's easier than Marcotegui's algorithm) but deals consistently with non-minimal plateaux.
+\item We perform experiments on real images to contrast the results of these algorithms with Marcotegui's approach, and time them to compare their performance.
+\end{itemize}
+
 %###################
 \section{Background}
 %###################
@@ -186,15 +195,27 @@ TODO
 
 TODO
 
-%###################
-\section{Comparison}
-%###################
+%####################
+\section{Experiments}
+%####################
 
-\subsection{Method}
+\subsection{Segmentation Quality}
+
+\subsubsection{Method}
 
 TODO
 
-\subsection{Results}
+\subsubsection{Results}
+
+TODO
+
+\subsection{Computation Time}
+
+\subsubsection{Method}
+
+TODO
+
+\subsubsection{Results}
 
 TODO
 
