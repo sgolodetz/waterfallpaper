@@ -159,7 +159,17 @@ tabsize=4
 
 The waterfall transform is a hierarchical segmentation technique based on the well-known watershed transform \cite{beucher90,gonzalez02}. Given an entity (most commonly, an image), it produces a set of nested partitions of the entity at different scales (see Figure~\ref{?}). It was originally introduced by Beucher \cite{beucher94} as a way of improving upon the often over-segmented output of the watershed (see \S\ref{sec:background}). Watershed-based techniques see use in numerous fields, including image segmentation \cite{?}, 3D mesh segmentation \cite{chen06,mangan99,moumoun10,page03}, automatic navigation mesh generation \cite{mononen09} and cell-and-portal generation in indoor 3D worlds \cite{haumont03}. It is also straightforward (e.g.~see \cite{golodetz11}) to make use of the watershed and waterfall transforms to construct \emph{image partition forests} (IPFs), a tree-based representation of an image created by treating each partition as an adjacency graph (with image regions as nodes) and adding parent/child links between nodes in consecutive partitions. This representation is useful for feature identification in that it provides a helpful space in which to search for image features of different sizes.
 
-TODO
+There are various existing ways of implementing the waterfall. On one level, as will be seen in \S\ref{sec:background}, the waterfall is essentially just an iterative sequence of watershed transforms and step transformations. As such, it can be implemented by treating the output partitions as images and iterating any one of a number of different approaches to the image-based watershed (e.g.~\cite{bieniek00,meijster98,osma-ruiz06,rambabu07,stoev00}). This is conceptually straightforward, but inefficient because the partition images are not a concise representation of the output of each watershed transform. An alternative is a graph-based approach presented by Beucher in \cite{beucher94}; however, the author noted in \cite{marcotegui05} that even he considered this algorithm `complex'.
+
+A much better approach is presented by Marcotegui and Beucher in \cite{marcotegui05}. TODO
+
+%At a conceptual level, as will be seen in \S\ref{sec:background}, the waterfall is essentially just an iterative sequence of watershed transforms and step transformations. As such, it can be implemented by treating the output partitions as images and iterating any one of a number of different approaches to the image-based watershed (e.g.~\cite{bieniek00,meijster98,osma-ruiz06,rambabu07,stoev00}). Alternatively, it can be implemented using the graph-based algorithm described in \cite{beucher94}.
+
+%However, this is rather inefficient; in practice, the existing implementations in the literature \cite{beucher94,marcotegui05} work on graphs instead. The approach taken by Marcotegui in \cite{marcotegui05} is particularly 
+
+%The graph-based waterfall algorithm due to Marcotegui and Beucher \cite{marcotegui05} are both effective and fast, especially in comparison to an image-based approach, but they have 
+
+%Of these, Marcotegui's approach in \cite{marcotegui05} 
 
 \begin{itemize}
 %\item The waterfall is a well-known hierarchical segmentation approach based on the watershed transform. Both were introduced by Beucher in \cite{?}.
