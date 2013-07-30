@@ -174,7 +174,7 @@ TODO: \cite{golodetz11}
 
 \subsection{The Watershed Transform}
 
-At a very abstract level, the watershed\footnotemark{} transform involves dividing a landscape into its catchment basins, where a catchment basin is an area of the landscape from which water runs down to the same point (namely one of the landscape's local minima). A watershed is a boundary between adjacent catchment basins. The transform sees use as a segmentation technique in numerous fields, including image segmentation \cite{?}, 3D mesh segmentation \cite{chen06,mangan99,moumoun10,page03}, automatic navigation mesh generation \cite{mononen09} and cell-and-portal generation in indoor 3D worlds \cite{haumont03}. In each setting, a conceptual mapping needs to be made to allow the entity being segmented to be viewed as a landscape: for example, 2D greyscale images can be viewed as a height map (see Figure~\ref{fig:segmentation-watershed-landscapeanalogy}), where the grey value of the image at coordinates $(x,y)$ gives the height of the `landscape' at that point.
+At a very abstract level, the watershed\footnotemark{} transform involves dividing a landscape into its catchment basins, where a catchment basin is an area of the landscape from which water runs down to the same point (namely one of the landscape's local minima). A watershed is a boundary between adjacent catchment basins. The transform sees use as a segmentation technique in numerous fields, including image segmentation \cite{?}, 3D mesh segmentation \cite{chen06,mangan99,moumoun10,page03}, automatic navigation mesh generation \cite{mononen09} and cell-and-portal generation in indoor 3D worlds \cite{haumont03}. In each setting, a conceptual mapping needs to be made to allow the entity being segmented to be viewed as a landscape: for example, 2D greyscale images can be viewed as a height map (see Figure~\ref{fig:segmentation-watershed-landscapeanalogy}), where the grey value of the image at coordinates $(x,y)$ gives the height of the `landscape' at that point. Algorithms that implement the watershed transform fall into two categories:
 
 \footnotetext{The name `watershed' means `water divider', since shedding is an old term for splitting, or dividing.}
 
@@ -182,8 +182,6 @@ At a very abstract level, the watershed\footnotemark{} transform involves dividi
 \stufigex{height=6cm}{segmentation-watershed-landscapeanalogy.png}{The landscape analogy -- viewing a 2D image as a height map}{fig:segmentation-watershed-landscapeanalogy}{t}
 %---
 
-Algorithms that implement the watershed transform fall into two categories: \emph{rainfalling} methods and \emph{flooding} methods:
-%
 \begin{enumerate}
 
 \item Rainfalling methods \cite{meijster98,osma-ruiz06,stoev00} view the problem as one of determining, for each point in the landscape, the local minimum to which water placed at that point would run down (see Figure~\ref{fig:segmentation-watershed-rainfallingconcept}). In practical terms, this generally involves finding a path of steepest descent from each point in the landscape and following it until a local minimum is found. Most of the difficulty involved in this approach is associated with how to handle non-minimal plateaux in the landscape (flat areas that are not the base of a catchment basin).
@@ -230,9 +228,11 @@ Algorithms that implement the watershed transform fall into two categories: \emp
 \end{stusubfig}
 %---
 
+\noindent Image-based watershed algorithms produce a partition of their input into regions (see Figure~\ref{?}). This can then be used for further processing.
+
 \subsection{The Waterfall Transform}
 
-TODO
+In contexts where its input is not smooth (which amounts to the vast majority of real-world contexts), the watershed has an well-known and unfortunate tendency to produce an over-segmented output (again, see Figure~\ref{?}). This is due to the presence of large numbers of spurious local minima in the input -- in conceptual terms, we are effectively segmenting a pock-marked landscape. TODO
 
 \subsection{Marcotegui's Algorithm}
 
