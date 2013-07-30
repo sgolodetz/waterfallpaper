@@ -145,7 +145,7 @@ tabsize=4
 \begin{document}
 
 \title{Two Tree-Based Algorithms for the Waterfall}
-\author{S M Golodetz, C Nicholls, I D Voiculescu and S A Cameron}
+\author{Stuart Golodetz, Irina Voiculescu and Stephen Cameron}
 \date{Draft of \today}
 \maketitle
 
@@ -157,24 +157,27 @@ tabsize=4
 \section{Introduction}
 %#####################
 
-TODO: \cite{golodetz11}
+The waterfall transform is a hierarchical segmentation technique based on the well-known watershed transform \cite{beucher90,gonzalez02}. Given an entity (most commonly, an image), it produces a set of nested partitions of the entity at different scales (see Figure~\ref{?}). It was originally introduced by Beucher \cite{beucher94} as a way of improving upon the often over-segmented output of the watershed (see \S\ref{sec:background}). Watershed-based techniques see use in numerous fields, including image segmentation \cite{?}, 3D mesh segmentation \cite{chen06,mangan99,moumoun10,page03}, automatic navigation mesh generation \cite{mononen09} and cell-and-portal generation in indoor 3D worlds \cite{haumont03}. It is also straightforward (e.g.~see \cite{golodetz11}) to make use of the watershed and waterfall transforms to construct \emph{image partition forests} (IPFs), a tree-based representation of an image created by treating each partition as an adjacency graph (with image regions as nodes) and adding parent/child links between nodes in consecutive partitions. This representation is useful for feature identification in that it provides a helpful space in which to search for image features of different sizes.
+
+TODO
 
 \begin{itemize}
-\item The waterfall is a well-known hierarchical segmentation approach based on the watershed transform. Both were introduced by Beucher in \cite{?}.
-\item It's very useful in a variety of domains, e.g.~TODO.
+%\item The waterfall is a well-known hierarchical segmentation approach based on the watershed transform. Both were introduced by Beucher in \cite{?}.
+%\item It's very useful in a variety of domains, e.g.~TODO.
 \item There are various different ways to implement it: TODO. Of these, a state-of-the-art one is Marcotegui's approach in \cite{marcotegui05}.
 \item However, existing algorithms involve a non-trivial amount of work to implement. We implemented Marcotegui's approach in \emph{centipede} and \emph{millipede} and it took quite a bit of effort. In addition, Marcotegui's approach deals inconsistently with non-minimal plateaux in an image.
 \item As a result, we have developed two new tree-based algorithms for the waterfall which address these issues. The first, Nicholls' algorithm, is especially simple to implement and performs well, even though it does not deal consistently with non-minimal plateaux. The second, Golodetz's algorithm, is somewhat less simple to implement (although it's easier than Marcotegui's algorithm) but deals consistently with non-minimal plateaux.
 \item We perform experiments on real images to contrast the results of these algorithms with Marcotegui's approach, and time them to compare their performance.
 \end{itemize}
 
-%###################
+%#####################
 \section{Background}
-%###################
+\label{sec:background}
+%#####################
 
 \subsection{The Watershed Transform}
 
-At a very abstract level, the watershed\footnotemark{} transform involves dividing a landscape into its catchment basins, where a catchment basin is an area of the landscape from which water runs down to the same point (namely one of the landscape's local minima). A watershed is a boundary between adjacent catchment basins. The transform sees use as a segmentation technique in numerous fields, including image segmentation \cite{?}, 3D mesh segmentation \cite{chen06,mangan99,moumoun10,page03}, automatic navigation mesh generation \cite{mononen09} and cell-and-portal generation in indoor 3D worlds \cite{haumont03}. In each setting, a conceptual mapping needs to be made to allow the entity being segmented to be viewed as a landscape: for example, 2D greyscale images can be viewed as a height map (see Figure~\ref{fig:segmentation-watershed-landscapeanalogy}), where the grey value of the image at coordinates $(x,y)$ gives the height of the `landscape' at that point. Algorithms that implement the watershed transform fall into two categories:
+At a very abstract level, the watershed\footnotemark{} transform involves dividing a landscape into its catchment basins, where a catchment basin is an area of the landscape from which water runs down to the same point (namely one of the landscape's local minima). A watershed is a boundary between adjacent catchment basins. In each domain in which the watershed transform is used, a conceptual mapping needs to be made to allow the entity being segmented to be viewed as a landscape: for example, 2D greyscale images can be viewed as a height map (see Figure~\ref{fig:segmentation-watershed-landscapeanalogy}), where the grey value of the image at coordinates $(x,y)$ gives the height of the `landscape' at that point. Algorithms that implement the watershed transform fall into two categories:
 
 \footnotetext{The name `watershed' means `water divider', since shedding is an old term for splitting, or dividing.}
 
