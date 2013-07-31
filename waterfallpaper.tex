@@ -145,7 +145,7 @@ tabsize=4
 \begin{document}
 
 \title{Two Tree-Based Algorithms for the Waterfall}
-\author{Stuart Golodetz, Irina Voiculescu and Stephen Cameron}
+\author{Stuart Golodetz, Chris Nicholls, Irina Voiculescu and Stephen Cameron}
 \date{Draft of \today}
 \maketitle
 
@@ -159,26 +159,11 @@ tabsize=4
 
 The waterfall transform is a hierarchical segmentation technique based on the well-known watershed transform \cite{beucher90,gonzalez02}. Given an entity (most commonly, an image), it produces a set of nested partitions of the entity at different scales (see Figure~\ref{?}). It was originally introduced by Beucher \cite{beucher94} as a way of improving upon the often over-segmented output of the watershed (see \S\ref{sec:background}). Watershed-based techniques see use in numerous fields, including image segmentation \cite{?}, 3D mesh segmentation \cite{chen06,mangan99,moumoun10,page03}, automatic navigation mesh generation \cite{mononen09} and cell-and-portal generation in indoor 3D worlds \cite{haumont03}. It is also straightforward (e.g.~see \cite{golodetz11}) to make use of the watershed and waterfall transforms to construct \emph{image partition forests} (IPFs), a tree-based representation of an image created by treating each partition as an adjacency graph (with image regions as nodes) and adding parent/child links between nodes in consecutive partitions. This representation is useful for feature identification in that it provides a helpful space in which to search for image features of different sizes.
 
-There are various existing ways of implementing the waterfall. On one level, as will be seen in \S\ref{sec:background}, the waterfall is essentially just an iterative sequence of watershed transforms and step transformations. As such, it can be implemented by treating the output partitions as images and iterating any one of a number of different approaches to the image-based watershed (e.g.~\cite{bieniek00,meijster98,osma-ruiz06,rambabu07,stoev00}). This is conceptually straightforward, but inefficient because the partition images are not a concise representation of the output of each watershed transform. An alternative is a graph-based approach presented by Beucher in \cite{beucher94}; however, the author noted in \cite{marcotegui05} that even he considered this algorithm `complex'.
+There are various existing ways of implementing the waterfall. The initial paper by Beucher \cite{beucher94} presented three methods: a slightly intricate graph-based method that works on the gradient of the mosaic image, a method based on checking for symmetric waterfalls, and a more efficient reconstruction algorithm that works by filling in catchment basins. A fast waterfall algorithm was presented by Marcotegui in \cite{marcotegui05}: this returns to the idea of a graph-based waterfall (using a different graph) and works on a minimum spanning tree (MST) of the graph for improved efficiency. Marcotegui's waterfall algorithm is fast and effective, but it is somewhat fiddly to implement \cite{golodetz08} and its handling of non-minimal plateaux in the MST is not well-specified and depends on precisely how the algorithm is implemented.
 
-A much better approach is presented by Marcotegui and Beucher in \cite{marcotegui05}. TODO
+\textbf{This paper therefore presents two new tree-based algorithms for the waterfall}. The first, Nicholls' algorithm, is especially simple to implement and performs well, even though it does not deal consistently with non-minimal plateaux. The second, Golodetz's algorithm, is somewhat less simple to implement (although still easier to implement than Marcotegui's algorithm) but deals consistently with non-minimal plateaux. We perform experiments on well-known test images \cite{?} to contrast the results of these algorithms with Marcotegui's approach, and time them to compare their performance.
 
-%At a conceptual level, as will be seen in \S\ref{sec:background}, the waterfall is essentially just an iterative sequence of watershed transforms and step transformations. As such, it can be implemented by treating the output partitions as images and iterating any one of a number of different approaches to the image-based watershed (e.g.~\cite{bieniek00,meijster98,osma-ruiz06,rambabu07,stoev00}). Alternatively, it can be implemented using the graph-based algorithm described in \cite{beucher94}.
-
-%However, this is rather inefficient; in practice, the existing implementations in the literature \cite{beucher94,marcotegui05} work on graphs instead. The approach taken by Marcotegui in \cite{marcotegui05} is particularly 
-
-%The graph-based waterfall algorithm due to Marcotegui and Beucher \cite{marcotegui05} are both effective and fast, especially in comparison to an image-based approach, but they have 
-
-%Of these, Marcotegui's approach in \cite{marcotegui05} 
-
-\begin{itemize}
-%\item The waterfall is a well-known hierarchical segmentation approach based on the watershed transform. Both were introduced by Beucher in \cite{?}.
-%\item It's very useful in a variety of domains, e.g.~TODO.
-\item There are various different ways to implement it: TODO. Of these, a state-of-the-art one is Marcotegui's approach in \cite{marcotegui05}.
-\item However, existing algorithms involve a non-trivial amount of work to implement. We implemented Marcotegui's approach in \emph{centipede} and \emph{millipede} and it took quite a bit of effort. In addition, Marcotegui's approach deals inconsistently with non-minimal plateaux in an image.
-\item As a result, we have developed two new tree-based algorithms for the waterfall which address these issues. The first, Nicholls' algorithm, is especially simple to implement and performs well, even though it does not deal consistently with non-minimal plateaux. The second, Golodetz's algorithm, is somewhat less simple to implement (although it's easier than Marcotegui's algorithm) but deals consistently with non-minimal plateaux.
-\item We perform experiments on real images to contrast the results of these algorithms with Marcotegui's approach, and time them to compare their performance.
-\end{itemize}
+\textbf{This paper is organised as follows:} in \S\ref{sec:background}, we briefly review the watershed and waterfall transforms and take a detailed look at Marcotegui's approach to the waterfall; in \S\ref{sec:nicholls} and \S\ref{sec:golodetz}, we present our new waterfall algorithms; in \S\ref{sec:experiments}, we perform experiments to contrast our new algorithms to Marcotegui's approach; and in \S\ref{sec:discussion}, we discuss the results of our experiments.
 
 %#####################
 \section{Background}
@@ -253,19 +238,22 @@ TODO
 
 %############################
 \section{Nicholls' Algorithm}
+\label{sec:nicholls}
 %############################
 
 TODO
 
 %#############################
 \section{Golodetz's Algorithm}
+\label{sec:golodetz}
 %#############################
 
 TODO
 
-%####################
+%######################
 \section{Experiments}
-%####################
+\label{sec:experiments}
+%######################
 
 \subsection{Segmentation Quality}
 
@@ -287,15 +275,17 @@ TODO
 
 TODO
 
-%###################
+%#####################
 \section{Discussion}
-%###################
+\label{sec:discussion}
+%#####################
 
 TODO
 
-%####################
+%######################
 \section{Conclusions}
-%####################
+\label{sec:conclusions}
+%######################
 
 TODO
 
