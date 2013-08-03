@@ -238,7 +238,7 @@ In contexts where its input is not smooth (which amounts to the vast majority of
 %
 \begin{itemize}
 
-\item The input can be smoothed (e.g.~using anisotropic diffusion filtering \cite{perona90}) before performing the watershed. This has the effect of removing some of the spurious local minima, but is usually not enough to actually solve the problem.
+\item The input can be smoothed (e.g.~using anisotropic diffusion filtering \cite{perona90}) before performing the watershed. This has the effect of removing some of the spurious local minima, but is usually not enough to actually solve the problem on its own.
 
 \item The watershed can be constrained using markers \cite{meyer90}. This directly tackles the problem by effectively specifying the desired number of output regions, but it imposes a significant manual input burden on the user.
 
@@ -246,7 +246,36 @@ In contexts where its input is not smooth (which amounts to the vast majority of
 
 \end{itemize}
 %
-The waterfall transform is a multi-pass, hierarchical segmentation method that takes the third approach. As shown in Figure~\ref{fig:ipfs-ctconcept}, it generates a sequence of partitions of a landscape, each coarser (i.e.~containing fewer regions) than the one preceding it. Conceptually, each pass of the waterfall takes its input partition (Figure~\ref{?}(a)) and transforms it into a `stepped' landscape, where there is a step corresponding to each watershed boundary, with the height of the lowest pass point along that boundary (Figure~\ref{?}(b)). It then performs a watershed transform on this stepped landscape and outputs a coarser partition of the landscape as its result (Figure~\ref{?}(c)). This process can be repeated as long as the most recent partition has more than one catchment basin (Figures~\ref{?}(d) and \ref{?}(e)).
+The waterfall transform is a multi-pass, hierarchical segmentation method that takes the third approach. As shown in Figure~\ref{fig:ipfs-ctconcept}, it generates a sequence of partitions of a landscape, each coarser (i.e.~containing fewer regions) than the one preceding it. Conceptually, each pass of the waterfall takes its input partition (Figure~\ref{fig:segmentation-waterfall-passconcept}(a)) and transforms it into a `stepped' landscape, where there is a step corresponding to each watershed boundary, with the height of the lowest pass point along that boundary (Figure~\ref{fig:segmentation-waterfall-passconcept}(b)). It then performs a watershed transform on this stepped landscape and outputs a coarser partition of the landscape as its result (Figure~\ref{fig:segmentation-waterfall-passconcept}(c)). This process can be repeated as long as the most recent partition has more than one catchment basin (Figures~\ref{fig:segmentation-waterfall-passconcept}(d) and (e)).
+
+%---
+\begin{stusubfig}{p}
+	\subfigure[The initial partition output by the watershed]
+	{\includegraphics[height=3cm]{segmentation-waterfall-passconcept-a.png}}%
+	%
+	\hspace{4mm}%
+	%
+	\subfigure[After transforming it into a stepped landscape]
+	{\includegraphics[height=3cm]{segmentation-waterfall-passconcept-b.png}}%
+	%
+	\hspace{4mm}%
+	%
+	\subfigure[After performing a watershed transform on the stepped landscape]
+	{\includegraphics[height=3cm]{segmentation-waterfall-passconcept-c.png}}%
+	%
+	\hspace{4mm}%
+	%
+	\subfigure[After the second step transformation]
+	{\includegraphics[height=3cm]{segmentation-waterfall-passconcept-d.png}}%
+	%
+	\hspace{4mm}%
+	%
+	\subfigure[After performing another watershed transform]
+	{\includegraphics[height=3cm]{segmentation-waterfall-passconcept-e.png}}%
+\caption{A conceptual view of the waterfall transform}
+\label{fig:segmentation-waterfall-passconcept}
+\end{stusubfig}
+%---
 
 \subsection{Marcotegui's Algorithm}
 
