@@ -293,7 +293,19 @@ The waterfall transform is a multi-pass, hierarchical segmentation method that t
 
 \subsection{Marcotegui's Algorithm}
 
-TODO
+Whilst it is possible to perform the waterfall using the conceptual approach just described, repeatedly transforming the landscape can potentially be costly -- e.g.~image-based algorithms for the waterfall have to process all of the pixels in each region rather than just processing the region itself. This militates for alternative approaches to the waterfall based on graphs -- these can be more efficient because an entire region can be represented by a single node.
+
+Marcotegui's algorithm \cite{marcotegui05} is a fast and effective example of such an approach. It works on a minimum spanning tree (MST) of the (weighted) region adjacency graph (RAG) of its input partition\footnotemark{}. The nodes of this graph correspond to regions in the input partition; its edges join adjacent nodes, and each edge is weighted with the height of the lowest pass point on the boundary between the nodes it joins.
+
+\footnotetext{The justification for why an MST is sufficient can be found in \cite{marcotegui05}.}
+
+At the start of Marcotegui's algorithm, the first input partition (produced from the input using the watershed transform) is converted into its RAG representation in a straightforward manner and an MST is built from the RAG (see \S{}A.2 of \cite{golodetz11} for implementation details). This MST is then subjected to a sequence of waterfall passes. Each waterfall pass performs a flooding-based watershed on the MST to decide which regions should be merged and elides appropriate edges in the MST to effect this (eliding an an edge means combining the nodes at either end of the edge and removing the edge itself from the MST). In detail, this involves the following steps:
+%
+\begin{enumerate}
+
+\item TODO
+
+\end{enumerate}
 
 %############################
 \section{Nicholls' Algorithm}
