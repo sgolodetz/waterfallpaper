@@ -160,7 +160,7 @@ tabsize=4
 The waterfall transform is a hierarchical segmentation technique based on the well-known watershed transform \cite{beucher90,gonzalez02}. Given an entity (most commonly, an image), it produces a stack of nested partitions of the entity at different scales (see Figure~\ref{fig:ipfs-ctconcept}). It was originally introduced by Beucher \cite{beucher94} as a way of improving upon the often over-segmented output of the watershed (see \S\ref{sec:background}). Watershed-based techniques see use in numerous fields, including image segmentation \cite{beucher91}, 3D mesh segmentation \cite{chen06,mangan99,moumoun10,page03}, automatic navigation mesh generation \cite{mononen09} and cell-and-portal generation in indoor 3D worlds \cite{haumont03}. It is also relatively straightforward (e.g.~see \cite{golodetz11}) to make use of the watershed and waterfall transforms to construct \emph{image partition forests} (IPFs), a tree-based representation of an image created by treating each partition as an adjacency graph (with image regions as nodes) and adding parent/child links between nodes in consecutive partitions. This representation is useful for feature identification in that it provides a helpful space in which to search for image features of different sizes.
 
 %---
-\stufigex{height=19cm}{ipfs-ctconcept.png}{A stack of nested partitions produced by the watershed and waterfall for an example image. The input image (a slice from a CT scan of the abdomen) is the lowest image in the stack. It was smoothed using anisotropic diffusion filtering \cite{perona90} before performing the watershed.}{fig:ipfs-ctconcept}{p}
+\stufigex{height=18.5cm}{ipfs-ctconcept.png}{A stack of nested partitions produced by the watershed and waterfall for an example image. The input image (a slice from a CT scan of the abdomen) is the lowest image in the stack. It was smoothed using anisotropic diffusion filtering \cite{perona90} before performing the watershed.}{fig:ipfs-ctconcept}{p}
 %---
 
 There are various existing ways of implementing the waterfall. The initial paper by Beucher \cite{beucher94} presented three methods: a slightly intricate graph-based method that works on the gradient of the mosaic image, a method based on checking for symmetric waterfalls, and a more efficient reconstruction algorithm that works by filling in catchment basins. A fast waterfall algorithm was presented by Marcotegui in \cite{marcotegui05}: this returns to the idea of a graph-based waterfall (using a different graph) and works on a minimum spanning tree (MST) of the graph for improved efficiency. Marcotegui's waterfall algorithm is fast and effective, but it is somewhat fiddly to implement \cite{golodetz08} and its handling of non-minimal plateaux in the MST is not well-specified and depends on precisely how the algorithm is implemented.
@@ -306,6 +306,54 @@ At the start of Marcotegui's algorithm, the first input partition (produced from
 \item TODO
 
 \end{enumerate}
+
+%---
+\begin{stusubfig}{p}
+  \subfigure[An example graph and its local minima (drawn in red)]
+	{\includegraphics[width=.3\linewidth]{segmentation-waterfall-marcotegui-graphlocalminima.png}}%
+	%
+	\hspace{4mm}%
+	%
+	\subfigure[Eliding/colouring the local minima (the edges to be elided are drawn in blue)]
+	{\includegraphics[width=.3\linewidth]{segmentation-waterfall-marcotegui-localminimaelision.png}}%	
+\caption{Finding and eliding a graph's local minima for Marcotegui's algorithm}
+\label{fig:segmentation-waterfall-marcotegui-localminima}
+\end{stusubfig}
+%---
+
+%---
+\begin{stusubfig}{p}
+	\subfigure[Initial state]
+	{\includegraphics[width=.3\linewidth]{segmentation-waterfall-marcotegui-propagation-a.png}}%
+	%
+	\hspace{4mm}%
+	%
+	\subfigure[Elide the 3 edge]
+	{\includegraphics[width=.3\linewidth]{segmentation-waterfall-marcotegui-propagation-b.png}}%
+	%
+	\hspace{4mm}%
+	%
+	\subfigure[Elide a 4 edge]
+	{\includegraphics[width=.3\linewidth]{segmentation-waterfall-marcotegui-propagation-c.png}}%
+	%
+	\hspace{4mm}%
+	%
+	\subfigure[Elide another 4 edge]
+	{\includegraphics[width=.3\linewidth]{segmentation-waterfall-marcotegui-propagation-d.png}}%
+	%
+	\hspace{4mm}%
+	%
+	\subfigure[Elide the 5 edge]
+	{\includegraphics[width=.3\linewidth]{segmentation-waterfall-marcotegui-propagation-e.png}}%
+	%
+	\hspace{4mm}%
+	%
+	\subfigure[Elide the other 5 edge; all remaining edges will not be elided]
+	{\includegraphics[width=.3\linewidth]{segmentation-waterfall-marcotegui-propagation-f.png}}%
+\caption{The propagation step of Marcotegui's algorithm, illustrated on the graph in \cite{marcotegui05}: blue edges have already been elided, green edges are under consideration, and red edges will not be elided.}
+\label{fig:segmentation-waterfall-marcotegui-propagation}
+\end{stusubfig}
+%---
 
 %############################
 \section{Nicholls' Algorithm}
