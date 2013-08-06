@@ -366,9 +366,7 @@ At the start of Marcotegui's method, the first input partition (produced from th
 \label{sec:nicholls}
 %############################
 
-Despite the speed and effectiveness of Marcotegui's method, it can be somewhat intricate to implement \cite{golodetz08} because it is defined as a general graph algorithm even though it operates on a tree. A simpler, tree-based method can be devised by observing that if an edge is not elided by a waterfall pass, it is because it is a highest edge separating two adjacent catchment basins (alternatively, it is a highest edge on the MST path between two adjacent local minima in the MST). Instead of explicitly finding the local minima in the graph and flooding out from them, it therefore suffices to root the MST somewhere and then work recursively up from the bottom of the tree, carefully maintaining a highest edge (`guard edge') guarding each local minimum encountered on the way.
-
-TODO
+Despite the speed and effectiveness of Marcotegui's method, it can be somewhat intricate to implement \cite{golodetz08} because it is defined as a general graph method even though it operates on a tree. A simpler, tree-based method can be devised by observing that if an edge is not elided by a waterfall pass, it is because it is a highest edge separating two adjacent catchment basins (alternatively, it is a highest edge on the MST path between two adjacent local minima in the MST). Instead of explicitly finding the local minima in the graph and flooding out from them, it therefore suffices to root the MST somewhere and then work recursively up from the bottom of the tree, carefully maintaining a highest edge (`guard edge') guarding each local minimum encountered on the way.
 
 %---
 \begin{stusubfig}{p}
@@ -384,6 +382,28 @@ TODO
 \end{stusubfig}
 %---
 
+The CN method initially roots the MST (see Figure~\ref{fig:segmentation-waterfall-nicholls-root}), adding a dummy `root edge' with a value strictly greater than the values of the edges descending from the root node (we will henceforth -- without ambiguity -- call edges descending from a node \emph{children} of the edge ascending from that node). The value chosen is unimportant, but $\infty$ or $1$ greater than the maximum value on a child edge are sensible choices. Each pass of the method is invoked on the root edge, and proceeds recursively as follows:
+%
+\begin{enumerate}
+
+\item If the current edge is a leaf edge (i.e.~it has no child edges) then it is marked as a non-guard edge.
+
+\item Otherwise:
+
+\begin{enumerate}
+
+\item We recurse on all the child edges.
+
+\item A child edge with minimum value is chosen (if one or more of the children with minimum value is a guard edge, one of those is chosen in preference to a non-guard). This is then referred to as the `lowest child'. The value on the current edge is compared to the value on the lowest child. If its value is less than that of the lowest child, it is marked as a non-guard edge; otherwise it is marked as a guard and the lowest child is marked as a non-guard.
+
+\item All non-guard children are then elided.
+
+\end{enumerate}
+
+\end{enumerate}
+
+\noindent The workings of the method can be illuminated by a case analysis. There are two cases to consider: either the current edge (the parent edge) \emph{isn't} strictly the lowest leading out of a node, in which case at least part of the implied flow from the node is along the lowest child (see Figure~\ref{fig:segmentation-waterfall-nicholls-cases}(a)), or it is, in which case the implied flow from the node is entirely along the parent (see Figure~\ref{fig:segmentation-waterfall-nicholls-cases}(b)). In the first case, the method arbitrarily assumes that all the implied flow is along the lowest child. In both cases, the various child edges are then elided (or not) accordingly. Figure~\ref{fig:segmentation-waterfall-nicholls-example} illustrates how the method works on the same graph used to illustrate Marcotegui's method above.
+
 %---
 \begin{stusubfig}{p}
 	\subfigure[The considered edge is not the unique lowest edge]
@@ -397,6 +417,8 @@ TODO
 \label{fig:segmentation-waterfall-nicholls-cases}
 \end{stusubfig}
 %---
+
+The assumption that all the implied flow is along the lowest child in the first case is this method's way of dealing with non-minimal plateaux in the MST. As with the Marcotegui method's dependence on the particular priority queue implementation used, this is a somewhat arbitrary way of handling non-minimal plateaux: in particular, the selected direction of implied flow from a particular node depends on both where the MST is rooted, and the specific method used to choose the lowest child. The method also ignores the possibility that part of the implied flow is along the parent. All of this affects which specific edges are elided. As with Marcotegui's method, this tends not to significantly degrade the end result, but it is still in principle desirable to devise a method that does not depend on such implementation details. In the following section, we therefore present an alternative tree-based method that handles non-minimal plateaux in the MST in a more robust manner.
 
 %---
 \begin{stusubfig}{p}
