@@ -366,7 +366,61 @@ At the start of Marcotegui's method, the first input partition (produced from th
 \label{sec:nicholls}
 %############################
 
+Despite the speed and effectiveness of Marcotegui's method, it can be somewhat intricate to implement \cite{golodetz08} because it is defined as a general graph algorithm even though it operates on a tree. A simpler, tree-based method can be devised by observing that if an edge is not elided by a waterfall pass, it is because it is a highest edge separating two adjacent catchment basins (alternatively, it is a highest edge on the MST path between two adjacent local minima in the MST). Instead of explicitly finding the local minima in the graph and flooding out from them, it therefore suffices to root the MST somewhere and then work recursively up from the bottom of the tree, carefully maintaining a highest edge (`guard edge') guarding each local minimum encountered on the way.
+
 TODO
+
+\afterpage{\clearpage}
+
+%---
+\begin{stusubfig}{p}
+	\subfigure[Before rooting the MST]
+	{\includegraphics[height=5.5cm]{segmentation-waterfall-nicholls-root-before.png}}%
+	%
+	\hspace{4mm}%
+	%
+	\subfigure[After rooting it]
+	{\includegraphics[height=5.5cm]{segmentation-waterfall-nicholls-root-after.png}}%
+\caption{The first method starts by picking a node at which to root the MST}% and adding a dummy root edge above the chosen root}
+\label{fig:segmentation-waterfall-nicholls-root}
+\end{stusubfig}
+%---
+
+%---
+\begin{stusubfig}{p}
+	\subfigure[The considered edge is not the unique lowest edge]
+	{\includegraphics[height=4.5cm]{segmentation-waterfall-nicholls-cases-a.png}}%
+	%
+	\hspace{4mm}%
+	%
+	\subfigure[The considered edge is the unique lowest edge]
+	{\includegraphics[height=4.5cm]{segmentation-waterfall-nicholls-cases-b.png}}%
+\caption[Case analysis for the recursive step of the first method]{Case analysis for the recursive step of the first method: black edges are non-guards, red edges are guards, blue edges are those which have been elided and the green edge is the one under active consideration. The arrow (on the node) indicates the direction in which the method presumes water to flow.}
+\label{fig:segmentation-waterfall-nicholls-cases}
+\end{stusubfig}
+%---
+
+%---
+\begin{stusubfig}{p}
+	\subfigure[Level 7]{\includegraphics[width=.2\linewidth]{segmentation-waterfall-nicholls-example-a.png}}%
+	\hspace{4mm}%
+	\subfigure[Level 6]{\includegraphics[width=.2\linewidth]{segmentation-waterfall-nicholls-example-b.png}}%
+	\hspace{4mm}%
+	\subfigure[Level 5]{\includegraphics[width=.2\linewidth]{segmentation-waterfall-nicholls-example-c.png}}%
+	\hspace{4mm}%
+	\subfigure[Level 4]{\includegraphics[width=.2\linewidth]{segmentation-waterfall-nicholls-example-d.png}}%
+	\\
+	\subfigure[Level 3]{\includegraphics[width=.2\linewidth]{segmentation-waterfall-nicholls-example-e.png}}%
+	\hspace{4mm}%
+	\subfigure[Level 2]{\includegraphics[width=.2\linewidth]{segmentation-waterfall-nicholls-example-f.png}}%
+	\hspace{4mm}%
+	\subfigure[Level 1]{\includegraphics[width=.2\linewidth]{segmentation-waterfall-nicholls-example-g.png}}%
+	\hspace{4mm}%
+	\subfigure[Result]{\includegraphics[width=.2\linewidth]{segmentation-waterfall-nicholls-example-h.png}}%
+\caption[The first method in action]{The first method in action (considering all the edges in each level at a time for space reasons): black edges are non-guards, red edges are guards, blue edges are those which have been elided and green edges are ones under active consideration.}
+\label{fig:segmentation-waterfall-nicholls-example}
+\end{stusubfig}
+%---
 
 %#############################
 \section{Method 2}
@@ -413,56 +467,6 @@ TODO
 %######################
 
 TODO
-
-%---
-\begin{stusubfig}{p}
-	\subfigure[Before rooting the MST]
-	{\includegraphics[height=6cm]{segmentation-waterfall-nicholls-root-before.png}}%
-	%
-	\hspace{4mm}%
-	%
-	\subfigure[After rooting it]
-	{\includegraphics[height=6cm]{segmentation-waterfall-nicholls-root-after.png}}%
-\caption{The first method starts by picking a node at which to root the MST}% and adding a dummy root edge above the chosen root}
-\label{fig:segmentation-waterfall-nicholls-root}
-\end{stusubfig}
-%---
-
-%---
-\begin{stusubfig}{p}
-	\subfigure[The considered edge is not the unique lowest edge]
-	{\includegraphics[height=5cm]{segmentation-waterfall-nicholls-cases-a.png}}%
-	%
-	\hspace{4mm}%
-	%
-	\subfigure[The considered edge is the unique lowest edge]
-	{\includegraphics[height=5cm]{segmentation-waterfall-nicholls-cases-b.png}}%
-\caption[Case analysis for the recursive step of the first method]{Case analysis for the recursive step of the first method: black edges are non-guards, red edges are guards, blue edges are those which have been elided and the green edge is the one under active consideration. The arrow (on the node) indicates the direction in which the method presumes water to flow.}
-\label{fig:segmentation-waterfall-nicholls-cases}
-\end{stusubfig}
-%---
-
-%---
-\begin{stusubfig}{p}
-	\subfigure[Level 7]{\includegraphics[width=.17\linewidth]{segmentation-waterfall-nicholls-example-a.png}}%
-	\hspace{4mm}%
-	\subfigure[Level 6]{\includegraphics[width=.17\linewidth]{segmentation-waterfall-nicholls-example-b.png}}%
-	\hspace{4mm}%
-	\subfigure[Level 5]{\includegraphics[width=.17\linewidth]{segmentation-waterfall-nicholls-example-c.png}}%
-	\hspace{4mm}%
-	\subfigure[Level 4]{\includegraphics[width=.17\linewidth]{segmentation-waterfall-nicholls-example-d.png}}%
-	\\
-	\subfigure[Level 3]{\includegraphics[width=.17\linewidth]{segmentation-waterfall-nicholls-example-e.png}}%
-	\hspace{4mm}%
-	\subfigure[Level 2]{\includegraphics[width=.17\linewidth]{segmentation-waterfall-nicholls-example-f.png}}%
-	\hspace{4mm}%
-	\subfigure[Level 1]{\includegraphics[width=.17\linewidth]{segmentation-waterfall-nicholls-example-g.png}}%
-	\hspace{4mm}%
-	\subfigure[Result]{\includegraphics[width=.17\linewidth]{segmentation-waterfall-nicholls-example-h.png}}%
-\caption[The first method in action]{The first method in action (considering all the edges in each level at a time for space reasons): black edges are non-guards, red edges are guards, blue edges are those which have been elided and green edges are ones under active consideration.}
-\label{fig:segmentation-waterfall-nicholls-example}
-\end{stusubfig}
-%---
 
 %---
 \begin{stusubfig}{p}
