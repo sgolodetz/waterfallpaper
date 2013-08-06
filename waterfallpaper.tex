@@ -303,7 +303,11 @@ At the start of Marcotegui's algorithm, the first input partition (produced from
 %
 \begin{enumerate}
 
-\item TODO
+\item \emph{Determination of the local minima of the MST}. A local minimum of a weighted graph $G$ is a connected subgraph of $G$ whose edges have equal weight and whose adjacent edges in $G$ have strictly higher weights. Figure~\ref{fig:segmentation-waterfall-marcotegui-localminima}(a) shows an example graph and its local minima. Algorithmically, we iterate over the edges in the MST and flood out from each one to determine (a) whether it's part of a local minimum and (b) the extent of the minimum if so.
+
+\item \emph{Elision of the local minima}. This is equivalent to merging minimal plateaux in a landscape into single points to which water runs down. See Figure~\ref{fig:segmentation-waterfall-marcotegui-localminima}(b). For clarity, we represent elision by assigning the nodes at the ends of an elided edge the same colour rather than removing the edge itself.
+
+\item \emph{Propagation}. We flood out from the nodes that now represent the local minima (`marker nodes') along the edges, in non-decreasing order of edge weight, starting from the edges directly adjacent to the marker nodes. Each edge will either join a marker to a marker, in which case it should be ignored (since eliding it would merge two catchment basins), or it will join a marker to a non-marker, in which case it should be elided. See Figure~\ref{fig:segmentation-waterfall-marcotegui-propagation}.
 
 \end{enumerate}
 
@@ -354,6 +358,8 @@ At the start of Marcotegui's algorithm, the first input partition (produced from
 \label{fig:segmentation-waterfall-marcotegui-propagation}
 \end{stusubfig}
 %---
+
+\noindent It is important to note that the order in which edges should be processed during the propagation step is not in general well-defined (note that multiple edges can have the same weight and thus be candidates for elision simultaneously). A straightforward implementation of the propagation step would use a priority queue and pop a lowest adjacent edge for consideration each time: thus the next edge to be considered ends up depending fundamentally on the way the priority queue is implemented. The consequence of this is that non-minimal plateaux in the MST are handled in a rather arbitrary way. This is not necessarily a problem in practice -- there tend to be only a small number of non-minimal plateaux in most MSTs, so it doesn't seriously affect the end result -- but it still seems undesirable to have the segmentation output depend so closely on the implementation of an internal data structure which may in principle be subject to change. This issue is dealt with robustly in \S\ref{sec:golodetz}.
 
 %############################
 \section{Nicholls' Algorithm}
