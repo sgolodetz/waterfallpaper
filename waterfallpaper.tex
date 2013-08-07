@@ -578,6 +578,13 @@ The SG method is a tree-based, rainfalling approach and works in three recursive
 \end{stusubfig}
 %---
 
+%######################
+\section{Experiments}
+\label{sec:experiments}
+%######################
+
+In order to compare the new methods against the existing state-of-the-art, we implemented all three methods (Marcotegui, CN and SG) in \emph{millipede} \cite{millipede}, our software for 3D abdominal CT image segmentation, feature identification and visualisation, and ran them on three well-known test images from the computer vision field (see Figure~\ref{fig:testimages}). In each case, the input image was initially smoothed using anisotropic diffusion filtering \cite{perona90}. The first output partition in each case was produced using our implementation of Meijster and Roerdink's watershed algorithm \cite{meijster98}. The output partitions were compared by producing difference images using ImageMagick \cite{imagemagick}. The results are shown in Figures~\ref{fig:results-lena}--\ref{fig:results-peppers}.
+
 %---
 \begin{stusubfig}{p}
 	\subfigure[Lena]{\includegraphics[width=.3\linewidth]{lena.png}}%
@@ -590,71 +597,59 @@ The SG method is a tree-based, rainfalling approach and works in three recursive
 \end{stusubfig}
 %---
 
-%######################
-\section{Experiments}
-\label{sec:experiments}
-%######################
-
-\subsection{Segmentation Quality}
-
-\subsubsection{Method}
-
-TODO
-
-\subsubsection{Results}
-
-TODO
-
 %---
 \begin{stusubfig}{p}
-	\subfigure[Lena~MB]{\includegraphics[width=.19\linewidth]{lena-partition-3-M.png}}%
+	\subfigure[Marcotegui]{\includegraphics[width=.3\linewidth]{lena-partition-3-M.png}}%
 	\hspace{4mm}%
-	\subfigure[Lena~CN]{\includegraphics[width=.19\linewidth]{lena-partition-3-NC.png}}%
+	\subfigure[CN Method]{\includegraphics[width=.3\linewidth]{lena-partition-3-NC.png}}%
 	\hspace{4mm}%
-	\subfigure[Lena~SG]{\includegraphics[width=.19\linewidth]{lena-partition-3-G.png}}%
+	\subfigure[SG Method]{\includegraphics[width=.3\linewidth]{lena-partition-3-G.png}}%
 	\\
-	\subfigure[CN vs. SG]{\includegraphics[width=.19\linewidth]{lena-diff-3-GNC.png}}%
+	\subfigure[CN vs. SG]{\includegraphics[width=.3\linewidth]{lena-diff-3-GNC.png}}%
 	\hspace{4mm}%
-	\subfigure[MB vs. CN]{\includegraphics[width=.19\linewidth]{lena-diff-3-MNC.png}}%
+	\subfigure[Marcotegui vs. CN]{\includegraphics[width=.3\linewidth]{lena-diff-3-MNC.png}}%
 	\hspace{4mm}%
-	\subfigure[MB vs. SG]{\includegraphics[width=.19\linewidth]{lena-diff-3-GM.png}}%
-	\\
-	\subfigure[Baboon~MB]{\includegraphics[width=.19\linewidth]{baboon-partition-3-M.png}}%
-	\hspace{4mm}%
-	\subfigure[Baboon~CN]{\includegraphics[width=.19\linewidth]{baboon-partition-3-NC.png}}%
-	\hspace{4mm}%
-	\subfigure[Baboon~SG]{\includegraphics[width=.19\linewidth]{baboon-partition-3-G.png}}%
-	\\
-	\subfigure[CN vs. SG]{\includegraphics[width=.19\linewidth]{baboon-diff-3-GNC.png}}%
-	\hspace{4mm}%
-	\subfigure[MB vs. CN]{\includegraphics[width=.19\linewidth]{baboon-diff-3-MNC.png}}%
-	\hspace{4mm}%
-	\subfigure[MB vs. SG]{\includegraphics[width=.19\linewidth]{baboon-diff-3-GM.png}}%
-	\\
-	\subfigure[Peppers~MB]{\includegraphics[width=.19\linewidth]{pepper-partition-3-M.png}}%
-	\hspace{4mm}%
-	\subfigure[Peppers~CN]{\includegraphics[width=.19\linewidth]{pepper-partition-3-NC.png}}%
-	\hspace{4mm}%
-	\subfigure[Peppers~SG]{\includegraphics[width=.19\linewidth]{pepper-partition-3-G.png}}%
-	\\
-	\subfigure[CN vs. SG]{\includegraphics[width=.19\linewidth]{pepper-diff-3-GNC.png}}%
-	\hspace{4mm}%
-	\subfigure[MB vs. CN]{\includegraphics[width=.19\linewidth]{pepper-diff-3-MNC.png}}%
-	\hspace{4mm}%
-	\subfigure[MB vs. SG]{\includegraphics[width=.19\linewidth]{pepper-diff-3-GM.png}}%
-\caption[]{Comparing partition $3$ produced by each of the methods \\ (MB = Marcotegui/Beucher) for Lena, Baboon and Peppers}
+	\subfigure[Marcotegui vs. SG]{\includegraphics[width=.3\linewidth]{lena-diff-3-GM.png}}%
+\caption[]{Comparing the third partition produced by each of the methods for Lena. The top row shows the results produced by each method. The bottom row highlights the differences between the results.}
+\label{fig:results-lena}
 \end{stusubfig}
 %---
 
-\subsection{Computation Time}
+%---
+\begin{stusubfig}{p}
+	\subfigure[Marcotegui]{\includegraphics[width=.3\linewidth]{baboon-partition-3-M.png}}%
+	\hspace{4mm}%
+	\subfigure[CN Method]{\includegraphics[width=.3\linewidth]{baboon-partition-3-NC.png}}%
+	\hspace{4mm}%
+	\subfigure[SG Method]{\includegraphics[width=.3\linewidth]{baboon-partition-3-G.png}}%
+	\\
+	\subfigure[CN vs. SG]{\includegraphics[width=.3\linewidth]{baboon-diff-3-GNC.png}}%
+	\hspace{4mm}%
+	\subfigure[Marcotegui vs. CN]{\includegraphics[width=.3\linewidth]{baboon-diff-3-MNC.png}}%
+	\hspace{4mm}%
+	\subfigure[Marcotegui vs. SG]{\includegraphics[width=.3\linewidth]{baboon-diff-3-GM.png}}%
+\caption[]{Comparing the third partition produced by each of the methods for Baboon.}
+\label{fig:results-baboon}
+\end{stusubfig}
+%---
 
-\subsubsection{Method}
-
-TODO
-
-\subsubsection{Results}
-
-TODO
+%---
+\begin{stusubfig}{p}
+	\subfigure[Marcotegui]{\includegraphics[width=.3\linewidth]{pepper-partition-3-M.png}}%
+	\hspace{4mm}%
+	\subfigure[CN Method]{\includegraphics[width=.3\linewidth]{pepper-partition-3-NC.png}}%
+	\hspace{4mm}%
+	\subfigure[SG Method]{\includegraphics[width=.3\linewidth]{pepper-partition-3-G.png}}%
+	\\
+	\subfigure[CN vs. SG]{\includegraphics[width=.3\linewidth]{pepper-diff-3-GNC.png}}%
+	\hspace{4mm}%
+	\subfigure[Marcotegui vs. CN]{\includegraphics[width=.3\linewidth]{pepper-diff-3-MNC.png}}%
+	\hspace{4mm}%
+	\subfigure[Marcotegui vs. SG]{\includegraphics[width=.3\linewidth]{pepper-diff-3-GM.png}}%
+\caption[]{Comparing the third partition produced by each of the methods for Peppers.}
+\label{fig:results-peppers}
+\end{stusubfig}
+%---
 
 %#####################
 \section{Discussion}
@@ -669,6 +664,8 @@ TODO
 %######################
 
 In this paper, we have introduced two new, tree-based methods for the classical waterfall transform from mathematical morphology and compared them with both the existing state-of-the-art and each other. The CN method is single-pass and is significantly easier to implement than the existing state-of-the art: indeed, it can be implemented using a single, short, recursive function. The SG method is slightly harder to implement (although still easier than previous methods), but deals consistently with the problem of non-minimal plateaux in the MST, something neither of the two other methods attempts. TODO
+
+\clearpage
 
 \bibliographystyle{alpha}
 \bibliography{existingwork,mypapers}
