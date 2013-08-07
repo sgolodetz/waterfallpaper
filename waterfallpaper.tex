@@ -447,6 +447,8 @@ The assumption that all the implied flow is along the lowest child in the first 
 \label{sec:golodetz}
 %#############################
 
+In order to robustly account for non-minimal plateaux in the MST, we adopt an idea from Meijster and Roedink's image watershed algorithm \cite{meijster98}: if we transform the landscape to make it `lower-complete' (that is, we transform it into a landscape in which there is a unique path of steepest descent from each point), then the direction of flow is clear at every point and there is no ambiguity about how to assign non-minimal plateau points to catchment basins. The method for making the image lower-complete described in \cite{meijster98} has the effect of treating pixels that are further from the border of a plateau as being in some sense `higher' than those on the boundary. The same sort of idea can be applied in the context of a waterfall pass (although it is not necessary to actually transform the MST to make it lower-complete): where there are non-minimal plateaux in the MST, we can arrange to treat the nodes further from the border of the plateaux as being `higher` than their boundary counterparts. As we will see, this enables a robust decision to be made about which edges to elide.
+
 TODO
 
 %---
