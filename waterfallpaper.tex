@@ -583,7 +583,21 @@ The SG method is a tree-based, rainfalling approach and works in three recursive
 \label{sec:experiments}
 %######################
 
-In order to compare the new methods against the existing state-of-the-art, we implemented all three methods (Marcotegui, CN and SG) in \emph{millipede} \cite{millipede}, our software for 3D abdominal CT image segmentation, feature identification and visualisation, and ran them on three well-known test images from the computer vision field (see Figure~\ref{fig:testimages}). In each case, the input image was initially smoothed using anisotropic diffusion filtering \cite{perona90}. The first output partition in each case was produced using our implementation of Meijster and Roerdink's watershed algorithm \cite{meijster98}. The output partitions were compared by producing difference images using ImageMagick \cite{imagemagick}. The results are shown in Figures~\ref{fig:results-lena}--\ref{fig:results-peppers}.
+We implemented all three methods (Marcotegui, CN and SG) in \emph{millipede} \cite{millipede}, our software for 3D abdominal CT image segmentation, feature identification and visualisation. The way in which we implemented Marcotegui's method in \emph{millipede} was a refinement of our initial approach that we described in \cite{golodetz08} -- in particular, the new implementation of the step that finds the local minima in the MST uses the first two passes of the SG method as an edge classifier (the local minima are those edges classified as either \{unambiguous in, unambiguous in\}, \{unambiguous in, no flow\} or \{no flow, no flow\}). This is a more efficient way of finding the local minima than the flooding approach described in \cite{golodetz08}.
+
+\subsection{Output}
+
+In order to compare the outputs of the methods, we ran each of them on three well-known test images from the computer vision field (see Figure~\ref{fig:testimages}). In each case, the input image was initially smoothed using anisotropic diffusion filtering \cite{perona90}. The first output partition in each case was produced using our implementation of Meijster and Roerdink's watershed algorithm \cite{meijster98}. The output partitions were compared by producing difference images using ImageMagick \cite{imagemagick}. The results are shown in Figures~\ref{fig:results-lena}--\ref{fig:results-peppers}.
+
+The outputs of the methods are similar, as we would expect, but there are differences due to the ways in which the different methods handle non-minimal plateaux. We observe in particular that the outputs of the Marcotegui and SG methods are closer than those of the CN method and either of the other two methods. However, for the purpose of feature identification, all three methods produce results that are effectively equivalent.
+
+\subsection{Time}
+
+In order to evaluate how well the methods scale with increasing input size, we timed each of them when used to segment increasingly large chunks from a 3D abdominal CT scan\footnotemark{}. The overall scan was of size $512 \times 512 \times 132$, and we tested the methods on chunks of sizes $512 \times 512 \times n$, for various different values of $n$. There was an upper bound of $40$ on $n$ in our experiments due to memory constraints. As before, the image in each case was first smoothed and subjected to the Meijster/Roerdink watershed. The results are shown in Table~\ref{?}.
+
+TODO
+
+\footnotetext{Specifically, this was the `BT' scan we obtained from the Churchill Hospital, Oxford.}
 
 %---
 \begin{stusubfig}{p}
