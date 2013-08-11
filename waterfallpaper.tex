@@ -591,14 +591,6 @@ In order to compare the outputs of the methods, we ran each of them on three wel
 
 The outputs of the methods are similar, as we would expect, but there are differences due to the ways in which the different methods handle non-minimal plateaux. We observe in particular that the outputs of the Marcotegui and SG methods are closer than those of the CN method and either of the other two methods. However, for the purpose of feature identification, all three methods produce results that are effectively equivalent.
 
-\subsection{Time}
-
-In order to evaluate how well the methods scale with increasing input size, we timed each of them when used to segment increasingly large chunks from a 3D abdominal CT scan\footnotemark{}. The overall scan was of size $512 \times 512 \times 132$, and we tested the methods on chunks of sizes $512 \times 512 \times n$, for various different values of $n$. There was an upper bound of $40$ on $n$ in our experiments due to memory constraints. As before, the image in each case was first smoothed and subjected to the Meijster/Roerdink watershed. The results are shown in Table~\ref{?}.
-
-TODO
-
-\footnotetext{Specifically, this was the `BT' scan we obtained from the Churchill Hospital, Oxford.}
-
 %---
 \begin{stusubfig}{p}
 	\subfigure[Lena]{\includegraphics[width=.3\linewidth]{lena.png}}%
@@ -664,6 +656,38 @@ TODO
 \label{fig:results-peppers}
 \end{stusubfig}
 %---
+
+\subsection{Timings}
+
+In order to evaluate how well the methods scale with increasing input size, we timed each of them when used to segment increasingly large sub-images from a 3D abdominal CT scan\footnotemark{}. The overall scan was of size $512 \times 512 \times 132$, and we tested the methods on sub-images of size $512 \times 512 \times n$, for various different values of $n$. There was an upper bound of $n \le 40$ due to memory constraints. The experiment was run on a single 2.4GHz Pentium 4 CPU. Unlike in the previous experiment, in this experiment the input image was not smoothed (since smoothing is time-consuming and affects each method equally). The first output partition was again produced using the Meijster/Roerdink watershed. The results are shown in Figure~\ref{fig:timings}.
+
+TODO
+
+%---
+\stufigex{width=.95\linewidth}{timings.png}{Timing results for the three methods on sub-images of an abdominal CT scan. The experiment was run on a single 2.4GHz Pentium 4 CPU. The overall scan was of size $512 \times 512 \times 132$, and each point on the graph represents how long (in seconds) a specific method took to run on a sub-image of size $512 \times 512 \times n$.}{fig:timings}{!t}
+%---
+
+\iffalse
+%---
+\begin{table}
+\begin{center}
+\begin{tabular}[p]{c||c|c|c}
+& \multicolumn{3}{c}{\textbf{Time} (s)} \\
+\textbf{Slices} ($n$) & \textbf{Marcotegui} & \textbf{CN} & \textbf{SG} \\
+\hline
+ 5 & ? & ? & ? \\
+10 & ? & ? & ? \\
+20 & ? & ? & ? \\
+40 & ? & ? & ?
+\end{tabular}
+\end{center}
+\caption{Timing results for the three methods on sub-images of an abdominal CT scan. The experiment was run on a single 2.4GHz Pentium 4 CPU. The overall scan was of size $512 \times 512 \times 132$, and each line in the table represents how long (in seconds) each of the methods took to run on a sub-image of size $512 \times 512 \times n$.}
+\label{tbl:results-time}
+\end{table}
+%---
+\fi
+
+\footnotetext{Specifically, this was the `BT' scan we obtained from the Churchill Hospital, Oxford.}
 
 %#####################
 \section{Discussion}
