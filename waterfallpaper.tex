@@ -146,24 +146,24 @@ tabsize=4
 
 \title{Two Tree-Based Methods for the Waterfall}
 \author{Stuart Golodetz, Chris Nicholls, Irina Voiculescu and Stephen Cameron}
-\date{Draft of \today}
+\date{}%Draft of \today}
 \maketitle
 
 \begin{abstract}
-\noindent The waterfall transform is a hierarchical segmentation technique based on the watershed transform from the field of mathematical morphology. Watershed-based techniques are useful in numerous fields ranging from image segmentation to cell-and-portal generation for games. The waterfall helps mitigate the problem of over-segmentation that commonly occurs when applying the basic watershed transform. It can also be used as a core part of a method for constructing \emph{image partition forests}, a tree-based, multi-scale representation of an image. The best existing method for the waterfall is fast and effective, but our experience has been that it is not as straightforward to implement as might be desired. Furthermore, it does not deal consistently with the issue of non-minimal plateaux. This paper therefore proposes two new tree-based methods for the waterfall. Both are easier to implement than the existing state-of-the-art approach. The CN method focuses on simplicity and ease of implementation; the SG method focuses on robust handling of non-minimal plateaux. We perform experiments to contrast both methods with each other and with the existing state-of-the-art.
+\noindent The waterfall transform is a hierarchical segmentation technique based on the watershed transform from the field of mathematical morphology. Watershed-based techniques are useful in numerous fields ranging from image segmentation to cell-and-portal generation for games. The waterfall helps mitigate the problem of over-segmentation that commonly occurs when applying the basic watershed transform. It can also be used as a core part of a method for constructing \emph{image partition forests}, a tree-based, multi-scale representation of an image. The best existing method for the waterfall is fast and effective, but our experience has been that it is not as straightforward to implement as might be desired. Furthermore, it does not deal consistently with the issue of non-minimal plateaux. This paper therefore proposes two new tree-based methods for the waterfall. Both are easier to implement than the existing state-of-the-art approach, and in our implementations were both faster by a constant factor. The CN method focuses on simplicity and ease of implementation; the SG method focuses on robust handling of non-minimal plateaux. We perform experiments to contrast both methods with each other and with the existing state-of-the-art, and show that both achieve a noticeable speed-up whilst producing equivalent results.
 \end{abstract}
 
 %#####################
 \section{Introduction}
 %#####################
 
-The waterfall transform is a hierarchical segmentation technique based on the well-known watershed transform \cite{beucher90,gonzalez02}. Given an entity (most commonly, an image), it produces a stack of nested partitions of the entity at different scales (see Figure~\ref{fig:ipfs-ctconcept}). It was originally introduced by Beucher \cite{beucher94} as a way of improving upon the often over-segmented output of the watershed (see \S\ref{sec:background}). Watershed-based techniques see use in numerous fields, including image segmentation \cite{beucher91,grau04,gvccimi08,klava09}, 3D mesh segmentation \cite{chen06,mangan99,moumoun10,page03}, automatic navigation mesh generation \cite{mononen09}, cell-and-portal generation \cite{haumont03} and roadmap generation \cite{hamlin08}. It is also possible (e.g.~see \cite{golodetz11}) to make use of the watershed and waterfall transforms to construct \emph{image partition forests} (IPFs), a tree-based representation of an image created by treating each partition as an adjacency graph (with image regions as nodes) and adding parent/child links between nodes in consecutive partitions. This representation is useful for feature identification in that it provides a helpful space in which to search for image features of different sizes.
-
-%---
-\stufigex{height=18.5cm}{ipfs-ctconcept.png}{A stack of nested partitions produced by the watershed and waterfall for an example image. The input image (a slice from a CT scan of the abdomen) is the lowest image in the stack. It was smoothed using anisotropic diffusion filtering \cite{perona90} before performing the watershed.}{fig:ipfs-ctconcept}{p}
-%---
+The waterfall transform is a hierarchical segmentation technique based on the well-known watershed transform \cite{beucher90,gonzalez02}. Given an entity (most commonly, an image), it produces a stack of nested partitions of the entity at different scales (see Figure~\ref{fig:ipfs-ctconcept}). It was originally introduced by Beucher \cite{beucher94} as a way of improving upon the often over-segmented output of the watershed (see \S\ref{sec:background}). Watershed-based techniques see use in numerous fields, including image segmentation \cite{beucher91,grau04,gvccimi08,klava09}, 3D mesh segmentation \cite{chen06,mangan99,moumoun10}, automatic navigation mesh generation \cite{mononen09}, cell-and-portal generation \cite{haumont03} and roadmap generation \cite{hamlin08}. It is also possible (e.g.~see \cite{golodetz11}) to make use of the watershed and waterfall transforms to construct \emph{image partition forests} (IPFs), a tree-based representation of an image created by treating each partition as an adjacency graph (with image regions as nodes) and adding parent/child links between nodes in consecutive partitions. This representation is useful for feature identification in that it provides a helpful space in which to search for image features of different sizes.
 
 There are various existing ways of implementing the waterfall. The initial paper by Beucher \cite{beucher94} presented three methods: a slightly intricate graph-based method that works on the gradient of the mosaic image, a method based on checking for symmetric waterfalls, and a more efficient reconstruction method that works by filling in catchment basins. A fast waterfall method was presented by Marcotegui in \cite{marcotegui05}: this returns to the idea of a graph-based waterfall (using a different graph) and works on a minimum spanning tree (MST) of the graph for improved efficiency. Marcotegui's waterfall method is fast and effective, but it is somewhat fiddly to implement \cite{golodetz08} and its handling of non-minimal plateaux in the MST is not well-specified and depends on precisely how the method is implemented.
+
+%---
+\stufigex{height=10cm}{ipfs-ctconcept.png}{A stack of nested partitions produced by the watershed and waterfall for an example image. The input image (a slice from a CT scan of the abdomen) is the lowest image in the stack. It was subjected to a gradient magnitude filter and smoothed using anisotropic diffusion filtering \cite{perona90} before performing the watershed.}{fig:ipfs-ctconcept}{!t}
+%---
 
 \textbf{This paper therefore presents two new tree-based methods for the waterfall}. The CN method\footnote{Due to C Nicholls.} is especially simple to implement and performs well, even though it does not deal consistently with non-minimal plateaux. The SG method\footnote{Due to S Golodetz.} is somewhat less simple to implement (although still easier to implement than Marcotegui's method) but deals consistently with non-minimal plateaux. We perform experiments on well-known test images (Lena, Baboon and Peppers) to contrast the results of these methods with Marcotegui's approach, and time them to compare their performance.
 
@@ -176,80 +176,103 @@ There are various existing ways of implementing the waterfall. The initial paper
 
 \subsection{The Watershed Transform}
 
-At a very abstract level, the watershed\footnotemark{} transform involves dividing a landscape into its catchment basins, where a catchment basin is an area of the landscape from which water runs down to the same point (namely one of the landscape's local minima). A watershed is a boundary between adjacent catchment basins. In each domain in which the watershed transform is used, a conceptual mapping needs to be made to allow the entity being segmented to be viewed as a landscape: for example, 2D greyscale images can be viewed as a height map (see Figure~\ref{fig:segmentation-watershed-landscapeanalogy}), where the grey value of the image at coordinates $(x,y)$ gives the height of the `landscape' at that point. Methods that implement the watershed transform fall into two categories:
-
-\footnotetext{The name `watershed' means `water divider', since shedding is an old term for splitting, or dividing.}
-
-%---
-\stufigex{height=6cm}{segmentation-watershed-landscapeanalogy.png}{The landscape analogy -- viewing a 2D image as a height map}{fig:segmentation-watershed-landscapeanalogy}{!t}
-%---
+At a very abstract level, the watershed transform involves dividing a landscape into its catchment basins, where a catchment basin is an area of the landscape from which water runs down to the same point (namely one of the landscape's local minima). A watershed is a boundary between adjacent catchment basins. In each domain in which the watershed transform is used, a conceptual mapping needs to be made to allow the entity being segmented to be viewed as a landscape: for example, 2D greyscale images can be viewed as a height map, where the grey value of the image at coordinates $(x,y)$ gives the height of the `landscape' at that point. In order to produce meaningful segmentations, the watershed is often performed on the gradient magnitude of an input image, on the basis that in many domains, features of interest can be expected to have similar grey values throughout their extent. Methods that implement the watershed transform fall into two categories:
 
 \begin{enumerate}
 
-\item Rainfalling methods \cite{meijster98,osma-ruiz06,stoev00} view the problem as one of determining, for each point in the landscape, the local minimum to which water placed at that point would run down (see Figure~\ref{fig:segmentation-watershed-rainfallingconcept}). In practical terms, this generally involves finding a path of steepest descent from each point in the landscape and following it until a local minimum is found. Most of the difficulty involved in this approach is associated with how to handle non-minimal plateaux in the landscape (flat areas that are not the base of a catchment basin).
+\item Rainfalling methods \cite{meijster98,osma-ruiz06,stoev00} work by finding a path of steepest descent from each point in the landscape and following it until a local minimum is found (see Figure~\ref{fig:segmentation-watershed-rainfallingconcept}). Most of the difficulty involved in this approach is associated with how to handle non-minimal plateaux in the landscape (flat areas that are not the base of a catchment basin).
 
-\item Flooding (also known as immersion) methods \cite{bieniek00,rambabu07} instead see the problem the other way round: they aim to determine the catchment basin for each local minimum in the landscape by simulating a process of flooding from all the local minima simultaneously and conceptually adding watersheds where the pools of water from adjacent catchment basins meet. The flooding process can be visualised as taking the landscape surface, poking holes through its local minima and lowering it perpendicularly into a body of water. As the water rises, the catchment basins associated with the local minima grow (see Figure~\ref{fig:segmentation-watershed-floodingconcept}(a)). Eventually these catchment basins will meet (see Figure~\ref{fig:segmentation-watershed-floodingconcept}(b)) and a watershed will be constructed to keep them apart (see Figure~\ref{fig:segmentation-watershed-floodingconcept}(c)). This process continues until the water has reached the top of the landscape (i.e.~the height of the highest peak in the landscape). The watersheds generated during the process divide the landscape into its catchment basins (see Figure~\ref{fig:segmentation-watershed-floodingconcept}(d)).
+\item Flooding (or immersion) methods \cite{bieniek00,rambabu07} simulate a process of flooding from all the local minima simultaneously and conceptually add watersheds where the pools of water from adjacent catchment basins meet. The flooding process can be visualised as taking the landscape surface, poking holes through its local minima and lowering it perpendicularly into a body of water (see Figure~\ref{fig:segmentation-watershed-floodingconcept}).
 
 \end{enumerate}
 
 %---
 \begin{stusubfig}{p}
-	\subfigure[Finding a path of steepest descent from each point]
-	{\includegraphics[height=5cm]{segmentation-watershed-rainfallingconcept-a.png}}%
+	\subfigure[]
+	{\includegraphics[height=3.5cm]{segmentation-watershed-rainfallingconcept-a.png}}%
 	%
 	\hspace{4mm}%
 	%
-	\subfigure[The division of the landscape into catchment basins]
-	{\includegraphics[height=5cm]{segmentation-watershed-rainfallingconcept-b.png}}%
-\caption{The rainfalling concept of the watershed transform}
+	\subfigure[]
+	{\includegraphics[height=3.5cm]{segmentation-watershed-rainfallingconcept-b.png}}%
+\caption{The rainfalling concept of the watershed transform: (a) finding a path of steepest descent from each point; (b) the division of the landscape into catchment basins.}
 \label{fig:segmentation-watershed-rainfallingconcept}
 \end{stusubfig}
 %---
 
 %---
 \begin{stusubfig}{p}
-	\subfigure[Beginning the flooding]
-	{\includegraphics[height=5cm]{segmentation-watershed-floodingconcept-a.png}}%
+	\subfigure[]
+	{\includegraphics[width=.22\linewidth]{segmentation-watershed-floodingconcept-a.png}}%
 	%
 	\hspace{4mm}%
 	%
-	\subfigure[Two catchment basins meet]
-	{\includegraphics[height=5cm]{segmentation-watershed-floodingconcept-b.png}}%
+	\subfigure[]
+	{\includegraphics[width=.22\linewidth]{segmentation-watershed-floodingconcept-b.png}}%
 	%
 	\hspace{4mm}%
 	%
-	\subfigure[Building a watershed at the join point]
-	{\includegraphics[height=5cm]{segmentation-watershed-floodingconcept-c.png}}%
+	\subfigure[]
+	{\includegraphics[width=.22\linewidth]{segmentation-watershed-floodingconcept-c.png}}%
 	%
 	\hspace{4mm}%
 	%
-	\subfigure[The division of the landscape into catchment basins]
-	{\includegraphics[height=5cm]{segmentation-watershed-floodingconcept-d.png}}%
-\caption{The flooding concept of the watershed transform}
+	\subfigure[]
+	{\includegraphics[width=.22\linewidth]{segmentation-watershed-floodingconcept-d.png}}%
+\caption{The flooding concept of the watershed transform: (a) beginning the flooding; (b) two catchment basins meet; (c) building a watershed at the join point; (d) the division of the landscape into catchment basins.}
 \label{fig:segmentation-watershed-floodingconcept}
 \end{stusubfig}
 %---
 
-\noindent Image-based watershed methods produce a partition of their input into regions (see Figure~\ref{fig:segmentation-watershed-adfexample}). This can then be used for further processing.
-
 %---
-\begin{stusubfig}{t}
+\begin{stusubfig}{p}
 	\subfigure[The input image]
 	{\includegraphics[height=5cm]{segmentation-watershed-adfexample-unsmoothed.png}}%
 	%
 	\hspace{4mm}%
 	%
-	\subfigure[The watershed of the image]
+	\subfigure[The watershed of the (gradient magnitude of the) image]
 	{\includegraphics[height=5cm]{segmentation-watershed-adfexample-unsmoothedws.png}}%
 \caption{The effects of the watershed transform. Note that the output is heavily over-segmented because the input is not smooth.}
 \label{fig:segmentation-watershed-adfexample}
 \end{stusubfig}
 %---
 
+\noindent Image-based watershed methods produce a partition of their input into regions (see Figure~\ref{fig:segmentation-watershed-adfexample}). This can then be used for further processing.
+
 \subsection{The Waterfall Transform}
 
-In contexts where its input is not smooth (which amounts to the vast majority of real-world contexts), the watershed has an well-known and unfortunate tendency to produce an over-segmented output (again, see Figure~\ref{fig:segmentation-watershed-adfexample}). This is due to the presence of large numbers of spurious local minima in the input -- in conceptual terms, we are effectively segmenting a pock-marked landscape. The problem can be mitigated in various ways:
-%
+In contexts where its input is not smooth, the watershed has an well-known and unfortunate tendency to produce an over-segmented output (again, see Figure~\ref{fig:segmentation-watershed-adfexample}). This is due to the presence of large numbers of spurious local minima in the input -- in conceptual terms, we are effectively segmenting a pock-marked landscape. The problem can be mitigated in various ways:
+
+%---
+\begin{stusubfig}{t}
+	\subfigure[]
+	{\includegraphics[height=2cm]{segmentation-waterfall-passconcept-a.png}}%
+	%
+	\hspace{4mm}%
+	%
+	\subfigure[]
+	{\includegraphics[height=2cm]{segmentation-waterfall-passconcept-b.png}}%
+	%
+	\hspace{4mm}%
+	%
+	\subfigure[]
+	{\includegraphics[height=2cm]{segmentation-waterfall-passconcept-c.png}}%
+	%
+	\hspace{4mm}%
+	%
+	\subfigure[]
+	{\includegraphics[height=2cm]{segmentation-waterfall-passconcept-d.png}}%
+	%
+	\hspace{4mm}%
+	%
+	\subfigure[]
+	{\includegraphics[height=2cm]{segmentation-waterfall-passconcept-e.png}}%
+\caption{A conceptual view of the waterfall transform: (a) the initial partition output by the watershed; (b) after transforming it into a stepped landscape; (c) after performing a watershed transform on the stepped landscape; (d) after the second step transformation; (e) after performing another watershed transform.}
+\label{fig:segmentation-waterfall-passconcept}
+\end{stusubfig}
+%---
+
 \begin{itemize}
 
 \item The input can be smoothed (e.g.~using anisotropic diffusion filtering \cite{perona90}) before performing the watershed. This has the effect of removing some of the spurious local minima, but is usually not enough to actually solve the problem on its own. In practice, it often makes sense to smooth the image as a pre-processing step when applying hierarchical segmentation approaches -- note that this was done when producing Figure~\ref{fig:ipfs-ctconcept}, which is why the lowest partition of the image appears less over-segmented there than in Figure~\ref{fig:segmentation-watershed-adfexample}.
@@ -262,35 +285,6 @@ In contexts where its input is not smooth (which amounts to the vast majority of
 %
 The waterfall transform is a multi-pass, hierarchical segmentation method that takes the third approach. As shown in Figure~\ref{fig:ipfs-ctconcept}, it generates a sequence of partitions of a landscape, each coarser (i.e.~containing fewer regions) than the one preceding it. Conceptually, each pass of the waterfall takes its input partition (Figure~\ref{fig:segmentation-waterfall-passconcept}(a)) and transforms it into a `stepped' landscape, where there is a step corresponding to each watershed boundary, with the height of the lowest pass point along that boundary (Figure~\ref{fig:segmentation-waterfall-passconcept}(b)). It then performs a watershed transform on this stepped landscape and outputs a coarser partition of the landscape as its result (Figure~\ref{fig:segmentation-waterfall-passconcept}(c)). This process can be repeated as long as the most recent partition has more than one catchment basin (Figures~\ref{fig:segmentation-waterfall-passconcept}(d) and (e)).
 
-%---
-\begin{stusubfig}{p}
-	\subfigure[The initial partition output by the watershed]
-	{\includegraphics[height=3cm]{segmentation-waterfall-passconcept-a.png}}%
-	%
-	\hspace{4mm}%
-	%
-	\subfigure[After transforming it into a stepped landscape]
-	{\includegraphics[height=3cm]{segmentation-waterfall-passconcept-b.png}}%
-	%
-	\hspace{4mm}%
-	%
-	\subfigure[After performing a watershed transform on the stepped landscape]
-	{\includegraphics[height=3cm]{segmentation-waterfall-passconcept-c.png}}%
-	%
-	\hspace{4mm}%
-	%
-	\subfigure[After the second step transformation]
-	{\includegraphics[height=3cm]{segmentation-waterfall-passconcept-d.png}}%
-	%
-	\hspace{4mm}%
-	%
-	\subfigure[After performing another watershed transform]
-	{\includegraphics[height=3cm]{segmentation-waterfall-passconcept-e.png}}%
-\caption{A conceptual view of the waterfall transform}
-\label{fig:segmentation-waterfall-passconcept}
-\end{stusubfig}
-%---
-
 \subsection{Marcotegui's Method}
 
 Whilst it is possible to perform the waterfall using the conceptual approach just described, repeatedly transforming the landscape can potentially be costly -- e.g.~image-based methods for the waterfall have to process all of the pixels in each region rather than just processing the region itself. This militates for alternative approaches to the waterfall based on graphs -- these can be more efficient because an entire region can be represented by a single node.
@@ -299,17 +293,7 @@ Marcotegui's method \cite{marcotegui05} is a fast and effective example of such 
 
 \footnotetext{The justification for why an MST is sufficient can be found in \cite{marcotegui05}.}
 
-At the start of Marcotegui's method, the first input partition (produced from the input using the watershed transform) is converted into its RAG representation in a straightforward manner and an MST is built from the RAG (see \S{}A.2 of \cite{golodetz11} for implementation details). This MST is then subjected to a sequence of waterfall passes. Each waterfall pass performs a flooding-based watershed on the MST to decide which regions should be merged and elides appropriate edges in the MST to effect this (eliding an edge means combining the nodes at either end of the edge and removing the edge itself from the MST). In detail, this involves the following steps:
-%
-\begin{enumerate}
-
-\item \emph{Determination of the local minima of the MST.} A local minimum of a weighted graph $G$ is a connected subgraph of $G$ whose edges have equal weight and whose adjacent edges in $G$ have strictly higher weights. Figure~\ref{fig:segmentation-waterfall-marcotegui-localminima}(a) shows an example graph and its local minima. Algorithmically, we iterate over the edges in the MST and flood out from each one to determine (a) whether it's part of a local minimum and (b) the extent of the minimum if so.
-
-\item \emph{Elision of the local minima.} This is equivalent to merging minimal plateaux in a landscape into single points to which water runs down. See Figure~\ref{fig:segmentation-waterfall-marcotegui-localminima}(b). For clarity, we represent elision in the figures by assigning the nodes at the ends of an elided edge the same colour rather than removing the edge itself.
-
-\item \emph{Propagation.} We flood out from the nodes that now represent the local minima (`marker nodes') along the edges, in non-decreasing order of edge weight, starting from the edges directly adjacent to the marker nodes. Each edge will either join a marker to a marker, in which case it should be ignored (since eliding it would merge two catchment basins), or it will join a marker to a non-marker, in which case it should be elided. See Figure~\ref{fig:segmentation-waterfall-marcotegui-propagation}.
-
-\end{enumerate}
+At the start of Marcotegui's method, the first input partition (produced from the gradient magnitude of the input using the watershed transform) is converted into its RAG representation and an MST is built from the RAG (see \S{}A.2 of \cite{golodetz11} for implementation details). This MST is then subjected to a sequence of waterfall passes. Each waterfall pass performs a flooding-based watershed on the MST to decide which regions should be merged and elides appropriate edges in the MST to effect this (eliding an edge means combining the nodes at either end of the edge and removing the edge itself from the MST). In detail, this involves the following steps:
 
 %---
 \begin{stusubfig}{p}
@@ -359,7 +343,17 @@ At the start of Marcotegui's method, the first input partition (produced from th
 \end{stusubfig}
 %---
 
-\noindent It is important to note that the order in which edges should be processed during the propagation step is not in general well-defined (note that multiple edges can have the same weight and thus be candidates for elision simultaneously). A straightforward implementation of the propagation step would use a priority queue and pop a lowest adjacent edge for consideration each time: thus the next edge to be considered ends up depending fundamentally on the way the priority queue is implemented. The consequence of this is that non-minimal plateaux in the MST are handled in a rather arbitrary way. This is not necessarily a problem in practice -- there tend to be only a small number of non-minimal plateaux in most MSTs, so it doesn't seriously affect the end result -- but it still seems undesirable to have the segmentation output depend so closely on the implementation of an internal data structure which may in principle be subject to change. This issue is dealt with robustly in \S\ref{sec:golodetz}.
+\begin{enumerate}
+
+\item \emph{Determination of the local minima of the MST.} A local minimum of a weighted graph $G$ is a connected subgraph of $G$ whose edges have equal weight and whose adjacent edges in $G$ have strictly higher weights. Figure~\ref{fig:segmentation-waterfall-marcotegui-localminima}(a) shows an example graph and its local minima. Algorithmically, we iterate over the edges in the MST and flood out from each one to determine (i) whether it's part of a local minimum and (ii) the extent of the minimum if so.
+
+\item \emph{Elision of the local minima.} This is equivalent to merging minimal plateaux in a landscape into single points to which water runs down. See Figure~\ref{fig:segmentation-waterfall-marcotegui-localminima}(b). For clarity, we represent elision in the figures by assigning the nodes at the ends of an elided edge the same colour rather than removing the edge itself.
+
+\item \emph{Propagation.} We flood out from the nodes that now represent the local minima (`marker nodes') along the edges, in non-decreasing order of edge weight, starting from the edges directly adjacent to the marker nodes. Each edge will either join a marker to a marker, in which case it should be ignored (since eliding it would merge two catchment basins), or it will join a marker to a non-marker, in which case it should be elided. See Figure~\ref{fig:segmentation-waterfall-marcotegui-propagation}.
+
+\end{enumerate}
+
+\noindent It is important to note that the order in which edges should be processed during the propagation step is not well-defined (note that multiple edges can have the same weight and thus be candidates for elision simultaneously). A straightforward implementation of the propagation step would use a priority queue and pop a lowest adjacent edge for consideration each time: thus the next edge to be considered ends up depending fundamentally on the way the priority queue is implemented. The consequence of this is that non-minimal plateaux in the MST are handled in a rather arbitrary way. This is not necessarily a problem in practice -- there tend to be only a small number of non-minimal plateaux in most MSTs, so it doesn't seriously affect the end result -- but it still seems undesirable to have the segmentation output depend so closely on the implementation of an internal data structure which may in principle be subject to change. This issue is dealt with in \S\ref{sec:golodetz}.
 
 %############################
 \section{CN Method}
@@ -381,28 +375,6 @@ Despite the speed and effectiveness of Marcotegui's method, it can be somewhat i
 \label{fig:segmentation-waterfall-nicholls-root}
 \end{stusubfig}
 %---
-
-The CN method initially roots the MST (see Figure~\ref{fig:segmentation-waterfall-nicholls-root}), adding a dummy `root edge' with a value strictly greater than the values of the edges descending from the root node (we will henceforth -- without ambiguity -- call edges descending from a node \emph{children} of the edge ascending from that node). The value chosen is unimportant, but $\infty$ or $1$ greater than the maximum value on a child edge are sensible choices. Each pass of the method is invoked on the root edge, and proceeds recursively as follows:
-%
-\begin{enumerate}
-
-\item If the current edge is a leaf edge (i.e.~it has no child edges) then it is marked as a non-guard edge.
-
-\item Otherwise:
-
-\begin{enumerate}
-
-\item We recurse on all the child edges.
-
-\item A child edge with minimum value is chosen (if one or more of the children with minimum value is a guard edge, one of those is chosen in preference to a non-guard). This is then referred to as the `lowest child'. The value on the current edge is compared to the value on the lowest child. If its value is less than that of the lowest child, it is marked as a non-guard edge; otherwise it is marked as a guard and the lowest child is marked as a non-guard.
-
-\item All non-guard children are then elided.
-
-\end{enumerate}
-
-\end{enumerate}
-
-\noindent The workings of the method can be illuminated by a case analysis. There are two cases to consider: either the current edge (the parent edge) \emph{isn't} strictly the lowest leading out of a node, in which case at least part of the implied flow from the node is along the lowest child (see Figure~\ref{fig:segmentation-waterfall-nicholls-cases}(a)), or it is, in which case the implied flow from the node is entirely along the parent (see Figure~\ref{fig:segmentation-waterfall-nicholls-cases}(b)). In the first case, the method arbitrarily assumes that all the implied flow is along the lowest child. In both cases, the various child edges are then elided (or not) accordingly. Figure~\ref{fig:segmentation-waterfall-nicholls-example} illustrates how the method works on the same graph used to illustrate Marcotegui's method above.
 
 %---
 \begin{stusubfig}{p}
@@ -440,41 +412,96 @@ The CN method initially roots the MST (see Figure~\ref{fig:segmentation-waterfal
 \end{stusubfig}
 %---
 
-The assumption that all the implied flow is along the lowest child in the first case is this method's way of dealing with non-minimal plateaux in the MST. As with the Marcotegui method's dependence on the particular priority queue implementation used, this is a somewhat arbitrary way of handling non-minimal plateaux: in particular, the selected direction of implied flow from a particular node depends on both where the MST is rooted, and the specific method used to choose the lowest child. The method also ignores the possibility that part of the implied flow is along the parent. All of this affects which specific edges are elided. As with Marcotegui's method, this tends not to significantly degrade the end result, but it is still in principle desirable to devise a method that does not depend on such implementation details. In the following section, we therefore present an alternative tree-based method that handles non-minimal plateaux in the MST in a more robust manner.
+The CN method initially roots the MST (see Figure~\ref{fig:segmentation-waterfall-nicholls-root}), adding a dummy `root edge' with a value strictly greater than the values of the edges descending from the root node (we will henceforth -- without ambiguity -- call edges descending from a node \emph{children} of the edge ascending from that node). The value chosen is unimportant, but $\infty$ or $1$ greater than the maximum value on a child edge are sensible choices. Each pass of the method is invoked on the root edge, and proceeds recursively as follows:
+%
+\begin{enumerate}
+
+\item If the current edge is a leaf edge (i.e.~it has no child edges) then it is marked as a non-guard edge.
+
+\item Otherwise:
+
+\begin{enumerate}
+
+\item We recurse on all the child edges.
+
+\item A child edge with minimum value is chosen (if one or more of the children with minimum value is a guard edge, one of those is chosen in preference to a non-guard). This is then referred to as the `lowest child'. The value on the current edge is compared to the value on the lowest child. If its value is less than that of the lowest child, it is marked as a non-guard edge; otherwise it is marked as a guard and the lowest child is marked as a non-guard.
+
+\item All non-guard children are then elided.
+
+\end{enumerate}
+
+\end{enumerate}
+
+\noindent The workings of the method can be illuminated by a case analysis. There are two cases to consider: either the current edge (the parent edge) \emph{isn't} strictly the lowest leading out of a node, in which case at least part of the implied flow from the node is along the lowest child (see Figure~\ref{fig:segmentation-waterfall-nicholls-cases}(a)), or it is, in which case the implied flow from the node is entirely along the parent (see Figure~\ref{fig:segmentation-waterfall-nicholls-cases}(b)). In the first case, the method arbitrarily assumes that all the implied flow is along the lowest child. In both cases, the various child edges are then elided (or not) accordingly. Figure~\ref{fig:segmentation-waterfall-nicholls-example} illustrates how the method works on the same graph used to illustrate Marcotegui's method above.
+
+The assumption that all the implied flow is along the lowest child in the first case is this method's way of dealing with non-minimal plateaux in the MST. As with the Marcotegui method's dependence on a priority queue implementation, this is a somewhat arbitrary way of handling non-minimal plateaux: in particular, the selected direction of implied flow from a particular node depends on both where the MST is rooted, and the specific method used to choose the lowest child. The method also ignores the possibility that part of the implied flow is along the parent. All of this affects which specific edges are elided. As with Marcotegui's method, this tends not to significantly degrade the end result, but it is still in principle desirable to devise a method that does not depend on such implementation details. In the following section, we therefore present an alternative tree-based method that handles non-minimal plateaux in the MST more robustly.
 
 %#############################
 \section{SG Method}
 \label{sec:golodetz}
 %#############################
 
-In order to robustly account for non-minimal plateaux in the MST, we adopt an idea from Meijster and Roedink's image watershed algorithm \cite{meijster98}: if we transform the landscape to make it `lower-complete' (that is, we transform it into a landscape in which there is a unique path of steepest descent from each point), then the direction of flow is clear at every point and there is no ambiguity about how to assign non-minimal plateau points to catchment basins. The method for making the image lower-complete described in \cite{meijster98} has the effect of treating pixels that are further from the border of a plateau as being in some sense `higher' than those on the boundary. The same sort of idea can be applied in the context of a waterfall pass (although it is not necessary to actually transform the MST to make it lower-complete): where there are non-minimal plateaux in the MST, we can arrange to treat the nodes further from the border of the plateaux as being `higher' than their boundary counterparts. As we will see, this enables a robust decision to be made about which edges to elide.
+In order to account for non-minimal plateaux in the MST, we adopt an idea from Meijster and Roedink's image watershed algorithm \cite{meijster98}: if we transform the landscape to make it `lower-complete' (that is, we transform it into a landscape in which there is a unique path of steepest descent from each point), then the direction of flow is clear at every point and there is no ambiguity about how to assign non-minimal plateau points to catchment basins. The method for making the image lower-complete described in \cite{meijster98} has the effect of treating pixels that are further from the border of a plateau as being in some sense `higher' than those on the boundary. The same sort of idea can be applied in the context of a waterfall pass (although it is not necessary to actually transform the MST to make it lower-complete): where there are non-minimal plateaux in the MST, we can arrange to treat the nodes further from the border of the plateaux as being `higher' than their boundary counterparts. As we will see, this enables a robust decision to be made about which edges to elide.
 
-The SG method is a tree-based, rainfalling approach and works in three recursive passes. The first pass works up the tree from the leaf nodes, marking initial path(s) of steepest descent from each node whilst allowing for the fact that they may need to be refined later. The second pass works down the tree from the root, updating the path(s) for each node to take account of routes via parent edges and marking edges for later elision as necessary. The final pass works up the tree again to actually elide the marked edges. (This cannot be done on a down pass for technical reasons.) The MST can be rooted anywhere in order to form the input tree -- the results are the same for any choice of root. In detail, the method works as follows:
-%
-\begin{enumerate}
+The SG method is a tree-based, rainfalling approach and works in three recursive passes. The first pass works up the tree from the leaf nodes, marking initial path(s) of steepest descent from each node whilst allowing for the fact that they may need to be refined later. The second pass works down the tree from the root, updating the path(s) for each node to take account of routes via parent edges and marking edges for later elision as necessary. The final pass works up the tree again to actually elide the marked edges (this cannot be done on a down pass for technical reasons). The MST can be rooted anywhere in order to form the input tree -- the results are the same for any choice of root. In detail, the method works as follows:
 
-\item \emph{Up Pass.} For each node, starting from the root:
+%---
+\begin{stusubfig}{!t}
+	\subfigure[]
+	{\includegraphics[width=.35\linewidth]{segmentation-waterfall-smg-pass1cases-a.png}}%
+	%
+	\hspace{4mm}%
+	%
+	\subfigure[]
+	{\includegraphics[width=.35\linewidth]{segmentation-waterfall-smg-pass1cases-b.png}}%
+	%
+	\hspace{4mm}%
+	%
+	\subfigure[]
+	{\includegraphics[width=.35\linewidth]{segmentation-waterfall-smg-pass1cases-c.png}}%
+	%
+	\hspace{4mm}%
+	%
+	\subfigure[]
+	{\includegraphics[width=.35\linewidth]{segmentation-waterfall-smg-pass1cases-d.png}}%
+	%
+	\hspace{4mm}%
+	%
+	\subfigure[]
+	{\includegraphics[width=.35\linewidth]{segmentation-waterfall-smg-pass1cases-e.png}}%
+	%
+	\hspace{4mm}%
+	%
+	\subfigure[]
+	{\includegraphics[width=.35\linewidth]{segmentation-waterfall-smg-pass1cases-f.png}}%
+\caption{Case analysis for the first pass of the SG method: (a) the node has a unique path of steepest descent down a child edge; (b) the node has a unique path of steepest descent up the parent edge; (c) the node has more than one path of steepest descent (and the parent edge is not one of them); (d) the node has more than one \emph{downwards} path of steepest descent (but the parent edge still needs to be considered); (e) there is no flow out of the node; (f) there is no downwards flow out of the node (but the parent edge still needs to be considered).}
+\label{fig:segmentation-waterfall-smg-pass1cases}
+\end{stusubfig}
+%---
 
-\begin{enumerate}
-\item Recursively process any children (the fact that the children are processed first is why this is called an `up' pass).
-\item If this node has a unique edge of steepest descent (i.e.~a unique lowest-valued edge leading out of it, which can be the parent edge), add an arrow on the node pointing along the edge.
-\item Otherwise, consider all the lowest-valued child edges (i.e.~ignore the parent for now, even if it is also a lowest-valued edge) that satisfy the condition that there is no arrow on the node at the other end of the edge pointing along the edge towards this node. If there are no such child edges, then this node is unescapable along a child edge and should be given a distance value of $\infty$. Otherwise, each of these child edges can be assigned a distance value equal to $1$ greater than the value on the node at the other end of the edge: this value on the node will be $0$ for nodes from which there is a unique path of steepest descent, and non-zero otherwise. Pick all the child edges whose distance value is minimal and add arrows from this node pointing along them (these indicate the initial paths of steepest descent from this node). Store the minimum distance value as this node's value.
-\item Now consider the parent edge: if it was a lowest-valued edge, mark it as a potential path of steepest descent to avoid the need to check again in the second pass (in Figures~\ref{fig:segmentation-waterfall-smg-pass1cases}--\ref{fig:segmentation-waterfall-smg-example}, an open-headed arrow is used to mark a parent edge for later processing).
-\end{enumerate}
-
-\item \emph{Down Pass.} For each node, starting from the root:
-
-\begin{enumerate}
-\item \emph{Check upwards route.} If a node was marked as having a potential upwards path of steepest descent, first check to make sure that there is no arrow on the parent node pointing down the edge to this node. If not, there is a possible route upwards whose distance value is $1$ greater than the value on the parent node. This is compared to any existing routes downwards via child edges. If the upwards route is strictly better, the downwards arrows are removed, the upwards route is marked and the distance value on the node is updated to reflect the better route. If the upwards route is equally good, the parent edge is marked but no other changes are made. If the upwards route is worse, it is simply ignored.
-\item \emph{Check whether the parent edge (if any) should be elided.} The decision on whether or not to elide an edge is based on a classification of its two end nodes with respect to the edge itself (this is why it can only be done at this point in the method). Nodes can be classified into one of five types with respect to the edge: unambiguous in (the flow from the node goes only along this edge), ambiguous in (part, but not all, of the flow from the node goes along this edge), unambiguous out (the flow from the node goes along precisely one of the other edges leading out of it), ambiguous out (the flow from the node goes along at least two of the other edges leading out of it) and no flow (there is no flow from the node at all). Based on these classifications, the parent edge is either marked for elision or not according to the case analysis shown in Figure~\ref{fig:segmentation-waterfall-smg-mergecases}. Note that there are only $13$ cases possible, rather than the expected $15$: \{ambiguous in, ambiguous in\} and \{ambiguous in, unambiguous in\} can never occur due to the way the method works.
-\item \emph{Recurse on any children}.
-\end{enumerate}
-
-\item \emph{Up Pass.} Walk back up the tree to elide the marked edges.
-
-\end{enumerate}
-
-\noindent It is possible to perform a case analysis for the first pass and the route resolution step 2(a) as well (see Figures~\ref{fig:segmentation-waterfall-smg-pass1cases} and \ref{fig:segmentation-waterfall-smg-resolutioncases}), and this is helpful to clarify the workings of the method. Figure~\ref{fig:segmentation-waterfall-smg-example} illustrates how the method works on the now familiar graph used to demonstrate the workings of the previous two waterfall approaches.
+%---
+\begin{stusubfig}{!t}
+	\subfigure[The arrow from the parent node points towards us]
+	{\includegraphics[height=4cm]{segmentation-waterfall-smg-resolutioncases-a.png}}%
+	%
+	\hspace{4mm}%
+	%
+	\subfigure[There is no flow from the parent node]
+	{\includegraphics[height=4cm]{segmentation-waterfall-smg-resolutioncases-b.png}}%
+	%
+	\hspace{4mm}%
+	%
+	\subfigure[There is an equally good route via the parent node]
+	{\includegraphics[height=4cm]{segmentation-waterfall-smg-resolutioncases-c.png}}%
+	%
+	\hspace{4mm}%
+	%
+	\subfigure[There is a better route via the parent node]
+	{\includegraphics[height=4cm]{segmentation-waterfall-smg-resolutioncases-d.png}}%
+\caption[Case analysis for the resolution step of the SG method]{Case analysis for the resolution step of the SG method (the circled node is the one currently under consideration in each case)}
+\label{fig:segmentation-waterfall-smg-resolutioncases}
+\end{stusubfig}
+%---
 
 %---
 \begin{stusubfig}{p}
@@ -509,65 +536,7 @@ The SG method is a tree-based, rainfalling approach and works in three recursive
 %---
 
 %---
-\begin{stusubfig}{p}
-	\subfigure[The node has a unique path of steepest descent down a child edge]
-	{\includegraphics[width=.4\linewidth]{segmentation-waterfall-smg-pass1cases-a.png}}%
-	%
-	\hspace{4mm}%
-	%
-	\subfigure[The node has a unique path of steepest descent up the parent edge]
-	{\includegraphics[width=.4\linewidth]{segmentation-waterfall-smg-pass1cases-b.png}}%
-	%
-	\hspace{4mm}%
-	%
-	\subfigure[The node has more than one path of steepest descent (and the parent edge is not a possible path of steepest descent)]
-	{\hspace{8mm}\includegraphics[width=.4\linewidth]{segmentation-waterfall-smg-pass1cases-c.png}\hspace{8mm}}%
-	%
-	\hspace{4mm}%
-	%
-	\subfigure[The node has more than one \emph{downwards} path of steepest descent (but the parent edge still needs to be considered)]
-	{\hspace{8mm}\includegraphics[width=.4\linewidth]{segmentation-waterfall-smg-pass1cases-d.png}\hspace{8mm}}%
-	%
-	\hspace{4mm}%
-	%
-	\subfigure[There is no flow out of the node]
-	{\includegraphics[width=.4\linewidth]{segmentation-waterfall-smg-pass1cases-e.png}}%
-	%
-	\hspace{4mm}%
-	%
-	\subfigure[There is no downwards flow out of the node (but the parent edge still needs to be considered)]
-	{\hspace{8mm}\includegraphics[width=.4\linewidth]{segmentation-waterfall-smg-pass1cases-f.png}\hspace{8mm}}%
-\caption{Case analysis for the first pass of the SG method}
-\label{fig:segmentation-waterfall-smg-pass1cases}
-\end{stusubfig}
-%---
-
-%---
-\begin{stusubfig}{p}
-	\subfigure[The arrow from the parent node points towards us]
-	{\includegraphics[height=5.5cm]{segmentation-waterfall-smg-resolutioncases-a.png}}%
-	%
-	\hspace{4mm}%
-	%
-	\subfigure[There is no flow from the parent node]
-	{\includegraphics[height=5.5cm]{segmentation-waterfall-smg-resolutioncases-b.png}}%
-	%
-	\hspace{4mm}%
-	%
-	\subfigure[There is an equally good route via the parent node]
-	{\includegraphics[height=5.5cm]{segmentation-waterfall-smg-resolutioncases-c.png}}%
-	%
-	\hspace{4mm}%
-	%
-	\subfigure[There is a better route via the parent node]
-	{\includegraphics[height=5.5cm]{segmentation-waterfall-smg-resolutioncases-d.png}}%
-\caption[Case analysis for the resolution step of the SG method]{Case analysis for the resolution step of the SG method (the circled node is the one currently under consideration in each case)}
-\label{fig:segmentation-waterfall-smg-resolutioncases}
-\end{stusubfig}
-%---
-
-%---
-\begin{stusubfig}{p}
+\begin{stusubfig}{!t}
 	\subfigure[The initial tree]{\includegraphics[width=.3\linewidth]{segmentation-waterfall-smg-example-initial.png}}%
 	\hspace{4mm}%
 	\subfigure[After the first pass]{\includegraphics[width=.3\linewidth]{segmentation-waterfall-smg-example-pass1.png}}%
@@ -578,6 +547,31 @@ The SG method is a tree-based, rainfalling approach and works in three recursive
 \end{stusubfig}
 %---
 
+\begin{enumerate}
+
+\item \emph{Up Pass.} Starting from the root:
+
+\begin{enumerate}
+\item Recursively process any children (the fact that the children are processed first is why this is called an `up' pass).
+\item If this node has a unique edge of steepest descent (i.e.~a unique lowest-valued edge leading out of it, which can be the parent edge), add an arrow on the node pointing along the edge.
+\item Otherwise, consider all the lowest-valued child edges (i.e.~ignore the parent for now, even if it is also a lowest-valued edge) that satisfy the condition that there is no arrow on the node at the other end of the edge pointing along the edge towards this node. If there are no such child edges, then this node is unescapable along a child edge and should be given a distance value of $\infty$. Otherwise, each of these child edges can be assigned a distance value equal to $1$ greater than the value on the node at the other end of the edge: this value on the node will be $0$ for nodes from which there is a unique path of steepest descent, and non-zero otherwise. Pick all the child edges whose distance value is minimal and add arrows from this node pointing along them (these indicate the initial paths of steepest descent from this node). Store the minimum distance value as this node's value.
+\item Now consider the parent edge: if it was a lowest-valued edge, mark it as a potential path of steepest descent to avoid the need to check again in the second pass (in the figures, an open-headed arrow is used to mark a parent edge for later processing).
+\end{enumerate}
+
+\item \emph{Down Pass.} Starting from the root:
+
+\begin{enumerate}
+\item \emph{Check upwards route.} If a node was marked as having a potential upwards path of steepest descent, first check to make sure that there is no arrow on the parent node pointing down the edge to this node. If not, there is a possible route upwards whose distance value is $1$ greater than the value on the parent node. This is compared to any existing routes downwards via child edges. If the upwards route is strictly better, the downwards arrows are removed, the upwards route is marked and the distance value on the node is updated to reflect the better route. If the upwards route is equally good, the parent edge is marked but no other changes are made. If the upwards route is worse, it is simply ignored.
+\item \emph{Check whether the parent edge (if any) should be elided.} The decision on whether or not to elide an edge is based on a classification of its two end nodes with respect to the edge itself (this is why it can only be done at this point in the method). Nodes can be classified into one of five types with respect to the edge: unambiguous in (the flow from the node goes only along this edge), ambiguous in (part, but not all, of the flow from the node goes along this edge), unambiguous out (the flow from the node goes along precisely one of the other edges leading out of it), ambiguous out (the flow from the node goes along at least two of the other edges leading out of it) and no flow (there is no flow from the node at all). Based on these classifications, the parent edge is either marked for elision or not according to the case analysis shown in Figure~\ref{fig:segmentation-waterfall-smg-mergecases}. Note that there are only $13$ cases possible, rather than the expected $15$: \{ambiguous in, ambiguous in\} and \{ambiguous in, unambiguous in\} can never occur due to the way the method works.
+\item \emph{Recurse on any children}.
+\end{enumerate}
+
+\item \emph{Up Pass.} Walk back up the tree to elide the marked edges.
+
+\end{enumerate}
+
+\noindent It is possible to perform a case analysis for the first pass and the route resolution step 2(a) as well (see Figures~\ref{fig:segmentation-waterfall-smg-pass1cases} and \ref{fig:segmentation-waterfall-smg-resolutioncases}), and this is helpful to clarify the workings of the method. Figure~\ref{fig:segmentation-waterfall-smg-example} illustrates how the method works on the now familiar graph used to demonstrate the workings of the previous two waterfall approaches.
+
 %######################
 \section{Experiments}
 \label{sec:experiments}
@@ -587,12 +581,12 @@ We implemented all three methods (Marcotegui, CN and SG) in \emph{millipede} \ci
 
 \subsection{Output}
 
-In order to compare the outputs of the methods, we ran each of them on three well-known test images from the computer vision field (see Figure~\ref{fig:testimages}). In each case, the input image was initially smoothed using anisotropic diffusion filtering \cite{perona90}. The first output partition in each case was produced using our implementation of Meijster and Roerdink's watershed algorithm \cite{meijster98}. The output partitions were compared by producing difference images using ImageMagick \cite{imagemagick}. The results are shown in Figures~\ref{fig:results-lena}--\ref{fig:results-peppers}.
+In order to compare the outputs of the methods, we ran each of them on three well-known test images from the computer vision field (see Figure~\ref{fig:testimages}). In each case, the gradient magnitude of the input image was initially smoothed using anisotropic diffusion filtering \cite{perona90}. The first output partition in each case was produced using our implementation of Meijster and Roerdink's watershed algorithm \cite{meijster98}. The output partitions were compared by producing difference images using ImageMagick \cite{imagemagick}. The results are shown in Figures~\ref{fig:results-lena}--\ref{fig:results-peppers}.
 
 The outputs of the methods are broadly similar, as we would expect, but there are differences due to the ways in which the different methods handle non-minimal plateaux. We observe in particular that the outputs of the Marcotegui and SG methods are closer to each other than those of the CN method and either of the other two methods. However, for the purpose of feature identification, all three methods produce results that are effectively equivalent.
 
 %---
-\begin{stusubfig}{p}
+\begin{stusubfig}{!t}
 	\subfigure[Lena]{\includegraphics[width=.3\linewidth]{lena.png}}%
 	\hspace{4mm}%
 	\subfigure[Baboon]{\includegraphics[width=.3\linewidth]{baboon.png}}%
@@ -604,7 +598,7 @@ The outputs of the methods are broadly similar, as we would expect, but there ar
 %---
 
 %---
-\begin{stusubfig}{p}
+\begin{stusubfig}{!t}
 	\subfigure[Marcotegui]{\includegraphics[width=.3\linewidth]{lena-partition-3-M.png}}%
 	\hspace{4mm}%
 	\subfigure[CN Method]{\includegraphics[width=.3\linewidth]{lena-partition-3-NC.png}}%
@@ -674,9 +668,7 @@ Each of the three methods is linear in $n$ (minor variations are accounted for b
 \label{sec:discussion}
 %#####################
 
-Our experiments in \S\ref{sec:experiments} illustrated that all three methods produce broadly similar results, and in particular results that are all acceptable as the input to further processing steps such as feature identification algorithms. The CN method was $> 30$\% faster than our implementation of Marcotegui's method; moreover, it is a simple, tree-based approach that can be implemented as a single recursive function. There are, however, some minor differences between the results of the CN and Marcotegui methods that might be significant in some contexts: this was particularly noticeable in the Baboon test (see Figure~\ref{fig:results-baboon}). It should be noted that for our purposes in \emph{millipede}, we found these differences to have negligible impact.
-
-The SG method was $> 15$\% faster than our implementation of Marcotegui's method, and is fairly straightforward to implement (although not as easy as the CN method). It produces results that are much closer to the Marcotegui approach, although the more consistent handling of non-minimal plateaux causes slight (expected) differences in the results.
+Our experiments in \S\ref{sec:experiments} illustrated that all three methods produce broadly similar results, and in particular results that are all acceptable as the input to further processing steps such as feature identification algorithms. The CN method was $> 30$\% faster than our implementation of Marcotegui's method; moreover, it is a simple, tree-based approach that can be implemented as a single recursive function. There are, however, some minor differences between the results of the CN and Marcotegui methods that might be significant in some contexts: this was particularly noticeable in the Baboon test (see Figure~\ref{fig:results-baboon}). It should be noted that for our purposes in \emph{millipede}, we found these differences to have negligible impact. The SG method was $> 15$\% faster than our implementation of Marcotegui's method, and is fairly straightforward to implement (although not as easy as the CN method). It produces results that are much closer to the Marcotegui approach, although the more consistent handling of non-minimal plateaux causes slight (expected) differences in the results.
 
 Overall, we believe that all three of the methods discussed are fast, effective ways of implementing the waterfall. The primary advantages offered by our new methods are that they are both somewhat faster and easier to implement than Marcotegui's method. The SG method also handles non-minimal plateaux more consistently than either of the other methods. Based on our experiments, we would recommend the CN method in situations where speed and ease of implementation are the primary considerations, and the SG method if it is important to obtain results that are close to the original Marcotegui approach but that treat non-minimal plateaux in a more consistent way. Marcotegui's method itself also remains a good choice, and it seems plausible that a more optimised implementation of it than ours could reduce the observed differences in timing.
 
