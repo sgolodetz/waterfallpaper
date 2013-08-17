@@ -3,5 +3,6 @@
 *.blg
 *.log
 *.pdf
+*.spl
 *.tps
 diffs*/
