@@ -154,6 +154,7 @@ tabsize=4
 \ead{sgolodetz@gxstudios.net}
 
 \author[ox]{C.~Nicholls}
+\ead{ChrisNicholls1@gmail.com}
 
 \author[ox]{I.D.~Voiculescu\corref{cor2}}
 \ead{irina@cs.ox.ac.uk}
@@ -461,7 +462,7 @@ The CN method initially roots the MST (see Figure~\ref{fig:segmentation-waterfal
 
 \noindent The workings of the method can be illuminated by a case analysis. There are two cases to consider: either the current edge (the parent edge) \emph{isn't} strictly the lowest leading out of a node, in which case at least part of the implied flow from the node is along the lowest child (see Figure~\ref{fig:segmentation-waterfall-nicholls-cases}(a)), or it is, in which case the implied flow from the node is entirely along the parent (see Figure~\ref{fig:segmentation-waterfall-nicholls-cases}(b)). In the first case, the method arbitrarily assumes that all the implied flow is along the lowest child. In both cases, the various child edges are then elided (or not) accordingly. Figure~\ref{fig:segmentation-waterfall-nicholls-example} illustrates how the method works on the same graph used to illustrate Marcotegui's method above.
 
-The assumption that all the implied flow is along the lowest child in the first case is this method's way of dealing with non-minimal plateaux in the MST. As with the Marcotegui method's dependence on a priority queue implementation, this is a somewhat arbitrary way of handling non-minimal plateaux: in particular, the selected direction of implied flow from a particular node depends on both where the MST is rooted, and the specific method used to choose the lowest child. The method also ignores the possibility that part of the implied flow is along the parent. All of this affects which specific edges are elided. As with Marcotegui's method, this tends not to significantly degrade the end result, but it is still in principle desirable to devise a method that does not depend on such implementation details. In the following section, we therefore present an alternative tree-based method that handles non-minimal plateaux in the MST more robustly.
+The assumption that all the implied flow is along the lowest child in the first case is this method's way of dealing with non-minimal plateaux in the MST. As with the Marcotegui method's dependence on a priority queue implementation, this is a slightly arbitrary way of handling non-minimal plateaux: in particular, the selected direction of implied flow from a particular node depends on both where the MST is rooted, and the specific method used to choose the lowest child. The method also discounts the possibility that part of the implied flow is along the parent. All of this affects which specific edges are elided. As with Marcotegui's method, this tends not to significantly degrade the end result, but it still in principle seems desirable to devise a method that does not depend on such implementation details. In the following section, we therefore present an alternative tree-based method that handles non-minimal plateaux in the MST more robustly.
 
 %#############################
 \section{SG Method}
@@ -711,7 +712,7 @@ In this paper, we have presented two new, tree-based methods for the classical w
 \label{sec:acknowledgements}
 %###########################
 
-We gratefully acknowledge the support of the UK Engineering and Physical Sciences Research Council (EPSRC) in funding Stuart Golodetz's doctoral work via a Doctoral Training Account (DTA).
+We are profoundly grateful to Dr.\ Zoe Traill of the Churchill Hospital, Oxford, both for providing us with abdominal CT scans and for giving up her time to help us interpret them. We also gratefully acknowledge the support of the UK Engineering and Physical Sciences Research Council (EPSRC) in funding Stuart Golodetz's doctoral work via a Doctoral Training Account (DTA).
 
 \bibliographystyle{elsarticle-num}
 \bibliography{existingwork,mypapers}
