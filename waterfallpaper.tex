@@ -321,7 +321,7 @@ Marcotegui's method \cite{marcotegui05} is a fast and effective example of such 
 
 \footnotetext{The justification for why an MST is sufficient can be found in \cite{marcotegui05}.}
 
-At the start of Marcotegui's method, the first input partition (produced from the gradient magnitude of the input using the watershed transform) is converted into its RAG representation and an MST is built from the RAG (see \S{}A.2 of \cite{golodetz11} for implementation details). This MST is then subjected to a sequence of waterfall passes. Each waterfall pass performs a flooding-based watershed on the MST to decide which regions should be merged and elides appropriate edges in the MST to effect this (eliding an edge means combining the nodes at either end of the edge and removing the edge itself from the MST). In detail, this involves the following steps:
+At the start of Marcotegui's method, the first input partition (produced from the gradient magnitude of the input using the watershed transform) is converted into its RAG representation and an MST is built from the RAG (see \S{}A.2 of \cite{golodetz11} for implementation details). This MST is then subjected to a sequence of waterfall passes. Each waterfall pass performs a flooding-based watershed on the MST to decide which regions should be merged and contracts appropriate edges in the MST to effect this (contracting an edge means combining the nodes at either end of the edge and removing the edge itself from the MST). In detail, this involves the following steps:
 
 %---
 \begin{stusubfig}{p}
@@ -330,9 +330,9 @@ At the start of Marcotegui's method, the first input partition (produced from th
 	%
 	\hspace{4mm}%
 	%
-	\subfigure[Eliding/colouring the local minima (the edges to be elided are drawn in blue)]
+	\subfigure[Contracting/colouring the local minima (the edges to be contracted are drawn in blue)]
 	{\includegraphics[width=.3\linewidth]{segmentation-waterfall-marcotegui-localminimaelision.png}}%	
-\caption{Finding and eliding a graph's local minima for Marcotegui's method}
+\caption{Finding and contracting a graph's local minima for Marcotegui's method}
 \label{fig:segmentation-waterfall-marcotegui-localminima}
 \end{stusubfig}
 %---
@@ -344,29 +344,29 @@ At the start of Marcotegui's method, the first input partition (produced from th
 	%
 	\hspace{4mm}%
 	%
-	\subfigure[Elide the 3 edge]
+	\subfigure[Contract the 3 edge]
 	{\includegraphics[width=.3\linewidth]{segmentation-waterfall-marcotegui-propagation-b.png}}%
 	%
 	\hspace{4mm}%
 	%
-	\subfigure[Elide a 4 edge]
+	\subfigure[Contract a 4 edge]
 	{\includegraphics[width=.3\linewidth]{segmentation-waterfall-marcotegui-propagation-c.png}}%
 	%
 	\hspace{4mm}%
 	%
-	\subfigure[Elide another 4 edge]
+	\subfigure[Contract another 4 edge]
 	{\includegraphics[width=.3\linewidth]{segmentation-waterfall-marcotegui-propagation-d.png}}%
 	%
 	\hspace{4mm}%
 	%
-	\subfigure[Elide the 5 edge]
+	\subfigure[Contract the 5 edge]
 	{\includegraphics[width=.3\linewidth]{segmentation-waterfall-marcotegui-propagation-e.png}}%
 	%
 	\hspace{4mm}%
 	%
-	\subfigure[Elide the other 5 edge; all remaining edges will not be elided]
+	\subfigure[Contract the other 5 edge; all remaining edges will not be contracted]
 	{\includegraphics[width=.3\linewidth]{segmentation-waterfall-marcotegui-propagation-f.png}}%
-\caption{The propagation step of Marcotegui's method, illustrated on the graph in \cite{marcotegui05}: blue edges have already been elided, green edges are under consideration, and red edges will not be elided.}
+\caption{The propagation step of Marcotegui's method, illustrated on the graph in \cite{marcotegui05}: blue edges have already been contracted, green edges are under consideration, and red edges will not be contracted.}
 \label{fig:segmentation-waterfall-marcotegui-propagation}
 \end{stusubfig}
 %---
@@ -375,20 +375,20 @@ At the start of Marcotegui's method, the first input partition (produced from th
 
 \item \emph{Determination of the local minima of the MST.} A local minimum of a weighted graph $G$ is a connected subgraph of $G$ whose edges have equal weight and whose adjacent edges in $G$ have strictly higher weights. Figure~\ref{fig:segmentation-waterfall-marcotegui-localminima}(a) shows an example graph and its local minima. Algorithmically, we iterate over the edges in the MST and flood out from each one to determine (i) whether it's part of a local minimum and (ii) the extent of the minimum if so.
 
-\item \emph{Elision of the local minima.} This is equivalent to merging minimal plateaux in a landscape into single points to which water runs down. See Figure~\ref{fig:segmentation-waterfall-marcotegui-localminima}(b). For clarity, we represent elision in the figures by assigning the nodes at the ends of an elided edge the same colour rather than removing the edge itself.
+\item \emph{Contraction of the local minima.} This is equivalent to merging minimal plateaux in a landscape into single points to which water runs down. See Figure~\ref{fig:segmentation-waterfall-marcotegui-localminima}(b). For clarity, we represent contraction in the figures by assigning the nodes at the ends of an contracted edge the same colour rather than removing the edge itself.
 
-\item \emph{Propagation.} We flood out from the nodes that now represent the local minima (`marker nodes') along the edges, in non-decreasing order of edge weight, starting from the edges directly adjacent to the marker nodes. Each edge will either join a marker to a marker, in which case it should be ignored (since eliding it would merge two catchment basins), or it will join a marker to a non-marker, in which case it should be elided. See Figure~\ref{fig:segmentation-waterfall-marcotegui-propagation}.
+\item \emph{Propagation.} We flood out from the nodes that now represent the local minima (`marker nodes') along the edges, in non-decreasing order of edge weight, starting from the edges directly adjacent to the marker nodes. Each edge will either join a marker to a marker, in which case it should be ignored (since contracting it would merge two catchment basins), or it will join a marker to a non-marker, in which case it should be contracted. See Figure~\ref{fig:segmentation-waterfall-marcotegui-propagation}.
 
 \end{enumerate}
 
-\noindent It is important to note that the order in which edges should be processed during the propagation step is not well-defined (note that multiple edges can have the same weight and thus be candidates for elision simultaneously). A straightforward implementation of the propagation step would use a priority queue and pop a lowest adjacent edge for consideration each time: thus the next edge to be considered ends up depending fundamentally on the way the priority queue is implemented. The consequence of this is that non-minimal plateaux in the MST are handled in a rather arbitrary way. This is not necessarily a problem in practice -- there tend to be only a small number of non-minimal plateaux in most MSTs, so it doesn't seriously affect the end result -- but it still seems undesirable to have the segmentation output depend so closely on the implementation of an internal data structure which may in principle be subject to change. This issue is dealt with in \S\ref{sec:golodetz}.
+\noindent It is important to note that the order in which edges should be processed during the propagation step is not well-defined (note that multiple edges can have the same weight and thus be candidates for contraction simultaneously). A straightforward implementation of the propagation step would use a priority queue and pop a lowest adjacent edge for consideration each time: thus the next edge to be considered ends up depending fundamentally on the way the priority queue is implemented. The consequence of this is that non-minimal plateaux in the MST are handled in a rather arbitrary way. This is not necessarily a problem in practice -- there tend to be only a small number of non-minimal plateaux in most MSTs, so it doesn't seriously affect the end result -- but it still seems undesirable to have the segmentation output depend so closely on the implementation of an internal data structure which may in principle be subject to change. This issue is dealt with in \S\ref{sec:golodetz}.
 
 %############################
 \section{CN Method}
 \label{sec:nicholls}
 %############################
 
-Despite the speed and effectiveness of Marcotegui's method, it can be somewhat intricate to implement \cite{golodetz08} because it is defined as a general graph method even though it operates on a tree. A simpler, tree-based method can be devised by observing that if an edge is not elided by a waterfall pass, it is because it is a highest edge separating two adjacent catchment basins (alternatively, it is a highest edge on the MST path between two adjacent local minima in the MST). Instead of explicitly finding the local minima in the graph and flooding out from them, it therefore suffices to root the MST somewhere and then work recursively up from the bottom of the tree, carefully maintaining a highest edge (`guard edge') guarding each local minimum encountered on the way.
+Despite the speed and effectiveness of Marcotegui's method, it can be somewhat intricate to implement \cite{golodetz08} because it is defined as a general graph method even though it operates on a tree. A simpler, tree-based method can be devised by observing that if an edge is not contracted by a waterfall pass, it is because it is a highest edge separating two adjacent catchment basins (alternatively, it is a highest edge on the MST path between two adjacent local minima in the MST). Instead of explicitly finding the local minima in the graph and flooding out from them, it therefore suffices to root the MST somewhere and then work recursively up from the bottom of the tree, carefully maintaining a highest edge (`guard edge') guarding each local minimum encountered on the way.
 
 %---
 \begin{stusubfig}{p}
@@ -413,7 +413,7 @@ Despite the speed and effectiveness of Marcotegui's method, it can be somewhat i
 	%
 	\subfigure[The considered edge is the unique lowest edge]
 	{\includegraphics[height=4.5cm]{segmentation-waterfall-nicholls-cases-b.png}}%
-\caption[Case analysis for the recursive step of the CN method]{Case analysis for the recursive step of the CN method: black edges are non-guards, red edges are guards, blue edges are those which have been elided and the green edge is the one under active consideration. The arrow (on the node) indicates the direction in which the method presumes water to flow.}
+\caption[Case analysis for the recursive step of the CN method]{Case analysis for the recursive step of the CN method: black edges are non-guards, red edges are guards, blue edges are those which have been contracted and the green edge is the one under active consideration. The arrow (on the node) indicates the direction in which the method presumes water to flow.}
 \label{fig:segmentation-waterfall-nicholls-cases}
 \end{stusubfig}
 %---
@@ -435,7 +435,7 @@ Despite the speed and effectiveness of Marcotegui's method, it can be somewhat i
 	\subfigure[Level 1]{\includegraphics[width=.2\linewidth]{segmentation-waterfall-nicholls-example-g.png}}%
 	\hspace{4mm}%
 	\subfigure[Result]{\includegraphics[width=.2\linewidth]{segmentation-waterfall-nicholls-example-h.png}}%
-\caption[The CN method in action]{The CN method in action (considering all the edges in each level at a time for space reasons): black edges are non-guards, red edges are guards, blue edges are those which have been elided and green edges are ones under active consideration.}
+\caption[The CN method in action]{The CN method in action (considering all the edges in each level at a time for space reasons): black edges are non-guards, red edges are guards, blue edges are those which have been contracted and green edges are ones under active consideration.}
 \label{fig:segmentation-waterfall-nicholls-example}
 \end{stusubfig}
 %---
@@ -454,24 +454,24 @@ The CN method initially roots the MST (see Figure~\ref{fig:segmentation-waterfal
 
 \item A child edge with minimum value is chosen (if one or more of the children with minimum value is a guard edge, one of those is chosen in preference to a non-guard). This is then referred to as the `lowest child'. The value on the current edge is compared to the value on the lowest child. If its value is less than that of the lowest child, it is marked as a non-guard edge; otherwise it is marked as a guard and the lowest child is marked as a non-guard.
 
-\item All non-guard children are then elided.
+\item All non-guard children are then contracted.
 
 \end{enumerate}
 
 \end{enumerate}
 
-\noindent The workings of the method can be illuminated by a case analysis. There are two cases to consider: either the current edge (the parent edge) \emph{isn't} strictly the lowest leading out of a node, in which case at least part of the implied flow from the node is along the lowest child (see Figure~\ref{fig:segmentation-waterfall-nicholls-cases}(a)), or it is, in which case the implied flow from the node is entirely along the parent (see Figure~\ref{fig:segmentation-waterfall-nicholls-cases}(b)). In the first case, the method arbitrarily assumes that all the implied flow is along the lowest child. In both cases, the various child edges are then elided (or not) accordingly. Figure~\ref{fig:segmentation-waterfall-nicholls-example} illustrates how the method works on the same graph used to illustrate Marcotegui's method above.
+\noindent The workings of the method can be illuminated by a case analysis. There are two cases to consider: either the current edge (the parent edge) \emph{isn't} strictly the lowest leading out of a node, in which case at least part of the implied flow from the node is along the lowest child (see Figure~\ref{fig:segmentation-waterfall-nicholls-cases}(a)), or it is, in which case the implied flow from the node is entirely along the parent (see Figure~\ref{fig:segmentation-waterfall-nicholls-cases}(b)). In the first case, the method arbitrarily assumes that all the implied flow is along the lowest child. In both cases, the various child edges are then contracted (or not) accordingly. Figure~\ref{fig:segmentation-waterfall-nicholls-example} illustrates how the method works on the same graph used to illustrate Marcotegui's method above.
 
-The assumption that all the implied flow is along the lowest child in the first case is this method's way of dealing with non-minimal plateaux in the MST. As with the Marcotegui method's dependence on a priority queue implementation, this is a slightly arbitrary way of handling non-minimal plateaux: in particular, the selected direction of implied flow from a particular node depends on both where the MST is rooted, and the specific method used to choose the lowest child. The method also discounts the possibility that part of the implied flow is along the parent. All of this affects which specific edges are elided. As with Marcotegui's method, this tends not to significantly degrade the end result, but it still in principle seems desirable to devise a method that does not depend on such implementation details. In the following section, we therefore present an alternative tree-based method that handles non-minimal plateaux in the MST more robustly.
+The assumption that all the implied flow is along the lowest child in the first case is this method's way of dealing with non-minimal plateaux in the MST. As with the Marcotegui method's dependence on a priority queue implementation, this is a slightly arbitrary way of handling non-minimal plateaux: in particular, the selected direction of implied flow from a particular node depends on both where the MST is rooted, and the specific method used to choose the lowest child. The method also discounts the possibility that part of the implied flow is along the parent. All of this affects which specific edges are contracted. As with Marcotegui's method, this tends not to significantly degrade the end result, but it still in principle seems desirable to devise a method that does not depend on such implementation details. In the following section, we therefore present an alternative tree-based method that handles non-minimal plateaux in the MST more robustly.
 
 %#############################
 \section{SG Method}
 \label{sec:golodetz}
 %#############################
 
-In order to account for non-minimal plateaux in the MST, we adopt an idea from Meijster and Roedink's image watershed algorithm \cite{meijster98}: if we transform the landscape to make it `lower-complete' (that is, we transform it into a landscape in which there is a unique path of steepest descent from each point), then the direction of flow is clear at every point and there is no ambiguity about how to assign non-minimal plateau points to catchment basins. The method for making the image lower-complete described in \cite{meijster98} has the effect of treating pixels that are further from the border of a plateau as being in some sense `higher' than those on the boundary. The same sort of idea can be applied in the context of a waterfall pass (although it is not necessary to actually transform the MST to make it lower-complete): where there are non-minimal plateaux in the MST, we can arrange to treat the nodes further from the border of the plateaux as being `higher' than their boundary counterparts. As we will see, this enables a robust decision to be made about which edges to elide.
+In order to account for non-minimal plateaux in the MST, we adopt an idea from Meijster and Roedink's image watershed algorithm \cite{meijster98}: if we transform the landscape to make it `lower-complete' (that is, we transform it into a landscape in which there is a unique path of steepest descent from each point), then the direction of flow is clear at every point and there is no ambiguity about how to assign non-minimal plateau points to catchment basins. The method for making the image lower-complete described in \cite{meijster98} has the effect of treating pixels that are further from the border of a plateau as being in some sense `higher' than those on the boundary. The same sort of idea can be applied in the context of a waterfall pass (although it is not necessary to actually transform the MST to make it lower-complete): where there are non-minimal plateaux in the MST, we can arrange to treat the nodes further from the border of the plateaux as being `higher' than their boundary counterparts. As we will see, this enables a robust decision to be made about which edges to contract.
 
-The SG method is a tree-based, rainfalling approach and works in three recursive passes. The first pass works up the tree from the leaf nodes, marking initial path(s) of steepest descent from each node whilst allowing for the fact that they may need to be refined later. The second pass works down the tree from the root, updating the path(s) for each node to take account of routes via parent edges and marking edges for later elision as necessary. The final pass works up the tree again to actually elide the marked edges (this cannot be done on a down pass for technical reasons). The MST can be rooted anywhere in order to form the input tree -- the results are the same for any choice of root. In detail, the method works as follows:
+The SG method is a tree-based, rainfalling approach and works in three recursive passes. The first pass works up the tree from the leaf nodes, marking initial path(s) of steepest descent from each node whilst allowing for the fact that they may need to be refined later. The second pass works down the tree from the root, updating the path(s) for each node to take account of routes via parent edges and marking edges for later contraction as necessary. The final pass works up the tree again to actually contract the marked edges (this cannot be done on a down pass for technical reasons). The MST can be rooted anywhere in order to form the input tree -- the results are the same for any choice of root. In detail, the method works as follows:
 
 %---
 \begin{stusubfig}{!t}
@@ -558,7 +558,7 @@ The SG method is a tree-based, rainfalling approach and works in three recursive
 	\subfigure[NF/AI]{\includegraphics[height=5cm]{segmentation-waterfall-smg-mergecases-nfai.png}}%
 	\hspace{4mm}
 	\subfigure[NF/AO]{\includegraphics[height=5cm]{segmentation-waterfall-smg-mergecases-nfao.png}}%
-\caption[Case analysis for the edge elision step of the SG method]{Case analysis for the edge elision step of the SG method (a blue edge indicates that the edge would be elided; a red edge indicates that it wouldn't). The labels are AI = ambiguous in, AO = ambiguous out, NF = no flow, UI = unambiguous in and UO = unambiguous out.}
+\caption[Case analysis for the edge contraction step of the SG method]{Case analysis for the edge contraction step of the SG method (a blue edge indicates that the edge would be contracted; a red edge indicates that it wouldn't). The labels are AI = ambiguous in, AO = ambiguous out, NF = no flow, UI = unambiguous in and UO = unambiguous out.}
 \label{fig:segmentation-waterfall-smg-mergecases}
 \end{stusubfig}
 %---
@@ -570,7 +570,7 @@ The SG method is a tree-based, rainfalling approach and works in three recursive
 	\subfigure[After the first pass]{\includegraphics[width=.3\linewidth]{segmentation-waterfall-smg-example-pass1.png}}%
 	\hspace{4mm}%
 	\subfigure[After the second pass]{\includegraphics[width=.3\linewidth]{segmentation-waterfall-smg-example-pass2.png}}%
-\caption[The SG method running on a real example]{The SG method running on a real example: the arrows on the nodes indicate the flow direction, blue edges are those that will be elided and red edges are those that won't be.}
+\caption[The SG method running on a real example]{The SG method running on a real example: the arrows on the nodes indicate the flow direction, blue edges are those that will be contracted and red edges are those that won't be.}
 \label{fig:segmentation-waterfall-smg-example}
 \end{stusubfig}
 %---
@@ -590,11 +590,11 @@ The SG method is a tree-based, rainfalling approach and works in three recursive
 
 \begin{enumerate}
 \item \emph{Check upwards route.} If a node was marked as having a potential upwards path of steepest descent, first check to make sure that there is no arrow on the parent node pointing down the edge to this node. If not, there is a possible route upwards whose distance value is $1$ greater than the value on the parent node. This is compared to any existing routes downwards via child edges. If the upwards route is strictly better, the downwards arrows are removed, the upwards route is marked and the distance value on the node is updated to reflect the better route. If the upwards route is equally good, the parent edge is marked but no other changes are made. If the upwards route is worse, it is simply ignored.
-\item \emph{Check whether the parent edge (if any) should be elided.} The decision on whether or not to elide an edge is based on a classification of its two end nodes with respect to the edge itself (this is why it can only be done at this point in the method). Nodes can be classified into one of five types with respect to the edge: unambiguous in (the flow from the node goes only along this edge), ambiguous in (part, but not all, of the flow from the node goes along this edge), unambiguous out (the flow from the node goes along precisely one of the other edges leading out of it), ambiguous out (the flow from the node goes along at least two of the other edges leading out of it) and no flow (there is no flow from the node at all). Based on these classifications, the parent edge is either marked for elision or not according to the case analysis shown in Figure~\ref{fig:segmentation-waterfall-smg-mergecases}. Note that there are only $13$ cases possible, rather than the expected $15$: \{ambiguous in, ambiguous in\} and \{ambiguous in, unambiguous in\} can never occur due to the way the method works.
+\item \emph{Check whether the parent edge (if any) should be contracted.} The decision on whether or not to contract an edge is based on a classification of its two end nodes with respect to the edge itself (this is why it can only be done at this point in the method). Nodes can be classified into one of five types with respect to the edge: unambiguous in (the flow from the node goes only along this edge), ambiguous in (part, but not all, of the flow from the node goes along this edge), unambiguous out (the flow from the node goes along precisely one of the other edges leading out of it), ambiguous out (the flow from the node goes along at least two of the other edges leading out of it) and no flow (there is no flow from the node at all). Based on these classifications, the parent edge is either marked for contraction or not according to the case analysis shown in Figure~\ref{fig:segmentation-waterfall-smg-mergecases}. Note that there are only $13$ cases possible, rather than the expected $15$: \{ambiguous in, ambiguous in\} and \{ambiguous in, unambiguous in\} can never occur due to the way the method works.
 \item \emph{Recurse on any children}.
 \end{enumerate}
 
-\item \emph{Up Pass.} Walk back up the tree to elide the marked edges.
+\item \emph{Up Pass.} Walk back up the tree to contract the marked edges.
 
 \end{enumerate}
 
