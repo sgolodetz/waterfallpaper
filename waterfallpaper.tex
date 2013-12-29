@@ -607,10 +607,41 @@ We implemented all three methods (Marcotegui, CN and SG) in \emph{millipede} \ci
 
 \subsection{Output}
 
-In order to compare the outputs of the methods, we ran each of them on three well-known test images from the computer vision field (see Figure~\ref{fig:testimages}). In each case, the gradient magnitude of the input image was initially smoothed using anisotropic diffusion filtering \cite{perona90}. The first output partition in each case was produced using our implementation of Meijster and Roerdink's watershed algorithm \cite{meijster98}. The output partitions were compared by producing difference images using ImageMagick \cite{imagemagick}. The results are shown in Figures~\ref{fig:results-lena}--\ref{fig:results-peppers}.
+We compared the outputs of the three methods quantitatively on the publicly-available dataset of $151$ images proposed by Gulshan et al.\ \cite{gulshan10}. This dataset was chosen because it was of a suitable size and provided an interesting variety of different images (it was originally compiled using images from the GrabCut dataset \cite{rother04}, the PASCAL VOC'09 segmentation challenge \cite{everingham09} and the alpha-matting dataset \cite{rhemann09}). Each of the three methods was used to produce a hierarchy of partitions for each image from this dataset. In each case, the gradient magnitude of the input image was initially smoothed using anisotropic diffusion filtering \cite{perona90}. The first output partition in each case was produced using our implementation of Meijster and Roerdink's watershed algorithm \cite{meijster98}.
 
-The outputs of the methods are broadly similar, as we would expect, but there are differences due to the ways in which the different methods handle non-minimal plateaux. We observe in particular that the outputs of the Marcotegui and SG methods are closer to each other than those of the CN method and either of the other two methods. However, for the purpose of feature identification, all three methods produce results that are effectively equivalent.
+The three partition hierarchies produced for each image were compared pairwise by extending the \emph{global consistency error} (GCE) and \emph{local consistency error} (LCE) measures proposed in \cite{martin01} from pairs of partitions to pairs of hierarchies. These measures were specifically designed to compare partitions of the same image and be tolerant of hierarchical refinements between the partitions (e.g.~splitting regions or merging them together), so are a good fit for comparing partitions at the same level output by the various waterfall methods. Each produces a real number in the range $[0..1]$ signifying the extent to which the two compared partitions are `similar' (with $0$ being `most similar' and $1$ being `most different'). The GCE specifies similarity in terms of the extent to which one partition is a hierarchical refinement of the other, whereas the LCE specifies similarity in terms of the extent to which the two partitions mutually refine each other. (As such, the GCE is a somewhat stricter measure than the LCE.)
 
+We initially follow \cite{martin01} and define the GCE and LCE between partitions in terms of the \emph{local refinement error} at each pixel. Let $S_1$ and $S_2$ be two partitions of the same input image $I$ (with $n$ pixels), and for any given pixel $\mathbf{p_i}$, let $R(S,\mathbf{p_i})$ be the set of pixels corresponding to the region in partition $S$ that contains $\mathbf{p_i}$. The (directed) local refinement error $E$ from partition $S_1$ to partition $S_2$ at pixel $\mathbf{p_i}$ is then defined to be:
+%
+\[
+E(S_1,S_2,\mathbf{p_i}) = \frac{|R(S_1,\mathbf{p_i}) \backslash R(S_2,\mathbf{p_i})|}{|R(S_1,\mathbf{p_i})|}
+\]
+%
+The GCE and LCE between partitions can be defined in terms of this as follows:
+%
+\[
+GCE(S_1,S_2) = \frac{1}{n} \min \left\{ \sum_i E(S_1,S_2,\mathbf{p_i}), \sum_i E(S_2,S_1,\mathbf{p_i}) \right\}
+\]
+\[
+LCE(S_1,S_2) = \frac{1}{n} \sum_i \min \left\{ E(S_1,S_2,\mathbf{p_i}, E(S_2,S_1,\mathbf{p_i}) \right\}
+\]
+%
+To compare two waterfall partition hierarchies using these measures, we compare corresponding partitions (excluding the input image and the initial partition output by the watershed) at each level of the hierarchy using the partition-based measures and take the maximum error over all hierarchy levels. That is, for two hierarchies $H_1 = (S_0^1,S_1^1,...,S_{k_1}^1)$ and $H_2 = (S_0^2,S_1^2,...,S_{k_2}^2)$, we define:
+%
+\[
+MaxGCE(H_1,H_2) = \max_{\ell=2}^{\min(k_1,k_2)} GCE(S_\ell^1,S_\ell^2)
+\]
+\[
+MaxLCE(H_1,H_2) = \max_{\ell=2}^{\min(k_1,k_2)} LCE(S_\ell^1,S_\ell^2)
+\]
+%
+Using these hierarchy-based measures, we compared the results of both the CN and SG waterfall methods to those of Marcotegui's method, using the latter as a `ground truth' result. TODO
+
+%In order to compare the outputs of the methods, we ran each of them on three well-known test images from the computer vision field (see Figure~\ref{fig:testimages}). In each case, the gradient magnitude of the input image was initially smoothed using anisotropic diffusion filtering \cite{perona90}. The first output partition in each case was produced using our implementation of Meijster and Roerdink's watershed algorithm \cite{meijster98}. The output partitions were compared by producing difference images using ImageMagick \cite{imagemagick}. The results are shown in Figures~\ref{fig:results-lena}--\ref{fig:results-peppers}.
+
+%The outputs of the methods are broadly similar, as we would expect, but there are differences due to the ways in which the different methods handle non-minimal plateaux. We observe in particular that the outputs of the Marcotegui and SG methods are closer to each other than those of the CN method and either of the other two methods. However, for the purpose of feature identification, all three methods produce results that are effectively equivalent.
+
+\iffalse
 %---
 \begin{stusubfig}{!t}
 	\subfigure[Lena]{\includegraphics[width=.3\linewidth]{lena.png}}%
@@ -676,6 +707,7 @@ The outputs of the methods are broadly similar, as we would expect, but there ar
 \label{fig:results-peppers}
 \end{stusubfig}
 %---
+\fi
 
 \subsection{Timings}
 
