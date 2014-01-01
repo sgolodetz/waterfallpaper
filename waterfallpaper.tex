@@ -319,7 +319,9 @@ Marcotegui's method \cite{marcotegui05} is a fast and effective example of such 
 
 \footnotetext{The justification for why an MST is sufficient can be found in \cite{marcotegui05}.}
 
-At the start of Marcotegui's method, the first input partition (produced from the gradient magnitude of the input using the watershed transform) is converted into its RAG representation and an MST is built from the RAG (see \S{}A.2 of \cite{golodetz11} for implementation details). This MST is then subjected to a sequence of waterfall passes. Each waterfall pass performs a flooding-based watershed on the MST to decide which regions should be merged and contracts appropriate edges in the MST to effect this (contracting an edge means combining the nodes at either end of the edge and removing the edge itself from the MST). In detail, this involves the following steps:
+At the start of Marcotegui's method, the first input partition (produced from the gradient magnitude of the input using the watershed transform) is converted into its RAG representation and an MST is built from the RAG (see \S{}A.2 of \cite{golodetz11} for implementation details). This MST is then subjected to a sequence of waterfall passes. Each waterfall pass performs a flooding-based watershed on the MST to decide which regions should be merged and contracts appropriate edges in the MST to effect this (contracting an edge means combining the nodes at either end of the edge and removing the edge itself from the MST)\footnotemark{}. In detail, this involves the following steps:
+
+\footnotetext{It may be noted in passing that the use of edge contraction to merge regions in graph-based image segmentation algorithms is a ubiquitous technique that is by no means restricted to the waterfall (e.g.~see \cite{lezoray12}): it is often more efficient to simply merge together two nodes in a graph than to combine the two regions they represent by e.g.~unioning sets of pixels.}
 
 %---
 \begin{stusubfig}{p}
