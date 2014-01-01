@@ -1,6 +1,7 @@
 \documentclass[preprint,a4paper]{elsarticle}
 
 \usepackage{afterpage}
+\usepackage{alltt}
 \usepackage{bold-extra}
 \usepackage{color}
 \usepackage{float}
@@ -609,7 +610,13 @@ We implemented all three methods (Marcotegui, CN and SG) in \emph{millipede} \ci
 
 \subsection{Output}
 
-We compared the outputs of the three methods quantitatively on the publicly-available dataset of $151$ images proposed by Gulshan et al.\ \cite{gulshan10}. This dataset was chosen because it was of a suitable size and provided an interesting variety of different images (it was originally compiled using images from the GrabCut dataset \cite{rother04}, the PASCAL VOC'09 segmentation challenge \cite{everingham09} and the alpha-matting dataset \cite{rhemann09}). Each of the three methods was used to produce a hierarchy of partitions for each image from this dataset. In each case, the gradient magnitude of the input image was initially smoothed using anisotropic diffusion filtering \cite{perona90}. The first output partition in each case was produced using our implementation of Meijster and Roerdink's watershed algorithm \cite{meijster98}.
+We compared the outputs of the three methods quantitatively on the publicly-available dataset of $151$ images proposed by Gulshan et al.\ \cite{gulshan10}. This dataset was chosen because it was of a suitable size and provided an interesting variety of different images (it was originally compiled using images from the GrabCut dataset \cite{rother04}, the PASCAL VOC'09 segmentation challenge \cite{everingham09} and the alpha-matting dataset \cite{rhemann09}). Since the images in the dataset are in colour, we first converted them to greyscale using the ImageMagick \cite{imagemagick} command:
+%
+\begin{alltt}\begin{center}
+convert <colour filename> -separate -average <greyscale filename>
+\end{center}\end{alltt}
+%
+Each of the three methods was then used to produce a hierarchy of partitions for each greyscale image. In each case, the gradient magnitude of the input image was initially smoothed using anisotropic diffusion filtering \cite{perona90}. The first output partition in each case was produced using our implementation of Meijster and Roerdink's watershed algorithm \cite{meijster98}.
 
 The three partition hierarchies produced for each image were compared pairwise by extending the \emph{global consistency error} (GCE) and \emph{local consistency error} (LCE) measures proposed in \cite{martin01} from pairs of partitions to pairs of hierarchies. These measures were specifically designed to compare partitions of the same image and be tolerant of hierarchical refinements between the partitions (e.g.~splitting regions or merging them together), so are a good fit for comparing partitions at the same level output by the various waterfall methods. Each produces a real number in the range $[0..1]$ signifying the extent to which the two compared partitions are `similar' (with $0$ being `most similar' and $1$ being `most different'). The GCE specifies similarity in terms of the extent to which one partition is a hierarchical refinement of the other, whereas the LCE specifies similarity in terms of the extent to which the two partitions mutually refine each other. (As such, the GCE is a somewhat stricter measure than the LCE.)
 
