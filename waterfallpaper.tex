@@ -10,6 +10,12 @@
 \usepackage{subfigure}
 \usepackage{url}
 
+%%%%%%%%%%
+% Macros %
+%%%%%%%%%%
+
+\newcommand{\eqdef}{\stackrel{\Delta}{=}}
+
 %%%%%%%%%%%%%%%
 %%% Colours %%%
 %%%%%%%%%%%%%%%
@@ -608,7 +614,7 @@ The SG method is a tree-based, rainfalling approach and works in three recursive
 
 We implemented all three methods (Marcotegui, CN and SG) in \emph{millipede} \cite{millipede}, our software for 3D abdominal CT image segmentation, feature identification and visualisation. The way in which we implemented Marcotegui's method in \emph{millipede} was a refinement of our initial approach that we described in \cite{golodetz08} -- in particular, the new implementation of the step that finds the local minima in the MST uses the first two passes of the SG method as an edge classifier (the local minima are those edges classified as either \{unambiguously in, unambiguously in\}, \{unambiguously in, no flow\} or \{no flow, no flow\}). This is a more efficient way of finding the local minima than the flooding approach described in \cite{golodetz08}.
 
-\subsection{Output}
+\subsection{Output (Quantitative Comparison)}
 
 We compared the outputs of the three methods quantitatively on the publicly-available dataset of $151$ images proposed by Gulshan et al.\ \cite{gulshan10}. This dataset was chosen because it was of a suitable size and provided an interesting variety of different images (it was originally compiled using images from the GrabCut dataset \cite{rother04}, the PASCAL VOC'09 segmentation challenge \cite{everingham09} and the alpha-matting dataset \cite{rhemann09}). Since the images in the dataset are in colour, we first converted them to greyscale using the ImageMagick \cite{imagemagick} command:
 %
@@ -618,33 +624,37 @@ convert <colour filename> -separate -average <greyscale filename>
 %
 Each of the three methods was then used to produce a hierarchy of partitions for each greyscale image. In each case, the gradient magnitude of the input image was initially smoothed using anisotropic diffusion filtering \cite{perona90}. The first output partition in each case was produced using our implementation of Meijster and Roerdink's watershed algorithm \cite{meijster98}.
 
-The three partition hierarchies produced for each image were compared pairwise by extending the \emph{global consistency error} (GCE) and \emph{local consistency error} (LCE) measures proposed in \cite{martin01} from pairs of partitions to pairs of hierarchies. These measures were specifically designed to compare partitions of the same image and be tolerant of hierarchical refinements between the partitions (e.g.~splitting regions or merging them together), so are a good fit for comparing partitions at the same level output by the various waterfall methods. Each produces a real number in the range $[0..1]$ signifying the extent to which the two compared partitions are `similar' (with $0$ being `most similar' and $1$ being `most different'). The GCE specifies similarity in terms of the extent to which one partition is a hierarchical refinement of the other, whereas the LCE specifies similarity in terms of the extent to which the two partitions mutually refine each other. (As such, the GCE is a somewhat stricter measure than the LCE.)
+The three partition hierarchies produced for each image were compared pairwise by extending the \emph{global consistency error} (GCE) measure proposed in \cite{martin01} from pairs of partitions to pairs of hierarchies. This measure was specifically designed to compare partitions of the same image and be tolerant of one partition refining the other (e.g.~by splitting regions or merging them together), so is a good fit for comparing partitions at the same level output by the various waterfall methods. We chose it over the \emph{local consistency error} (LCE) measure proposed in the same paper because it is a stricter test of similarity and thus can be used to more effectively demonstrate the similar outputs of the three waterfall methods. Both the GCE and the LCE produce a real number in the range $[0..1]$ signifying the extent to which the two compared partitions are `similar' (with $0$ being `most similar' and $1$ being `most different').
 
-We initially follow \cite{martin01} and define the GCE and LCE between partitions in terms of the \emph{local refinement error} at each pixel. Let $S_1$ and $S_2$ be two partitions of the same input image $I$ (with $n$ pixels), and for any given pixel $\mathbf{p_i}$, let $R(S,\mathbf{p_i})$ be the set of pixels corresponding to the region in partition $S$ that contains $\mathbf{p_i}$. The (directed) local refinement error $E$ from partition $S_1$ to partition $S_2$ at pixel $\mathbf{p_i}$ is then defined to be:
+We initially follow \cite{martin01} and define the GCE between partitions in terms of the \emph{local refinement error} at each pixel. Let $S_1$ and $S_2$ be two partitions of the same input image $I$ (with $n$ pixels), and for any given pixel $\mathbf{p_i}$, let $R(S,\mathbf{p_i})$ be the set of pixels corresponding to the region in partition $S$ that contains $\mathbf{p_i}$. The (directed) local refinement error $E$ from partition $S_1$ to partition $S_2$ at pixel $\mathbf{p_i}$ is then defined to be:
 %
 \[
 E(S_1,S_2,\mathbf{p_i}) = \frac{|R(S_1,\mathbf{p_i}) \backslash R(S_2,\mathbf{p_i})|}{|R(S_1,\mathbf{p_i})|}
 \]
 %
-The GCE and LCE between partitions can be defined in terms of this as follows:
+The GCE between partitions can be defined in terms of this as follows:
 %
 \[
 GCE(S_1,S_2) = \frac{1}{n} \min \left\{ \sum_i E(S_1,S_2,\mathbf{p_i}), \sum_i E(S_2,S_1,\mathbf{p_i}) \right\}
 \]
-\[
-LCE(S_1,S_2) = \frac{1}{n} \sum_i \min \left\{ E(S_1,S_2,\mathbf{p_i}, E(S_2,S_1,\mathbf{p_i}) \right\}
-\]
 %
-To compare two waterfall partition hierarchies using these measures, we compare corresponding partitions (excluding the input image and the initial partition output by the watershed) at each level of the hierarchy using the partition-based measures and take the maximum error over all hierarchy levels. That is, for two hierarchies $H_1 = (S_0^1,S_1^1,...,S_{k_1}^1)$ and $H_2 = (S_0^2,S_1^2,...,S_{k_2}^2)$, we define:
+To compare two waterfall partition hierarchies using the GCE, we compare corresponding partitions (excluding the input image and the initial partition output by the watershed) at each level of the hierarchy using the partition-based GCE and then seek to find a suitable way of summarising the pairwise GCEs to produce a single similarity value for the two hierarchies. That is, for two hierarchies $H_1 = (S_0^1,S_1^1,...,S_{k_1}^1)$ and $H_2 = (S_0^2,S_1^2,...,S_{k_2}^2)$, we want to choose a suitable summarising operator $\Phi$ in the following definition of a hierarchy-based GCE:
 %
 \[
-MaxGCE(H_1,H_2) = \max_{\ell=2}^{\min(k_1,k_2)} GCE(S_\ell^1,S_\ell^2)
-\]
-\[
-MaxLCE(H_1,H_2) = \max_{\ell=2}^{\min(k_1,k_2)} LCE(S_\ell^1,S_\ell^2)
+GCE(H_1,H_2) = \Phi_{\ell=2}^{\min(k_1,k_2)} GCE(S_\ell^1,S_\ell^2)
 \]
 %
-Using these hierarchy-based measures, we compared the results of both the CN and SG waterfall methods to those of Marcotegui's method, using the latter as a `ground truth' result. TODO
+To choose a reasonable $\Phi$, we observe that it is possible to add additional copies of partitions to the two hierarchies to produce segmentation results that are not fundamentally any different from the originals. Any reasonable definition of $\Phi$ should therefore produce the same similarity value for the two hierarchies after such a modification as before it, i.e. we require that:
+%
+\[
+GCE((...,S_i^1,S_i^1,...),(...,S_i^2,S_i^2,...)) = GCE((...,S_i^1,...),(...,S_i^2,...))
+\]
+%
+A reasonable $\Phi$ that satisfies this requirement is the $\max$ operator, since the similarity value it produces will not change as a result of adding additional copies of existing partitions; moreover, because the produced value represents an upper bound on the dissimilarity between partitions at the same level in the hierarchies, a low result provides an effective means of showing that two hierarchies in general are suitably similar (a downside of using $\max$ is that high results become harder to interpret, but our results were similar enough for this not to be an issue here). We refer to the hierarchy-based GCE with $\Phi \eqdef \max$ as the MaxGCE in what follows.
+
+Using the MaxGCE, we compared the results of both the CN and SG waterfall methods to those of Marcotegui's method, using the latter as a `ground truth' result. As shown in Figure~\ref{?}(a), the vast majority of the results for both methods have a MaxGCE of less than $0.1$ with respect to Marcotegui's method, which is roughly comparable to the GCE values for different human segmentations of the same images in the original paper \cite{martin01}. As shown in Figure~\ref{?}, the results for the SG method are almost always closer to the Marcotegui results than are those for the CN method.
+
+TODO
 
 %In order to compare the outputs of the methods, we ran each of them on three well-known test images from the computer vision field (see Figure~\ref{fig:testimages}). In each case, the gradient magnitude of the input image was initially smoothed using anisotropic diffusion filtering \cite{perona90}. The first output partition in each case was produced using our implementation of Meijster and Roerdink's watershed algorithm \cite{meijster98}. The output partitions were compared by producing difference images using ImageMagick \cite{imagemagick}. The results are shown in Figures~\ref{fig:results-lena}--\ref{fig:results-peppers}.
 
@@ -717,6 +727,10 @@ Using these hierarchy-based measures, we compared the results of both the CN and
 \end{stusubfig}
 %---
 \fi
+
+\subsection{Output (Qualitative Comparison)}
+
+TODO
 
 \subsection{Timings}
 
