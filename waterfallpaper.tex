@@ -157,10 +157,10 @@ tabsize=4
 
 \title{Two Tree-Based Methods for the Waterfall}
 
-\author[ox]{S.M.~Golodetz\corref{cor1}}
+\author[ox]{S.M.~Golodetz\corref{cor1}\fnref{fn1}}
 \ead{sgolodetz@gxstudios.net}
 
-\author[ox]{C.~Nicholls}
+\author[ox]{C.~Nicholls\fnref{fn2}}
 \ead{ChrisNicholls1@gmail.com}
 
 \author[ox]{I.D.~Voiculescu\corref{cor2}}
@@ -171,6 +171,8 @@ tabsize=4
 
 \cortext[cor1]{Principal corresponding author}
 \cortext[cor2]{Corresponding author}
+\fntext[fn1]{S.M.~Golodetz is now with the Nuffield Department of Clinical Neurosciences.}
+\fntext[fn2]{C.~Nicholls is now with Improbable Worlds Ltd.}
 
 \address[ox]{Department of Computer Science, University of Oxford, Wolfson Building, Parks Road, Oxford, OX1 3QD, United Kingdom}
 %\address[cox]{c/o Department of Computer Science, University of Oxford, Parks Road, Oxford OX1 3QD}
@@ -195,7 +197,7 @@ The waterfall transform is a hierarchical segmentation technique based on the we
 There are various existing ways of implementing the waterfall. The initial paper by Beucher \cite{beucher94} presented three methods: a slightly intricate graph-based method that works on the gradient of the mosaic image, a method based on checking for symmetric waterfalls, and a more efficient reconstruction method that works by filling in catchment basins. A fast waterfall method was presented by Marcotegui in \cite{marcotegui05}: this returns to the idea of a graph-based waterfall (using a different graph) and works on a minimum spanning tree (MST) of the graph for improved efficiency. Marcotegui's waterfall method is fast and effective, but it is somewhat fiddly to implement \cite{golodetz08} and its handling of non-minimal plateaux in the MST is not well-specified and depends on precisely how the method is implemented.
 
 %---
-\stufigex{height=11cm}{ipfs-ctconcept.png}{A stack of nested partitions produced by the watershed and waterfall for an example image. The input image (a slice from a CT scan of the abdomen) is the lowest image in the stack. It was subjected to a gradient magnitude filter and smoothed using anisotropic diffusion filtering \cite{perona90} before performing the watershed.}{fig:ipfs-ctconcept}{!t}
+\stufigex{height=10.5cm}{ipfs-ctconcept.png}{A stack of nested partitions produced by the watershed and waterfall for an example image. The input image (a slice from a CT scan of the abdomen) is the lowest image in the stack. It was subjected to a gradient magnitude filter and smoothed using anisotropic diffusion filtering \cite{perona90} before performing the watershed.}{fig:ipfs-ctconcept}{!t}
 %---
 
 \pagebreak
@@ -617,7 +619,7 @@ We implemented all three methods (Marcotegui, CN and SG) in \emph{millipede} \ci
 \subsection{Output (Quantitative Comparison)}
 \label{subsec:experiments-quantitative}
 
-We compared the outputs of the three methods quantitatively on the publicly-available dataset of $151$ images proposed by Gulshan et al.\ \cite{gulshan10}. This dataset was chosen because it was of a suitable size and provided an interesting variety of different images (it was originally compiled using images from the GrabCut dataset \cite{rother04}, the PASCAL VOC'09 segmentation challenge \cite{everingham09} and the alpha-matting dataset \cite{rhemann09}). Since the images in the dataset are in colour, we first converted them to greyscale using the ImageMagick \cite{imagemagick} command:
+In order to demonstrate that our new methods produce results that are similar to those of the existing state-of-the-art, we quantitatively compared the partition hierarchies output by all three methods on the publicly-available dataset of $151$ images proposed by Gulshan et al.\ \cite{gulshan10}. This dataset was chosen because it was of a suitable size and provided an interesting variety of different images (it was originally compiled using images from the GrabCut dataset \cite{rother04}, the PASCAL VOC'09 segmentation challenge \cite{everingham09} and the alpha-matting dataset \cite{rhemann09}). Since the images in the dataset are in colour, we first converted them to greyscale using the ImageMagick \cite{imagemagick} command:
 %
 \begin{alltt}\begin{center}
 convert <colour filename> -separate -average <greyscale filename>
@@ -625,14 +627,14 @@ convert <colour filename> -separate -average <greyscale filename>
 %
 Each of the three methods was then used to produce a hierarchy of partitions for each greyscale image. In each case, the gradient magnitude of the input image was initially smoothed using anisotropic diffusion filtering \cite{perona90}. The first output partition in each case was produced using our implementation of Meijster and Roerdink's watershed algorithm \cite{meijster98}.
 
-The three partition hierarchies produced for each image were compared pairwise by extending the \emph{global consistency error} (GCE) measure proposed in \cite{martin01} from pairs of partitions to pairs of hierarchies. This measure was specifically designed to compare partitions of the same image and be tolerant of one partition refining the other (e.g.~by splitting regions or merging them together), so is a good fit for comparing partitions at the same level output by the various waterfall methods. We chose it over the \emph{local consistency error} (LCE) measure proposed in the same paper because it is a stricter test of similarity and thus can be used to more effectively demonstrate the similar outputs of the three waterfall methods. Both the GCE and the LCE produce a real number in the range $[0..1]$ signifying the extent to which the two compared partitions are `similar' (with $0$ being `most similar' and $1$ being `most different').
+The three partition hierarchies produced for each image were compared pairwise by extending the \emph{global consistency error} (GCE) measure proposed in \cite{martin01} from pairs of partitions to pairs of hierarchies. The original measure was specifically designed to compare partitions of the same image and be tolerant of one partition refining the other (e.g.~by splitting regions or merging them together), so is a good fit for comparing partitions at the same level output by the various waterfall methods. We chose it over the \emph{local consistency error} (LCE) measure proposed in the same paper because it is a stricter test of similarity and thus can be used to more effectively demonstrate the similar outputs of the three waterfall methods. Both the GCE and the LCE produce a real number in the range $[0..1]$ signifying the extent to which the two compared partitions are `similar' (with $0$ being `most similar' and $1$ being `most different').
 
 %---
 \begin{stusubfig}{!t}
 	\subfigure[]{\includegraphics[width=.45\linewidth]{maxgce.png}}%
 	\hspace{4mm}%
 	\subfigure[]{\includegraphics[width=.45\linewidth]{maxgcediff.png}}%
-\caption{A quantitative comparison of the new waterfall methods using the MaxGCE measure defined in \S\ref{subsec:experiments-quantitative}, with Marcotegui's method as a `ground truth' result: (a) the vast majority of the hierarchies produced by the CN and SG methods are very similar (MaxGCE $< 0.1$) to those produced by Marcotegui's method; (b) the hierarchies produced by the SG method are closer to the Marcotegui results than are those produced by the CN method.}
+\caption{A quantitative comparison of the hierarchies output by the waterfall methods using the MaxGCE measure defined in \S\ref{subsec:experiments-quantitative}, with Marcotegui's method as a `ground truth' result: (a) the vast majority of the hierarchies produced by the CN and SG methods are very similar (MaxGCE $< 0.1$) to those produced by Marcotegui's method; (b) the hierarchies produced by the SG method are closer to the Marcotegui results than are those produced by the CN method.}
 \label{fig:quantitative-comparison}
 \end{stusubfig}
 %---
@@ -655,17 +657,17 @@ To compare two waterfall partition hierarchies using the GCE, we compare the cor
 GCE(H_1,H_2) = \Phi_{\ell=2}^{\min(k_1,k_2)} GCE(S_\ell^1,S_\ell^2)
 \]
 %
-To choose a reasonable $\Phi$, we observe that it is possible to add additional copies of existing partitions to the two hierarchies to produce segmentation results that are not fundamentally any different from the originals. Any reasonable definition of $\Phi$ should therefore produce the same similarity value for the two hierarchies after such a modification as before it, i.e.~we require that:
+To choose $\Phi$, we observe that it is possible to add additional copies of existing partitions to the two hierarchies to produce segmentation results that are not fundamentally any different from the originals. Any reasonable definition of $\Phi$ should therefore produce the same similarity value for the two hierarchies after such a modification as before it, i.e.~we require that:
 %
 \[
 GCE((...,S_i^1,S_i^1,...),(...,S_i^2,S_i^2,...)) = GCE((...,S_i^1,...),(...,S_i^2,...))
 \]
 %
-A reasonable $\Phi$ that satisfies this requirement is the $\max$ operator, since the similarity value it produces will not change as a result of adding additional copies of existing partitions; moreover, because the produced value represents an upper bound on the dissimilarity between partitions at the same level in the hierarchies, a low result provides an effective means of showing that two hierarchies in general are suitably similar (a downside of using $\max$ is that high results become harder to interpret, but our results were similar enough for this not to be an issue here). We refer to the hierarchy-based GCE with $\Phi \eqdef \max$ as the MaxGCE in what follows.
+A suitable $\Phi$ that satisfies this requirement is the $\max$ operator, since the similarity value it produces will not change as a result of adding additional copies of existing partitions; moreover, because the produced value represents an upper bound on the dissimilarity between partitions at the same level in the hierarchies, a low result provides an effective means of showing that two hierarchies in general are suitably similar (a downside of using $\max$ is that high results become harder to interpret, but our results were similar enough for this not to be an issue here). We refer to the hierarchy-based GCE with $\Phi \eqdef \max$ as the MaxGCE in what follows.
 
 Using the MaxGCE, we compared the results of both the CN and SG waterfall methods to those of Marcotegui's method, using the latter as a `ground truth' result. As shown in Figure~\ref{fig:quantitative-comparison}(a), the vast majority of the results for both methods have a MaxGCE of less than $0.1$ with respect to Marcotegui's method, which is roughly comparable to the GCE values for different human segmentations of the same images in the original paper \cite{martin01}. As shown in Figure~\ref{fig:quantitative-comparison}(b), the results for the SG method are almost always closer to the Marcotegui results than are those for the CN method.
 
-TODO
+As expected, the outputs of all three methods were very similar: what differences there are are due to the ways in which the different methods handle non-minimal plateaux. The greater relative similarity between the results of the SG and Marcotegui methods in comparison to those of the CN method is an indication that Marcotegui's method is somewhat less arbitrary in its handling of non-minimal plateaux than is the CN method (bearing in mind that the SG method was deliberately designed to handle non-minimal plateaux fairly), but, as illustrated in the next experiment, all three methods produce results that are essentially equivalent for the purposes of feature identification.
 
 %In order to compare the outputs of the methods, we ran each of them on three well-known test images from the computer vision field (see Figure~\ref{fig:testimages}). In each case, the gradient magnitude of the input image was initially smoothed using anisotropic diffusion filtering \cite{perona90}. The first output partition in each case was produced using our implementation of Meijster and Roerdink's watershed algorithm \cite{meijster98}. The output partitions were compared by producing difference images using ImageMagick \cite{imagemagick}. The results are shown in Figures~\ref{fig:results-lena}--\ref{fig:results-peppers}.
 
@@ -745,9 +747,9 @@ TODO
 
 \subsection{Timings}
 
-In order to evaluate how well the methods scale with increasing input size, we timed each of them when used to segment increasingly large sub-images from a 3D abdominal CT scan\footnotemark{}. The overall scan was of size $512 \times 512 \times 132$, and we tested the methods on sub-images of size $512 \times 512 \times n$, for various different values of $n$. There was an upper bound of $n \le 40$ due to memory constraints. The experiment was run on a single 2.4GHz Pentium 4 CPU. Unlike in the previous experiment, in this experiment the input image was not smoothed (since smoothing is time-consuming and affects each method equally). The first output partition was again produced using the Meijster/Roerdink watershed. The results are shown in Figure~\ref{fig:timings}.
+In order to evaluate how well the methods scale with increasing input size, we timed each of them when used to segment increasingly large sub-images from a 3D abdominal CT scan\footnotemark{}. The overall scan was of size $512 \times 512 \times 132$, and we tested the methods on sub-images of size $512 \times 512 \times n$, for various different values of $n$. There was an upper bound of $n \le 40$ due to memory constraints. The experiment was run on a single 2.4GHz Pentium 4 CPU. Unlike in the output experiments, in this experiment the input image was not smoothed (since smoothing is time-consuming and affects each method equally). The first output partition was again produced using the Meijster/Roerdink watershed. The results are shown in Figure~\ref{fig:timings}.
 
-Each of the three methods is linear in $n$ (minor variations are accounted for by the fact that the abdominal CT slices themselves differ), but their constant factors vary. Each of the new methods presented in this paper (CN and SG) consistently outperformed our implementation of Marcotegui's method: the SG method by around $16$\% and the CN method by around $32$\%. In the interests of fairness, it is important to note that this comparison is evidently subject to the quality of our implementation of Marcotegui's method. We have attempted to make the comparison as fair as possible by implementing Marcotegui's method efficiently, but given that the difference comes down to constant factors, the comparison is bound to be somewhat dependent on implementation detail. It does however seem plausible that a simple, tree-based approach such as the CN method might outperform a more complicated graph-based one; as such, the results as presented seem reasonable, if in no way conclusive.
+Each of the three methods is linear in $n$ (minor variations are accounted for by the fact that the abdominal CT slices themselves differ), but their constant factors vary. Both of the new methods presented in this paper (CN and SG) consistently outperformed our implementation of Marcotegui's method: the SG method by around $16$\% and the CN method by around $32$\%. In the interests of fairness, it is important to note that this comparison is evidently subject to the quality of our implementation of Marcotegui's method. We have attempted to make the comparison as fair as possible by implementing Marcotegui's method efficiently, but given that the difference comes down to constant factors, the comparison is bound to be somewhat dependent on implementation detail. It does however seem plausible that a simple, tree-based approach such as the CN method might outperform a more complicated graph-based one; as such, the results as presented seem reasonable, if in no way conclusive.
 
 %---
 \stufigex{width=.95\linewidth}{timings.png}{Timing results for the three methods on sub-images of an abdominal CT scan. The experiment was run on a single 2.4GHz Pentium 4 CPU. The overall scan was of size $512 \times 512 \times 132$, and each point on the graph represents how long (in seconds) a specific method took to run on a sub-image of size $512 \times 512 \times n$.}{fig:timings}{!t}
@@ -776,7 +778,7 @@ In this paper, we have presented two new, tree-based methods for the classical w
 \label{sec:acknowledgements}
 %###########################
 
-We are profoundly grateful to Dr.\ Zoe Traill of the Churchill Hospital, Oxford, both for providing us with abdominal CT scans and for giving up her time to help us interpret them. We also gratefully acknowledge the support of the UK Engineering and Physical Sciences Research Council (EPSRC) in funding Stuart Golodetz's doctoral work via a Doctoral Training Account (DTA).
+We are profoundly grateful to Dr.\ Zoe Traill of the Churchill Hospital, Oxford, both for providing us with abdominal CT scans and for giving up her time to help us interpret them. We also gratefully acknowledge the support of the UK Engineering and Physical Sciences Research Council (EPSRC) in funding Stuart Golodetz's doctoral work via a Doctoral Training Account (DTA). We would additionally like to thank our anonymous reviewers for their constructive comments regarding this paper.
 
 \bibliographystyle{elsarticle-num}
 \bibliography{existingwork,mypapers,overseg}
