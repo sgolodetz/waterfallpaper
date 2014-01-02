@@ -619,13 +619,49 @@ We implemented all three methods (Marcotegui, CN and SG) in \emph{millipede} \ci
 \subsection{Similarity of Results}
 \label{subsec:experiments-similarity}
 
-In order to demonstrate that our new methods produce results that are similar to those of the existing state-of-the-art, we quantitatively compared the partition hierarchies output by all three methods on the publicly-available dataset of $151$ images proposed by Gulshan et al.\ \cite{gulshan10} (see Figure~\ref{?} for some example results). This dataset was chosen because it was of a suitable size and provided an interesting variety of different images (it was originally compiled using images from the GrabCut dataset \cite{rother04}, the PASCAL VOC'09 segmentation challenge \cite{everingham09} and the alpha-matting dataset \cite{rhemann09}). Since the images in the dataset are in colour, we first converted them to greyscale using the ImageMagick \cite{imagemagick} command:
+In order to demonstrate that our new methods produce results that are similar to those of the existing state-of-the-art, we quantitatively compared the partition hierarchies output by all three methods on the publicly-available dataset of $151$ images proposed by Gulshan et al.\ \cite{gulshan10} (see Figure~\ref{fig:sheep} for an example result). This dataset was chosen because it was of a suitable size and provided an interesting variety of different images (it was originally compiled using images from the GrabCut dataset \cite{rother04}, the PASCAL VOC'09 segmentation challenge \cite{everingham09} and the alpha-matting dataset \cite{rhemann09}). Since the images in the dataset are in colour, we first converted them to greyscale using the ImageMagick \cite{imagemagick} command:
 %
 \begin{alltt}\begin{center}
 convert <colour filename> -separate -average <greyscale filename>
 \end{center}\end{alltt}
 %
 Each of the three methods was then used to produce a hierarchy of partitions for each greyscale image. In each case, the gradient magnitude of the input image was initially smoothed using anisotropic diffusion filtering \cite{perona90}. The first output partition in each case was produced using our implementation of Meijster and Roerdink's watershed algorithm \cite{meijster98}.
+
+%---
+\begin{stusubfig}{!t}
+	\subfigure{\includegraphics[width=.3\linewidth]{sheep_2007_003593.png}}%
+	\hspace{4mm}%
+	\subfigure{\includegraphics[width=.3\linewidth]{sheep_2007_003593.png}}%
+	\hspace{4mm}%
+	\subfigure{\includegraphics[width=.3\linewidth]{sheep_2007_003593.png}}%
+	\\
+	\subfigure{\includegraphics[width=.3\linewidth]{sheep_2007_003593-partition-2-M.png}}%
+	\hspace{4mm}%
+	\subfigure{\includegraphics[width=.3\linewidth]{sheep_2007_003593-partition-2-NC.png}}%
+	\hspace{4mm}%
+	\subfigure{\includegraphics[width=.3\linewidth]{sheep_2007_003593-partition-2-G.png}}%
+	\\
+	\subfigure{\includegraphics[width=.3\linewidth]{sheep_2007_003593-partition-3-M.png}}%
+	\hspace{4mm}%
+	\subfigure{\includegraphics[width=.3\linewidth]{sheep_2007_003593-partition-3-NC.png}}%
+	\hspace{4mm}%
+	\subfigure{\includegraphics[width=.3\linewidth]{sheep_2007_003593-partition-3-G.png}}%
+	\\
+	\subfigure{\includegraphics[width=.3\linewidth]{sheep_2007_003593-partition-4-M.png}}%
+	\hspace{4mm}%
+	\subfigure{\includegraphics[width=.3\linewidth]{sheep_2007_003593-partition-4-NC.png}}%
+	\hspace{4mm}%
+	\subfigure{\includegraphics[width=.3\linewidth]{sheep_2007_003593-partition-4-G.png}}%
+	\\
+	\subfigure{\includegraphics[width=.3\linewidth]{sheep_2007_003593-partition-5-M.png}}%
+	\hspace{4mm}%
+	\subfigure{\includegraphics[width=.3\linewidth]{sheep_2007_003593-partition-5-NC.png}}%
+	\hspace{4mm}%
+	\subfigure{\includegraphics[width=.3\linewidth]{sheep_2007_003593-partition-5-G.png}}%
+\caption{The results of the three waterfall methods for the \emph{sheep\_2007\_003593} image from the dataset of Gulshan et al.\ \cite{gulshan10}. Starting from the top, the rows show partitions $0$, $2$, $3$, $4$ and $5$ of the image for each method (partition $1$, i.e.~the watershed result, is irrelevant and therefore not shown). The first column shows the results of Marcotegui's method, the second column shows the results of the CN method and the third column shows the results of the SG method. Note that the Marcotegui and SG results are closer to each other than to the results of the CN method.}
+\label{fig:sheep}
+\end{stusubfig}
+%---
 
 The three partition hierarchies produced for each image were compared pairwise by extending the \emph{global consistency error} (GCE) measure proposed in \cite{martin01} from pairs of partitions to pairs of hierarchies. The original measure was specifically designed to compare partitions of the same image and be tolerant of one partition refining the other (e.g.~by splitting regions or merging them together), so is a good fit for comparing partitions at the same level output by the various waterfall methods. We chose it over the \emph{local consistency error} (LCE) measure proposed in the same paper because it is a stricter test of similarity and thus can be used to more effectively demonstrate the similar outputs of the three waterfall methods. Both the GCE and the LCE produce a real number in the range $[0..1]$ signifying the extent to which the two compared partitions are `similar' (with $0$ being `most similar' and $1$ being `most different').
 
@@ -668,103 +704,6 @@ A suitable $\Phi$ that satisfies this requirement is the $\max$ operator, since 
 Using the MaxGCE, we compared the results of both the CN and SG waterfall methods to those of Marcotegui's method, using the latter as a `ground truth' result. As shown in Figure~\ref{fig:quantitative-comparison}(a), the vast majority of the results for both methods have a MaxGCE of less than $0.1$ with respect to Marcotegui's method, which is roughly comparable to the GCE values for different human segmentations of the same images in the original paper \cite{martin01}. As shown in Figure~\ref{fig:quantitative-comparison}(b), the results for the SG method are almost always closer to the Marcotegui results than are those for the CN method.
 
 As expected, the outputs of all three methods were very similar: what differences there are are due to the ways in which the different methods handle non-minimal plateaux. The greater relative similarity between the results of the SG and Marcotegui methods in comparison to those of the CN method is an indication that our implementation of Marcotegui's method is somewhat less arbitrary in its handling of non-minimal plateaux than is our implementation of the CN method (bearing in mind that the SG method was deliberately designed to handle non-minimal plateaux fairly).
-
-%, but, as illustrated in the next experiment, all three methods produce results that are equally suitable for the purposes of feature identification.
-
-\iffalse
-\subsection{Output (Qualitative Comparison)}
-
-In order to illustrate the practical differences between the three methods, we show the results of running each of them on three well-known test images from the computer vision field (see Figure~\ref{fig:testimages}). Whilst this is evidently a much less objective comparison than the quantitative one just performed, we feel it is helpful to see some example results so as to gain an empirical understanding of the extent to which the different outputs vary in practice. It also provides a sanity check of our MaxGCE similarity measure, indicating that it corresponds well to a subjective visual comparison of the results.
-
-%---
-\begin{table}
-\begin{center}
-\begin{tabular}{c|ccc}
-\textbf{Method} & \textbf{Lena} & \textbf{Baboon} & \textbf{Peppers} \\
-\hline
-CN & 0.0564553 & 0.0262527 & 0.0132383 \\
-SG & 0.00451909 & 0.0131664 & 0.00957589
-\end{tabular}
-\end{center}
-\caption{TODO}
-\label{tbl:qualitative-comparison}
-\end{table}
-%---
-
-For this experiment, we performed the initial smoothing and watershed steps as in the previous section. The output waterfall partitions were compared by producing difference images using ImageMagick \cite{imagemagick} (see Figures~\ref{fig:results-lena}--\ref{fig:results-peppers}). We also compared these images using the MaxGCE measure defined in the previous section (see Table~\ref{tbl:qualitative-comparison}). We can make the following observations:
-%
-\begin{enumerate}
-
-\item The results of the SG method for these images correspond closely to the results of Marcotegui's method. TODO
-
-\end{enumerate}
-
-%---
-\begin{stusubfig}{!t}
-	\subfigure[Lena]{\includegraphics[width=.3\linewidth]{lena.png}}%
-	\hspace{4mm}%
-	\subfigure[Baboon]{\includegraphics[width=.3\linewidth]{baboon.png}}%
-	\hspace{4mm}%
-	\subfigure[Peppers]{\includegraphics[width=.3\linewidth]{pepper.png}}%
-\caption{The three test images used to compare the methods}
-\label{fig:testimages}
-\end{stusubfig}
-%---
-
-%---
-\begin{stusubfig}{!t}
-	\subfigure[Marcotegui]{\includegraphics[width=.3\linewidth]{lena-partition-3-M.png}}%
-	\hspace{4mm}%
-	\subfigure[CN Method]{\includegraphics[width=.3\linewidth]{lena-partition-3-NC.png}}%
-	\hspace{4mm}%
-	\subfigure[SG Method]{\includegraphics[width=.3\linewidth]{lena-partition-3-G.png}}%
-	\\
-	\subfigure[CN vs. SG]{\includegraphics[width=.3\linewidth]{lena-diff-3-GNC.png}}%
-	\hspace{4mm}%
-	\subfigure[Marcotegui vs. CN]{\includegraphics[width=.3\linewidth]{lena-diff-3-MNC.png}}%
-	\hspace{4mm}%
-	\subfigure[Marcotegui vs. SG]{\includegraphics[width=.3\linewidth]{lena-diff-3-GM.png}}%
-\caption[]{Comparing the third partition produced by each of the methods for Lena. The top row shows the results produced by each method. The bottom row highlights the differences between the results.}
-\label{fig:results-lena}
-\end{stusubfig}
-%---
-
-%---
-\begin{stusubfig}{p}
-	\subfigure[Marcotegui]{\includegraphics[width=.3\linewidth]{baboon-partition-3-M.png}}%
-	\hspace{4mm}%
-	\subfigure[CN Method]{\includegraphics[width=.3\linewidth]{baboon-partition-3-NC.png}}%
-	\hspace{4mm}%
-	\subfigure[SG Method]{\includegraphics[width=.3\linewidth]{baboon-partition-3-G.png}}%
-	\\
-	\subfigure[CN vs. SG]{\includegraphics[width=.3\linewidth]{baboon-diff-3-GNC.png}}%
-	\hspace{4mm}%
-	\subfigure[Marcotegui vs. CN]{\includegraphics[width=.3\linewidth]{baboon-diff-3-MNC.png}}%
-	\hspace{4mm}%
-	\subfigure[Marcotegui vs. SG]{\includegraphics[width=.3\linewidth]{baboon-diff-3-GM.png}}%
-\caption[]{Comparing the third partition produced by each of the methods for Baboon.}
-\label{fig:results-baboon}
-\end{stusubfig}
-%---
-
-%---
-\begin{stusubfig}{p}
-	\subfigure[Marcotegui]{\includegraphics[width=.3\linewidth]{pepper-partition-3-M.png}}%
-	\hspace{4mm}%
-	\subfigure[CN Method]{\includegraphics[width=.3\linewidth]{pepper-partition-3-NC.png}}%
-	\hspace{4mm}%
-	\subfigure[SG Method]{\includegraphics[width=.3\linewidth]{pepper-partition-3-G.png}}%
-	\\
-	\subfigure[CN vs. SG]{\includegraphics[width=.3\linewidth]{pepper-diff-3-GNC.png}}%
-	\hspace{4mm}%
-	\subfigure[Marcotegui vs. CN]{\includegraphics[width=.3\linewidth]{pepper-diff-3-MNC.png}}%
-	\hspace{4mm}%
-	\subfigure[Marcotegui vs. SG]{\includegraphics[width=.3\linewidth]{pepper-diff-3-GM.png}}%
-\caption[]{Comparing the third partition produced by each of the methods for Peppers.}
-\label{fig:results-peppers}
-\end{stusubfig}
-%---
-\fi
 
 \subsection{Timings}
 
