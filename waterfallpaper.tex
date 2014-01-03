@@ -707,15 +707,33 @@ As expected, the outputs of all three methods were very similar: what difference
 
 \subsection{Timings}
 
-In order to evaluate how well the methods scale with increasing input size, we timed each of them when used to segment increasingly large sub-images from a 3D abdominal CT scan\footnotemark{}. The overall scan was of size $512 \times 512 \times 132$, and we tested the methods on sub-images of size $512 \times 512 \times n$, for various different values of $n$. There was an upper bound of $n \le 40$ due to memory constraints. The experiment was run on a single 2.4GHz Pentium 4 CPU. Unlike in the output experiments, in this experiment the input image was not smoothed (since smoothing is time-consuming and affects each method equally). The first output partition was again produced using the Meijster/Roerdink watershed. The results are shown in Figure~\ref{fig:timings}.
-
-Each of the three methods is linear in $n$ (minor variations are accounted for by the fact that the abdominal CT slices themselves differ), but their constant factors vary. Both of the new methods presented in this paper (CN and SG) consistently outperformed our implementation of Marcotegui's method: the SG method by around $16$\% and the CN method by around $32$\%. In the interests of fairness, it is important to note that this comparison is evidently subject to the quality of our implementation of Marcotegui's method. We have attempted to make the comparison as fair as possible by implementing Marcotegui's method efficiently, but given that the difference comes down to constant factors, the comparison is bound to be somewhat dependent on implementation detail. It does however seem plausible that a simple, tree-based approach such as the CN method might outperform a more complicated graph-based one; as such, the results as presented seem reasonable, if in no way conclusive.
-
 %---
 \stufigex{width=.95\linewidth}{timings.png}{Timing results for the three methods on sub-images of an abdominal CT scan. The experiment was run on a single 2.4GHz Pentium 4 CPU. The overall scan was of size $512 \times 512 \times 132$, and each point on the graph represents how long (in seconds) a specific method took to run on a sub-image of size $512 \times 512 \times n$.}{fig:timings}{!t}
 %---
 
+In order to evaluate how well the methods scale with increasing input size, we timed each of them when used to segment increasingly large sub-images from a 3D abdominal CT scan\footnotemark{}. The overall scan was of size $512 \times 512 \times 132$, and we tested the methods on sub-images of size $512 \times 512 \times n$, for various different values of $n$. There was an upper bound of $n \le 40$ due to memory constraints. The experiment was run on a single 2.4GHz Pentium 4 CPU. Unlike in the output experiments, in this experiment the input image was not smoothed (since smoothing is time-consuming and affects each method equally). The first output partition was again produced using the Meijster/Roerdink watershed. The results are shown in Figure~\ref{fig:timings}.
+
+Each of the three methods is linear in $n$ (minor variations are accounted for by the fact that the abdominal CT slices themselves differ), but their constant factors vary. Both of the new methods presented in this paper (CN and SG) consistently outperformed our implementation of Marcotegui's method: the SG method by around $16$\% and the CN method by around $32$\%. In the interests of fairness, it is important to note that this comparison is evidently subject to the quality of our implementation of Marcotegui's method. We have attempted to make the comparison as fair as possible by implementing Marcotegui's method efficiently, but given that the difference comes down to constant factors, the comparison is bound to be somewhat dependent on implementation detail. It does however seem plausible that a simple, tree-based approach such as the CN method might outperform a more complicated graph-based one; as such, the results as presented seem reasonable, if in no way conclusive.
+
 \footnotetext{Specifically, this was the `BT' scan we obtained from the Churchill Hospital, Oxford.}
+
+\subsection{Non-Minimal Plateaux Behaviour}
+
+%---
+\begin{stusubfig}{!t}
+	\subfigure[Input Image]{\includegraphics[width=.25\linewidth]{bars256.png}}%
+	\hspace{4mm}%
+	\subfigure[Partition $2$ (SG)]{\includegraphics[width=.25\linewidth]{bars-partition-2-G.png}}%
+	\\
+	\subfigure[Partition $2$ (M)]{\includegraphics[width=.25\linewidth]{bars-partition-2-M.png}}%
+	\hspace{4mm}%
+	\subfigure[Partition $2$ (CN)]{\includegraphics[width=.25\linewidth]{bars-partition-2-NC.png}}%
+\caption{An example highlighting the differences in non-minimal plateaux behaviour of the three waterfall methods (M $\equiv$ Marcotegui). Note that the SG method deliberately avoids merging the regions corresponding to the light grey bars, whereas both of the other two methods arbitrarily choose to merge them into the surrounding regions.}
+\label{fig:plateaux-behaviour}
+\end{stusubfig}
+%---
+
+In order to demonstrate the differences in non-minimal plateaux behaviour exhibited by the three methods, we ran each of them on a manually-constructed test image (see Figure~\ref{fig:plateaux-behaviour}(a)). The expectation was that the first partition in each case (the watershed result, not shown) would contain the $7$ thin bars in the image, and that the second partitions of the three methods (the results of the first waterfall passes) would exhibit interesting differences with respect to the $3$ light grey bars in the image. Indeed, as shown in Figures~\ref{fig:plateaux-behaviour}(b)-(d), the SG method avoids merging the light grey bars into surrounding regions, in contrast to the Marcotegui and CN methods, which arbitrarily merge them in one direction or the other. It should be noted that the precise decisions made by the Marcotegui and CN methods with regard the way in which to merge the bars depends on implementation details, as previously noted. As such, the results for those methods here should only be considered illustrative, in that other implementations may produce slightly different (but still biased) results.
 
 %#####################
 \section{Discussion}
