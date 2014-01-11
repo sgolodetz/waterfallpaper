@@ -2,6 +2,7 @@
 
 \usepackage{afterpage}
 \usepackage{alltt}
+\usepackage{amsfonts}
 \usepackage{bold-extra}
 \usepackage{color}
 \usepackage{float}
@@ -449,21 +450,48 @@ Despite the speed and effectiveness of Marcotegui's method, it can be somewhat i
 \end{stusubfig}
 %---
 
-The CN method initially roots the MST (see Figure~\ref{fig:segmentation-waterfall-nicholls-root}), adding a dummy `root edge' with a value strictly greater than the values of the edges descending from the root node (we will henceforth -- without ambiguity -- call edges descending from a node \emph{children} of the edge ascending from that node). The value chosen is unimportant, but $\infty$ or $1$ greater than the maximum value on a child edge are sensible choices. Each pass of the method is invoked on the root edge, and proceeds recursively as follows:
+The CN method initially roots the MST (see Figure~\ref{fig:segmentation-waterfall-nicholls-root}), adding a dummy `root edge' with a value strictly greater than the values of the edges descending from the root node (we will henceforth -- without ambiguity -- call edges descending from a node \emph{children} of the edge ascending from that node). The value chosen is unimportant, but $\infty$ or $1$ greater than the maximum value on a child edge are sensible choices (we use $\infty$ here for clarity of presentation).
+
+Let $T = (N,E)$ be the rooted MST on which the method is to operate, with node set $N = (n_i)$ and edge set $E = \{(n_p,n_c)\}$ such that $n_p$ is the parent of $n_c$. We define $C(e)$ to be the children of edge $e$, i.e.
+%
+\[
+C(e) = \{(n_c,\_) \; | \; e = (n_p,n_c)\}
+\]
+%
+Each edge $e$ has an immutable weight $w(e) \in \mathbb{N}^+$ and a mutable flag $f(e) \in \{\mathcal{G},\mathcal{NG}\}$, where $f(e) = \mathcal{G}$ denotes that $e$ is a guard edge and $f(e) = \mathcal{NG}$ denotes that it is a non-guard. The root edge is denoted $e_r$ and satisfies $w(e_r) = \infty$, as mentioned above.
+
+Each pass of the method is then invoked on the root edge and proceeds recursively as follows (in which we denote the current edge as $e$):
 %
 \begin{enumerate}
 
-\item If the current edge is a leaf edge (i.e.~it has no child edges) then it is marked as a non-guard edge.
+\item If $e$ is a leaf edge (i.e.~$C(e) = \emptyset$) then it is marked as a non-guard edge (i.e.~$f(e) \leftarrow \mathcal{NG}$).
 
 \item Otherwise:
 
 \begin{enumerate}
 
-\item We recurse on all the child edges.
+\item We recurse on the children of $e$ (i.e.~the edges in $C(e)$).
 
-\item A child edge with minimum value is chosen (if one or more of the children with minimum value is a guard edge, one of those is chosen in preference to a non-guard). This is then referred to as the `lowest child'. The value on the current edge is compared to the value on the lowest child. If its value is less than that of the lowest child, it is marked as a non-guard edge; otherwise it is marked as a guard and the lowest child is marked as a non-guard.
+\item A child edge with minimum value is chosen (if one or more of the children with minimum value is a guard edge, one of those is chosen in preference to a non-guard). This is then referred to as the `lowest child'. The value on the current edge is compared to the value on the lowest child. If its value is less than that of the lowest child, it is marked as a non-guard edge; otherwise it is marked as a guard and the lowest child is marked as a non-guard. (Let $\mbox{SC}(e)$ be the result of sorting $C(e)$ first by value, lowest first, and then by flag (G before N), and let $\pi_1,...,\pi_k$ be the corresponding permutation of $1,...,k$, that is
 
-\item All non-guard children are then contracted.
+\[
+\mbox{SC}(e) = (c_{\pi_1},...,c_{\pi_k})
+\]
+
+with
+
+\[
+\forall i \cdot w(c_{\pi_i}) \le w(c_{\pi_{i+1}})
+\]
+
+and
+\[
+\forall i \cdot flag(c_{\pi_i}) = N \Rightarrow flag(c_{\pi_{i+1}}) = N
+\]
+
+Let $c_\ell = c_{\pi_1}$ be the (chosen) lowest child. If $w(e) \le w(c_\ell)$ then $\mbox{flag}(e) \leftarrow N$ else $\mbox{flag}(e) \leftarrow G$ and $\mbox{flag}(c_\ell) \leftarrow N$.)
+
+\item All non-guard children are then contracted. (Contract each $c$ in $\mbox{SC}(e)$ such that $\mbox{flag}(c) = N$.)
 
 \end{enumerate}
 
@@ -589,8 +617,8 @@ The SG method is a tree-based, rainfalling approach and works in three recursive
 \item \emph{Up Pass.} Starting from the root:
 
 \begin{enumerate}
-\item Recursively process any children (the fact that the children are processed first is why this is called an `up' pass).
-\item If this node has a unique edge of steepest descent (i.e.~a unique lowest-valued edge leading out of it, which can be the parent edge), add an arrow on the node pointing along the edge.
+\item Recursively process any children (the fact that the children are processed first is why this is called an `up' pass). (Recurse on every node in $C_N(n)$, the node children of $n$.)
+\item If this node has a unique edge of steepest descent (i.e.~a unique lowest-valued edge leading out of it, which can be the parent edge), add an arrow on the node pointing along the edge. (Let $\mbox{steepest\_edges}(n) = \arg\min_{e \in \mbox{adjacent\_edges}(n)} w(e)$. If $|\mbox{steepest\_edges}(n)| = 1$, $\mbox{arrows}(n) \leftarrow \{\mbox{far\_end}(e) | e \in \mbox{steepest\_edges}(n)\}$.)
 \item Otherwise, consider all the lowest-valued child edges (i.e.~ignore the parent for now, even if it is also a lowest-valued edge) that satisfy the condition that there is no arrow on the node at the other end of the edge pointing along the edge towards this node. If there are no such child edges, then this node is unescapable along a child edge and should be given a distance value of $\infty$. Otherwise, each of these child edges can be assigned a distance value equal to $1$ greater than the value on the node at the other end of the edge: this value on the node will be $0$ for nodes from which there is a unique path of steepest descent, and non-zero otherwise. Pick all the child edges whose distance value is minimal and add arrows from this node pointing along them (these indicate the initial paths of steepest descent from this node). Store the minimum distance value as this node's value.
 \item Now consider the parent edge: if it was a lowest-valued edge, mark it as a potential path of steepest descent to avoid the need to check again in the second pass (in the figures, an open-headed arrow is used to mark a parent edge for later processing).
 \end{enumerate}
