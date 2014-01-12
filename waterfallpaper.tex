@@ -416,13 +416,13 @@ Despite the speed and effectiveness of Marcotegui's method, it can be somewhat i
 
 %---
 \begin{stusubfig}{p}
-	\subfigure[The considered edge is not the unique lowest edge]
-	{\includegraphics[height=4.5cm]{segmentation-waterfall-nicholls-cases-a.png}}%
+	\subfigure[The considered edge is the unique lowest edge]
+	{\includegraphics[height=4.5cm]{segmentation-waterfall-nicholls-cases-b.png}}%
 	%
 	\hspace{4mm}%
 	%
-	\subfigure[The considered edge is the unique lowest edge]
-	{\includegraphics[height=4.5cm]{segmentation-waterfall-nicholls-cases-b.png}}%
+	\subfigure[The considered edge is not the unique lowest edge]
+	{\includegraphics[height=4.5cm]{segmentation-waterfall-nicholls-cases-a.png}}%
 \caption[Case analysis for the recursive step of the CN method]{Case analysis for the recursive step of the CN method: black edges are non-guards, red edges are guards, blue edges are those which have been contracted and the green edge is the one under active consideration. The arrow (on the node) indicates the direction in which the method presumes water to flow.}
 \label{fig:segmentation-waterfall-nicholls-cases}
 \end{stusubfig}
@@ -450,56 +450,47 @@ Despite the speed and effectiveness of Marcotegui's method, it can be somewhat i
 \end{stusubfig}
 %---
 
-The CN method initially roots the MST (see Figure~\ref{fig:segmentation-waterfall-nicholls-root}), adding a dummy `root edge' with a value strictly greater than the values of the edges descending from the root node (we will henceforth -- without ambiguity -- call edges descending from a node \emph{children} of the edge ascending from that node). The value chosen is unimportant, but $\infty$ or $1$ greater than the maximum value on a child edge are sensible choices (we use $\infty$ here for clarity of presentation).
+The CN method initially roots the MST (see Figure~\ref{fig:segmentation-waterfall-nicholls-root}), adding a dummy `root edge' with a weight strictly greater than the weights of the edges descending from the root node (we will henceforth -- without ambiguity -- call edges descending from a node \emph{children} of the edge ascending from that node). The weight chosen is unimportant, but $\infty$ or $1$ greater than the maximum weight on a child edge are sensible choices (we use $\infty$ here for clarity of presentation).
 
-Let $T = (N,E)$ be the rooted MST on which the method is to operate, with node set $N = (n_i)$ and edge set $E = \{(n_p,n_c)\}$ such that $n_p$ is the parent of $n_c$. We define $C(e)$ to be the children of edge $e$, i.e.
+To specify the method, let $T = (N,E)$ be the rooted MST on which the method is to operate, with node set $N = (n_i)$ and edge set $E = \{(n_p,n_c)\}$ such that $n_p$ is the parent of $n_c$. We define $C(e)$ to be the children of edge $e$ in some unspecified but fixed order, i.e.
 %
 \[
-C(e) = \{(n_c,\_) \; | \; e = (n_p,n_c)\}
+C(e) = (c_1,...,c_k) = ((n_c,\_) \; | \; e = (n_p,n_c))
 \]
 %
 Each edge $e$ has an immutable weight $w(e) \in \mathbb{N}^+$ and a mutable flag $f(e) \in \{\mathcal{G},\mathcal{NG}\}$, where $f(e) = \mathcal{G}$ denotes that $e$ is a guard edge and $f(e) = \mathcal{NG}$ denotes that it is a non-guard. The root edge is denoted $e_r$ and satisfies $w(e_r) = \infty$, as mentioned above.
 
-Each pass of the method is then invoked on the root edge and proceeds recursively as follows (in which we denote the current edge as $e$):
+Each pass of the method is then invoked on $e_r$ and proceeds recursively as follows (in which we denote the current edge, initially $e_r$, as $e$):
 %
 \begin{enumerate}
 
-\item If $e$ is a leaf edge (i.e.~$C(e) = \emptyset$) then it is marked as a non-guard edge (i.e.~$f(e) \leftarrow \mathcal{NG}$).
+\item If $e$ is a leaf edge (i.e.~$C(e) = \emptyset$), then it is marked as a non-guard edge (i.e.~$f(e) \leftarrow \mathcal{NG}$).
 
 \item Otherwise:
 
 \begin{enumerate}
 
-\item We recurse on the children of $e$ (i.e.~the edges in $C(e)$).
+\item We recurse on all the children of $e$ (i.e.~the edges in $C(e)$).
 
-\item A child edge with minimum value is chosen (if one or more of the children with minimum value is a guard edge, one of those is chosen in preference to a non-guard). This is then referred to as the `lowest child'. The value on the current edge is compared to the value on the lowest child. If its value is less than that of the lowest child, it is marked as a non-guard edge; otherwise it is marked as a guard and the lowest child is marked as a non-guard. (Let $\mbox{SC}(e)$ be the result of sorting $C(e)$ first by value, lowest first, and then by flag (G before N), and let $\pi_1,...,\pi_k$ be the corresponding permutation of $1,...,k$, that is
-
+\item A child edge $c_{\min}$ with minimum weight is chosen (if one or more of the children with minimum weight is a guard edge, one of those is chosen in preference to a non-guard). Formally, let $\mbox{SC}(e)$ be a result of sorting $C(e)$ first by weight (in non-decreasing order) and then by flag ($\mathcal{G}$ before $\mathcal{NG}$), and let $\pi_1,...,\pi_k$ be the corresponding permutation of $1,...,k$, i.e.
+%
 \[
-\mbox{SC}(e) = (c_{\pi_1},...,c_{\pi_k})
+SC(e) = (c_{\pi_1},...,c_{\pi_k})
 \]
+%
+Then $c_{\min}$ is chosen to be $c_{\pi_1}$. Note that $c_{\min}$ is not uniquely specified because there may be more than one valid way of sorting $C(e)$ to produce $\mbox{SC}(e)$.
 
-with
+\item If $w(e) < w(c_{\min})$ then $e$ is marked as a non-guard edge (i.e.~$f(e) \leftarrow \mathcal{NG}$); otherwise, $e$ is marked as a guard ($f(e) \leftarrow \mathcal{G}$) and $c_{\min}$ is marked as a non-guard ($f(c_{\min}) \leftarrow \mathcal{NG}$).
 
-\[
-\forall i \cdot w(c_{\pi_i}) \le w(c_{\pi_{i+1}})
-\]
+\item There are now two possibilities. If $w(e) < w(c_{\min})$, i.e.~the current edge (the parent edge) $e = (n_p,n_c)$ is strictly the lowest edge leading out of its child node $n_c$, then the implied flow from $n_c$ is entirely along $e$ (see Figure~\ref{fig:segmentation-waterfall-nicholls-cases}(a)), in which case $e$ should be marked as a non-guard edge (i.e.~$f(e) \leftarrow \mathcal{NG}$). Conversely, if $w(e) \ge w(c_{\min})$ then at least part of the implied flow from the node is along $c_{\min}$ (see Figure~\ref{fig:segmentation-waterfall-nicholls-cases}(b)), in which case $e$ should be marked as a guard ($f(e) \leftarrow \mathcal{G}$) and $c_{\min}$ as a non-guard ($f(c_{\min}) \leftarrow \mathcal{NG}$). Note that in this case, the method arbitrarily assumes that all the implied flow is along $c_{\min}$, even though some of it may be along other edges leading out of $n_c$.
 
-and
-\[
-\forall i \cdot flag(c_{\pi_i}) = N \Rightarrow flag(c_{\pi_{i+1}}) = N
-\]
-
-Let $c_\ell = c_{\pi_1}$ be the (chosen) lowest child. If $w(e) \le w(c_\ell)$ then $\mbox{flag}(e) \leftarrow N$ else $\mbox{flag}(e) \leftarrow G$ and $\mbox{flag}(c_\ell) \leftarrow N$.)
-
-\item All non-guard children are then contracted. (Contract each $c$ in $\mbox{SC}(e)$ such that $\mbox{flag}(c) = N$.)
+\item All non-guard children (i.e.~$\{c \in C(e) \; | \; f(c) = \mathcal{NG}\}$) are then contracted.
 
 \end{enumerate}
 
 \end{enumerate}
-
-\noindent The workings of the method can be illuminated by a case analysis. There are two cases to consider: either the current edge (the parent edge) \emph{isn't} strictly the lowest leading out of a node, in which case at least part of the implied flow from the node is along the lowest child (see Figure~\ref{fig:segmentation-waterfall-nicholls-cases}(a)), or it is, in which case the implied flow from the node is entirely along the parent (see Figure~\ref{fig:segmentation-waterfall-nicholls-cases}(b)). In the first case, the method arbitrarily assumes that all the implied flow is along the lowest child. In both cases, the various child edges are then contracted (or not) accordingly. Figure~\ref{fig:segmentation-waterfall-nicholls-example} illustrates how the method works on the same graph used to illustrate Marcotegui's method above.
-
-The assumption that all the implied flow is along the lowest child in the first case is this method's way of dealing with non-minimal plateaux in the MST. As with the Marcotegui method's dependence on a priority queue implementation, this is a slightly arbitrary way of handling non-minimal plateaux: in particular, the selected direction of implied flow from a particular node depends on both where the MST is rooted, and the specific method used to choose the lowest child. The method also discounts the possibility that part of the implied flow is along the parent. All of this affects which specific edges are contracted. As with Marcotegui's method, this tends not to significantly degrade the end result, but it still in principle seems desirable to devise a method that does not depend on such implementation details. In the following section, we therefore present an alternative tree-based method that handles non-minimal plateaux in the MST more robustly.
+%
+Figure~\ref{fig:segmentation-waterfall-nicholls-example} illustrates how the method works on the same graph used to illustrate Marcotegui's method above. The assumption that all the implied flow is along $c_{\min}$ when $w(e) \ge w(c_{\min})$ is this method's way of dealing with non-minimal plateaux in the MST. As with the Marcotegui method's dependence on a priority queue implementation, this is a slightly arbitrary way of handling non-minimal plateaux: in particular, the selected direction of implied flow from a particular node depends on both where the MST is rooted, and the way in which $C(e)$ is sorted when choosing $c_{\min}$. The method also discounts the possibility that part of the implied flow is along the parent. All of this affects which specific edges are contracted. As with Marcotegui's method, this tends not to significantly degrade the end result, but it still in principle seems desirable to devise a method that does not depend on such implementation details. In the following section, we therefore present an alternative tree-based method that handles non-minimal plateaux in the MST more robustly.
 
 %#############################
 \section{SG Method}
