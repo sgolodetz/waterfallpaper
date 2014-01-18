@@ -503,7 +503,7 @@ In order to account for non-minimal plateaux in the MST, we adopt an idea from M
 
 The SG method is a tree-based, rainfalling approach and works in three recursive sub-passes. The first sub-pass works up the tree from the leaf nodes, marking initial path(s) of steepest descent from each node whilst allowing for the fact that they may need to be refined later. The second sub-pass works down the tree from the root, updating the path(s) for each node to take account of routes via parent edges and marking edges for later contraction as necessary. The final sub-pass works up the tree again to actually contract the marked edges (this cannot be done on a down pass for technical reasons). The MST can be rooted anywhere in order to form the input tree -- the results are the same for any choice of root.
 
-To specify the method, let $T = (N,E)$ again be the rooted MST on which the method is to operate (this time without the dummy root edge added by the CN method). We define $C_N(n)$ to be the child nodes of node $n$, i.e.~$\{n_c \; | \; \exists (n,n_c) \in E\}$, $C_E(n)$ to be the child edges of $n$, i.e.~$\{(n,n_c) \; | \; n_c \in C_N(n)\}$ and $p_N(n)$ and $p_E(n)$ to be the corresponding parent functions, e.g.~$n_c \in C_N(n) \Leftrightarrow n = p_N(n_c)$. Edges have immutable weights in $\mathbb{N}^+$, as for the previous method. Each node $n$ has a distance value $d(n)$, a set of arrows $A(n)$, each element of which is a node $n'$ indicating an arrow from $n$ to $n'$, and a flag $checkParent(n)$ indicating whether or not to check for an upwards route from $n$ in step $2$ of the method. We additionally define the following helper functions: $adjacentEdges(n)$ determines the set of edges that have $n$ as an endpoint, $farEnd(e,n)$ determines the node at the far end of edge $e$ from node $n$, and $reverseArrow(e,n)$ determines whether or not there is an arrow on the node at the far end of $e$ from $n$ that points towards $n$, i.e.~$n \in A(farEnd(e,n))$. For brevity of notation, we also define a function $farEnds(E',n)$ that maps $farEnd$ over the edge set $E'$.
+To specify the method, let $T = (N,E)$ again be the rooted MST on which the method is to operate (this time without the dummy root edge added by the CN method). We define $C_N(n)$ to be the child nodes of node $n$, i.e.~$\{n_c \; | \; \exists (n,n_c) \in E\}$, $C_E(n)$ to be the child edges of $n$, i.e.~$\{(n,n_c) \; | \; n_c \in C_N(n)\}$ and $p_N(n)$ and $p_E(n)$ to be the corresponding parent functions, e.g.~$n_c \in C_N(n) \Leftrightarrow n = p_N(n_c)$. Edges have immutable weights in $\mathbb{N}^+$, as for the previous method. Each node $n$ has a distance value $d(n)$, a set of arrows $A(n)$, each element of which is a node $n'$ indicating an arrow from $n$ to $n'$, and a flag $checkParent(n)$ (false by default) indicating whether or not to check for an upwards route from $n$ in step $2$ of the method. We additionally define the following helper functions: $adjacentEdges(n)$ determines the set of edges that have $n$ as an endpoint, $farEnd(e,n)$ determines the node at the far end of edge $e$ from node $n$, and $reverseArrow(e,n)$ determines whether or not there is an arrow on the node at the far end of $e$ from $n$ that points towards $n$, i.e.~$n \in A(farEnd(e,n))$. For brevity of notation, we also define a function $farEnds(E',n)$ that maps $farEnd$ over the edge set $E'$.
 
 For each waterfall pass, the three sub-passes of the method are invoked sequentially on the root node $n_r$ of $T$, each proceeding recursively as follows (in which we always denote the current node, initially $n_r$ for each sub-pass, as $n$):
 
@@ -520,23 +520,23 @@ For each waterfall pass, the three sub-passes of the method are invoked sequenti
 	\hspace{4mm}%
 	%
 	\subfigure[]
-	{\includegraphics[width=.35\linewidth]{segmentation-waterfall-smg-pass1cases-c.png}}%
-	%
-	\hspace{4mm}%
-	%
-	\subfigure[]
-	{\includegraphics[width=.35\linewidth]{segmentation-waterfall-smg-pass1cases-d.png}}%
-	%
-	\hspace{4mm}%
-	%
-	\subfigure[]
 	{\includegraphics[width=.35\linewidth]{segmentation-waterfall-smg-pass1cases-e.png}}%
 	%
 	\hspace{4mm}%
 	%
 	\subfigure[]
 	{\includegraphics[width=.35\linewidth]{segmentation-waterfall-smg-pass1cases-f.png}}%
-\caption{Case analysis for the first pass of the SG method: (a) the node has a unique path of steepest descent down a child edge; (b) the node has a unique path of steepest descent up the parent edge; (c) the node has more than one path of steepest descent (and the parent edge is not one of them); (d) the node has more than one \emph{downwards} path of steepest descent (but the parent edge still needs to be considered); (e) there is no flow out of the node; (f) there is no downwards flow out of the node (but the parent edge still needs to be considered).}
+	%
+	\hspace{4mm}%
+	%
+	\subfigure[]
+	{\includegraphics[width=.35\linewidth]{segmentation-waterfall-smg-pass1cases-c.png}}%
+	%
+	\hspace{4mm}%
+	%
+	\subfigure[]
+	{\includegraphics[width=.35\linewidth]{segmentation-waterfall-smg-pass1cases-d.png}}%
+\caption{Case analysis for the first pass of the SG method: (a) the node has a unique path of steepest descent down a child edge; (b) the node has a unique path of steepest descent up the parent edge; (c) there is no flow out of the node; (d) there is no downwards flow out of the node (but the parent edge still needs to be considered); (e) the node has more than one path of steepest descent (and the parent edge is not one of them); (f) the node has more than one \emph{downwards} path of steepest descent (but the parent edge still needs to be considered).}
 \label{fig:segmentation-waterfall-smg-pass1cases}
 \end{stusubfig}
 %---
@@ -614,7 +614,7 @@ For each waterfall pass, the three sub-passes of the method are invoked sequenti
 \item \emph{Up Sub-Pass.}
 
 \begin{enumerate}
-\item We recursively process any children of the node (i.e.~any node in $C_N(n)$). The fact that the children are processed first is why this is called an `up' sub-pass.
+\item We recursively process any children of the node (i.e.~any nodes in $C_N(n)$). The fact that the children are processed first is why this is called an `up' sub-pass.
 
 \item If $n$ has a unique edge of steepest descent (i.e.~a unique lowest-weighted edge leading out of it, which can be the parent edge), add an arrow on the node pointing along the edge (see Figures~\ref{fig:segmentation-waterfall-smg-pass1cases}(a) and (b)). Formally, we define a set containing the lowest-weighted edges leading out of $n$:
 %
@@ -630,7 +630,7 @@ Then, if $steepestEdges(n) = \{e\}$, we set $A(n)$ to be $\{farEnd(e,n)\}$.
 \{e \in steepestEdges(n) \backslash \{p_E(n)\} \; | \; \neg reverseArrow(e,n)\}
 \]
 %
-If there are no such child edges (i.e.~$escapableChildEdges(n) = \emptyset$), then $n$ is unescapable along a child edge and its distance value $d(n)$ should be set to $\infty$. Otherwise, we assign to each edge $e \in escapableChildEdges(n)$ a temporary distance value $d'(e) = 1 + d(farEnd(e,n))$, i.e.~a value $1$ greater than the value on the node at the other end of the edge. (The value on the far node will be $0$ for nodes from which there is a unique path of steepest descent, and non-zero otherwise.) We pick all the child edges whose distance value is minimal and add arrows from $n$ pointing along them (these indicate the initial paths of steepest descent from $n$). We also store the minimum distance value as $d(n)$. Formally, we may write:
+If there are no such child edges (i.e.~$escapableChildEdges(n) = \emptyset$), then $n$ is unescapable along a child edge and its distance value $d(n)$ should be set to $\infty$ (see Figures~\ref{fig:segmentation-waterfall-smg-pass1cases}(c) and (d)). Otherwise, we assign to each edge $e \in escapableChildEdges(n)$ a temporary distance value $d'(e) = 1 + d(farEnd(e,n))$, i.e.~a value $1$ greater than the value on the node at the other end of the edge. (The value on the far node will be $0$ for nodes from which there is a unique path of steepest descent, and non-zero otherwise.) We pick all the child edges whose distance value is minimal and add arrows from $n$ pointing along them (these indicate the initial paths of steepest descent from $n$). We also store the minimum distance value as $d(n)$ (see Figures~\ref{fig:segmentation-waterfall-smg-pass1cases}(e) and (f)). Formally, we write:
 %
 \begin{align*}
 A(n) &\leftarrow farEnds(\argmin_{}\{d'(e) \; | \; e \in escapableChildEdges(n)\}, n) \\
@@ -640,19 +640,21 @@ d(n) &\leftarrow \min_{}\{d'(e) \; | \; e \in escapableChildEdges(n)\}
 \item Finally, if the parent edge of $n$ was a lowest-valued edge (i.e.~$p_E(n) \in steepestEdges(n)$), then set $checkParent(n)$ to true to mark the parent edge as a potential path of steepest descent for further processing in the second sub-pass (see Figures~\ref{fig:segmentation-waterfall-smg-pass1cases}(d) and (f), in which an open-headed arrow is used to mark the parent edge for later processing).
 \end{enumerate}
 
-\item \emph{Down Pass.} Starting from the root:
+\item \emph{Down Sub-Pass.}
 
 \begin{enumerate}
-\item \emph{Check upwards route.} If a node was marked as having a potential upwards path of steepest descent, first check to make sure that there is no arrow on the parent node pointing down the edge to this node. If not, there is a possible route upwards whose distance value is $1$ greater than the value on the parent node. This is compared to any existing routes downwards via child edges. If the upwards route is strictly better, the downwards arrows are removed, the upwards route is marked and the distance value on the node is updated to reflect the better route. If the upwards route is equally good, the parent edge is marked but no other changes are made. If the upwards route is worse, it is simply ignored.
-\item \emph{Check whether the parent edge (if any) should be contracted.} The decision on whether or not to contract an edge is based on a classification of its two end nodes with respect to the edge itself (this is why it can only be done at this point in the method). Nodes can be classified into one of five types with respect to the edge: unambiguously in (the flow from the node goes only along this edge), ambiguously in (part, but not all, of the flow from the node goes along this edge), unambiguously out (the flow from the node goes along precisely one of the other edges leading out of it), ambiguously out (the flow from the node goes along at least two of the other edges leading out of it) and no flow (there is no flow from the node at all). Based on these classifications, the parent edge is either marked for contraction or not according to the case analysis shown in Figure~\ref{fig:segmentation-waterfall-smg-mergecases}. Note that there are only $13$ cases possible, rather than the expected $15$: \{ambiguously in, ambiguously in\} and \{ambiguously in, unambiguously in\} can never occur due to the way the method works.
+\item \emph{Check upwards route.} If $n$ was marked as having a potential upwards path of steepest descent (i.e.~$checkParent(n)$ is true), first check to make sure that there is no arrow on the parent node pointing down the edge to this node (i.e.~$reverseArrow(p_E(n),n)$ is false). If there is no such arrow, then there is a possible route upwards with distance value $d' = 1 + d(p_N(n))$. This is compared to the cost of the best existing routes downwards via child edges (stored as $d(n)$). If the upwards route is strictly better (i.e.~$d' < d(n)$), then the upwards route replaces the downwards ones (i.e.~$A(n) \leftarrow \{p_N(n)\}$) and the distance value on the node is updated to reflect the better route (i.e.~$d(n) \leftarrow d'$). If the upwards route is equally good (i.e.~$d' = d(n)$), the parent edge is marked (i.e.~$A(n) \leftarrow A(n) \cup \{p_N(n)\}$) but no other changes are made. If the upwards route is worse (i.e.~$d' > d(n)$), it is simply ignored.
+
+\item \emph{Check whether the parent edge $p_E(n)$ (if any) should be contracted.} The decision on whether or not to contract an edge is based on a classification of its two end nodes with respect to the edge itself (this is why it can only be done at this point in the method). Nodes can be classified into one of five types with respect to the edge: unambiguously in (the flow from the node goes only along this edge), ambiguously in (part, but not all, of the flow from the node goes along this edge), unambiguously out (the flow from the node goes along precisely one of the other edges leading out of it), ambiguously out (the flow from the node goes along at least two of the other edges leading out of it) and no flow (there is no flow from the node at all). Based on these classifications, the parent edge is either marked for contraction or not according to the case analysis shown in Figure~\ref{fig:segmentation-waterfall-smg-mergecases}. Note that there are only $13$ cases possible, rather than the expected $15$: \{ambiguously in, ambiguously in\} and \{ambiguously in, unambiguously in\} can never occur due to the way the method works.
+
 \item \emph{Recurse on any children}.
 \end{enumerate}
 
-\item \emph{Up Pass.} Walk back up the tree to contract the marked edges.
+\item \emph{Up Sub-Pass.} Walk back up the tree to contract the marked edges.
 
 \end{enumerate}
 
-\noindent It is possible to perform a case analysis for the first pass and the route resolution step 2(a) as well (see Figures~\ref{fig:segmentation-waterfall-smg-pass1cases} and \ref{fig:segmentation-waterfall-smg-resolutioncases}), and this is helpful to clarify the workings of the method. Figure~\ref{fig:segmentation-waterfall-smg-example} illustrates how the method works on the now familiar graph used to demonstrate the workings of the previous two waterfall approaches.
+\noindent Figure~\ref{fig:segmentation-waterfall-smg-example} illustrates how the method works on the now familiar graph used to demonstrate the workings of the previous two waterfall approaches.
 
 %######################
 \section{Experiments}
