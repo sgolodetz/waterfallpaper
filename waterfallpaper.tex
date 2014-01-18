@@ -548,8 +548,8 @@ For each waterfall pass, the three sub-passes of the method are invoked sequenti
 	%
 	\hspace{4mm}%
 	%
-	\subfigure[There is no flow from the parent node]
-	{\includegraphics[height=4cm]{segmentation-waterfall-smg-resolutioncases-b.png}}%
+	\subfigure[There is a better route via the parent node]
+	{\includegraphics[height=4cm]{segmentation-waterfall-smg-resolutioncases-d.png}}%
 	%
 	\hspace{4mm}%
 	%
@@ -558,8 +558,8 @@ For each waterfall pass, the three sub-passes of the method are invoked sequenti
 	%
 	\hspace{4mm}%
 	%
-	\subfigure[There is a better route via the parent node]
-	{\includegraphics[height=4cm]{segmentation-waterfall-smg-resolutioncases-d.png}}%
+	\subfigure[There is no flow from the parent node]
+	{\includegraphics[height=4cm]{segmentation-waterfall-smg-resolutioncases-b.png}}%
 \caption[Case analysis for the resolution step of the SG method]{Case analysis for the resolution step of the SG method (the circled node is the one currently under consideration in each case)}
 \label{fig:segmentation-waterfall-smg-resolutioncases}
 \end{stusubfig}
@@ -630,12 +630,16 @@ Then, if $steepestEdges(n) = \{e\}$, we set $A(n)$ to be $\{farEnd(e,n)\}$.
 \{e \in steepestEdges(n) \backslash \{p_E(n)\} \; | \; \neg reverseArrow(e,n)\}
 \]
 %
-If there are no such child edges (i.e.~$escapableChildEdges(n) = \emptyset$), then $n$ is unescapable along a child edge and its distance value $d(n)$ should be set to $\infty$ (see Figures~\ref{fig:segmentation-waterfall-smg-pass1cases}(c) and (d)). Otherwise, we assign to each edge $e \in escapableChildEdges(n)$ a temporary distance value $d'(e) = 1 + d(farEnd(e,n))$, i.e.~a value $1$ greater than the value on the node at the other end of the edge. (The value on the far node will be $0$ for nodes from which there is a unique path of steepest descent, and non-zero otherwise.) We pick all the child edges whose distance value is minimal and add arrows from $n$ pointing along them (these indicate the initial paths of steepest descent from $n$). We also store the minimum distance value as $d(n)$ (see Figures~\ref{fig:segmentation-waterfall-smg-pass1cases}(e) and (f)). Formally, we write:
+If there are no such child edges (i.e.~$escapableChildEdges(n) = \emptyset$), then $n$ is unescapable along a child edge and its distance value $d(n)$ should be set to $\infty$ (see Figures~\ref{fig:segmentation-waterfall-smg-pass1cases}(c) and (d)). Otherwise, we assign to each edge $e \in escapableChildEdges(n)$ a temporary distance value $d'(e) = 1 + d(farEnd(e,n))$, i.e.~a value $1$ greater than the value on the node at the other end of the edge. (The value on the far node will be $0$ for nodes from which there is a unique path of steepest descent, and non-zero otherwise.) We pick all the child edges whose distance value is minimal and add arrows from $n$ pointing along them (these indicate the initial paths of steepest descent from $n$). We also store the minimum distance value as $d(n)$ (see Figures~\ref{fig:segmentation-waterfall-smg-pass1cases}(e) and (f)). Formally, we write
 %
-\begin{align*}
-A(n) &\leftarrow farEnds(\argmin_{}\{d'(e) \; | \; e \in escapableChildEdges(n)\}, n) \\
-d(n) &\leftarrow \min_{}\{d'(e) \; | \; e \in escapableChildEdges(n)\}
-\end{align*}
+\[
+A(n) \leftarrow farEnds(\argmin_{}\{d'(e) \; | \; e \in escapableChildEdges(n)\}, n)
+\]
+%
+and
+\[
+d(n) \leftarrow \min_{}\{d'(e) \; | \; e \in escapableChildEdges(n)\}.
+\]
 
 \item Finally, if the parent edge of $n$ was a lowest-valued edge (i.e.~$p_E(n) \in steepestEdges(n)$), then set $checkParent(n)$ to true to mark the parent edge as a potential path of steepest descent for further processing in the second sub-pass (see Figures~\ref{fig:segmentation-waterfall-smg-pass1cases}(d) and (f), in which an open-headed arrow is used to mark the parent edge for later processing).
 \end{enumerate}
@@ -643,7 +647,7 @@ d(n) &\leftarrow \min_{}\{d'(e) \; | \; e \in escapableChildEdges(n)\}
 \item \emph{Down Sub-Pass.}
 
 \begin{enumerate}
-\item \emph{Check upwards route.} If $n$ was marked as having a potential upwards path of steepest descent (i.e.~$checkParent(n)$ is true), first check to make sure that there is no arrow on the parent node pointing down the edge to this node (i.e.~$reverseArrow(p_E(n),n)$ is false). If there is no such arrow, then there is a possible route upwards with distance value $d' = 1 + d(p_N(n))$. This is compared to the cost of the best existing routes downwards via child edges (stored as $d(n)$). If the upwards route is strictly better (i.e.~$d' < d(n)$), then the upwards route replaces the downwards ones (i.e.~$A(n) \leftarrow \{p_N(n)\}$) and the distance value on the node is updated to reflect the better route (i.e.~$d(n) \leftarrow d'$). If the upwards route is equally good (i.e.~$d' = d(n)$), the parent edge is marked (i.e.~$A(n) \leftarrow A(n) \cup \{p_N(n)\}$) but no other changes are made. If the upwards route is worse (i.e.~$d' > d(n)$), it is simply ignored.
+\item \emph{Check upwards route.} If $n$ was marked as having a potential upwards path of steepest descent (i.e.~$checkParent(n)$ is true), we first check whether or not there is an arrow on the parent node $p_N(n)$ pointing down the edge to this node (given by $reverseArrow(p_E(n),n)$). If there is such an arrow (see Figure~\ref{fig:segmentation-waterfall-smg-resolutioncases}(a)), then $n$ is unescapable via its parent; otherwise, there is a possible route upwards with distance value $d' = 1 + d(p_N(n))$. This is compared to the cost of the best existing routes downwards from $n$ via child edges (stored as $d(n)$). If, as in Figure~\ref{fig:segmentation-waterfall-smg-resolutioncases}(b), the upwards route is strictly better (i.e.~$d' < d(n)$), then it replaces the downwards routes (i.e.~$A(n) \leftarrow \{p_N(n)\}$) and we update the distance value on the node to reflect the better route (i.e.~$d(n) \leftarrow d'$). If, as in Figure~\ref{fig:segmentation-waterfall-smg-resolutioncases}(c), the upwards route is equally good (i.e.~$d' = d(n)$), the parent edge is marked (i.e.~$A(n) \leftarrow A(n) \cup \{p_N(n)\}$) but no other changes are made. If the upwards route is worse (i.e.~$d' > d(n)$), it is simply ignored. An extreme example of this case, when there is no flow at all out of the parent node, is shown in Figure~\ref{fig:segmentation-waterfall-smg-resolutioncases}(d).
 
 \item \emph{Check whether the parent edge $p_E(n)$ (if any) should be contracted.} The decision on whether or not to contract an edge is based on a classification of its two end nodes with respect to the edge itself (this is why it can only be done at this point in the method). Nodes can be classified into one of five types with respect to the edge: unambiguously in (the flow from the node goes only along this edge), ambiguously in (part, but not all, of the flow from the node goes along this edge), unambiguously out (the flow from the node goes along precisely one of the other edges leading out of it), ambiguously out (the flow from the node goes along at least two of the other edges leading out of it) and no flow (there is no flow from the node at all). Based on these classifications, the parent edge is either marked for contraction or not according to the case analysis shown in Figure~\ref{fig:segmentation-waterfall-smg-mergecases}. Note that there are only $13$ cases possible, rather than the expected $15$: \{ambiguously in, ambiguously in\} and \{ambiguously in, unambiguously in\} can never occur due to the way the method works.
 
