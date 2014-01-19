@@ -534,7 +534,7 @@ For each waterfall pass, the three sub-passes of the method are invoked sequenti
 	%
 	\subfigure[]
 	{\includegraphics[width=.35\linewidth]{segmentation-waterfall-smg-pass1cases-d.png}}%
-\caption{Case analysis for the first pass of the SG method: (a) the node has a unique path of steepest descent down a child edge; (b) the node has a unique path of steepest descent up the parent edge; (c) there is no flow out of the node; (d) there is no downwards flow out of the node (but the parent edge still needs to be considered); (e) the node has more than one path of steepest descent (and the parent edge is not one of them); (f) the node has more than one \emph{downwards} path of steepest descent (but the parent edge still needs to be considered).}
+\caption{Case analysis for the first sub-pass of the SG method: (a) the node has a unique path of steepest descent down a child edge; (b) the node has a unique path of steepest descent up the parent edge; (c) there is no flow out of the node; (d) there is no downwards flow out of the node (but the parent edge still needs to be considered); (e) the node has more than one path of steepest descent (and the parent edge is not one of them); (f) the node has more than one \emph{downwards} path of steepest descent (but the parent edge still needs to be considered).}
 \label{fig:segmentation-waterfall-smg-pass1cases}
 \end{stusubfig}
 %---
@@ -597,11 +597,11 @@ For each waterfall pass, the three sub-passes of the method are invoked sequenti
 
 %---
 \begin{stusubfig}{!t}
-	\subfigure[The initial tree]{\includegraphics[width=.3\linewidth]{segmentation-waterfall-smg-example-initial.png}}%
+	\subfigure[The initial tree]{\includegraphics[width=.28\linewidth]{segmentation-waterfall-smg-example-initial.png}}%
 	\hspace{4mm}%
-	\subfigure[After the first pass]{\includegraphics[width=.3\linewidth]{segmentation-waterfall-smg-example-pass1.png}}%
+	\subfigure[After the first pass]{\includegraphics[width=.28\linewidth]{segmentation-waterfall-smg-example-pass1.png}}%
 	\hspace{4mm}%
-	\subfigure[After the second pass]{\includegraphics[width=.3\linewidth]{segmentation-waterfall-smg-example-pass2.png}}%
+	\subfigure[After the second pass]{\includegraphics[width=.28\linewidth]{segmentation-waterfall-smg-example-pass2.png}}%
 \caption[The SG method running on a real example]{The SG method running on a real example: the arrows on the nodes indicate the flow direction, blue edges are those that will be contracted and red edges are those that won't be.}
 \label{fig:segmentation-waterfall-smg-example}
 \end{stusubfig}
