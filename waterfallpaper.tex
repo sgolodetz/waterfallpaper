@@ -425,7 +425,7 @@ Despite the speed and effectiveness of Marcotegui's method, it can be somewhat i
 	%
 	\subfigure[The considered edge is not the unique lowest edge]
 	{\includegraphics[height=4.5cm]{segmentation-waterfall-nicholls-cases-a.png}}%
-\caption[Case analysis for the recursive step of the CN method]{Case analysis for the recursive step of the CN method: black edges are non-guards, red edges are guards, blue edges are those which have been contracted and the green edge is $e = (n_p,n_c)$, the edge under active consideration. The arrow (on the node $n_c$) indicates the direction in which the method presumes water to flow.}
+\caption[Case analysis for step 2(c) of the CN method]{Case analysis for step 2(c) of the CN method: black edges are non-guards, red edges are guards, blue edges are those which have been contracted and the green edge is $e = (n_p,n_c)$, the edge under active consideration. The arrow (on the node $n_c$) indicates the direction in which the method presumes water to flow.}
 \label{fig:segmentation-waterfall-nicholls-cases}
 \end{stusubfig}
 %---
@@ -482,7 +482,7 @@ SC(e) = (c_{\pi_1},...,c_{\pi_k})
 %
 Then $c_{\min}$ is chosen to be $c_{\pi_1}$. Note that $c_{\min}$ is not uniquely specified because there may be more than one possible way of sorting $C(e)$ to produce $\mbox{SC}(e)$.
 
-\item There are now two possibilities. If $w(e) < w(c_{\min})$, i.e.~the current edge $e = (n_p,n_c)$ is strictly the lowest edge leading out of its child node $n_c$, then the implied flow from $n_c$ is entirely along $e$ (see Figure~\ref{fig:segmentation-waterfall-nicholls-cases}(a)), in which case $e$ should be marked as a non-guard edge (i.e.~$f(e) \leftarrow \mathcal{NG}$). Conversely, if $w(e) \ge w(c_{\min})$ then at least part of the implied flow from the node is along $c_{\min}$ (see Figure~\ref{fig:segmentation-waterfall-nicholls-cases}(b)), in which case $e$ should be marked as a guard ($f(e) \leftarrow \mathcal{G}$) and $c_{\min}$ as a non-guard ($f(c_{\min}) \leftarrow \mathcal{NG}$). Note that in this case, the method arbitrarily assumes that all the implied flow is along $c_{\min}$, even though some of it may be along other edges leading out of $n_c$.
+\item There are now two possibilities. If $w(e) < w(c_{\min})$, i.e.~the current edge $e = (n_p,n_c)$ is strictly the lowest edge leading out of its child node $n_c$, then the implied flow from $n_c$ is entirely along $e$ (see Figure~\ref{fig:segmentation-waterfall-nicholls-cases}(a)), in which case $e$ should be marked as a non-guard edge (i.e.~$f(e) \leftarrow \mathcal{NG}$). Conversely, if $w(e) \ge w(c_{\min})$ then at least part of the implied flow from the node is along $c_{\min}$ (see Figure~\ref{fig:segmentation-waterfall-nicholls-cases}(b)), in which case $e$ should be marked as a guard (i.e.~$f(e) \leftarrow \mathcal{G}$) and $c_{\min}$ as a non-guard (i.e.~$f(c_{\min}) \leftarrow \mathcal{NG}$). Note that in this case, the method arbitrarily assumes that all the implied flow is along $c_{\min}$, even though some of it may be along other edges leading out of $n_c$.
 
 \item All non-guard children (i.e.~$\{c \in C(e) \; | \; f(c) = \mathcal{NG}\}$) are then contracted.
 
@@ -501,9 +501,9 @@ In order to account for non-minimal plateaux in the MST, we adopt an idea from M
 
 The SG method is a tree-based, rainfalling approach and works in three recursive sub-passes. The first sub-pass works up the tree from the leaf nodes, marking initial path(s) of steepest descent from each node whilst allowing for the fact that they may need to be refined later. The second sub-pass works down the tree from the root, updating the path(s) for each node to take account of routes via parent edges and marking edges for later contraction as necessary. The final sub-pass works up the tree again to actually contract the marked edges (this cannot be done on a down pass for technical reasons). The MST can be rooted anywhere in order to form the input tree -- the results are the same for any choice of root.
 
-To specify the method, let $T = (N,E)$ again be the rooted MST on which the method is to operate (this time without the dummy root edge added by the CN method). We define $C_N(n)$ to be the child nodes of node $n$, i.e.~$\{n_c \; | \; \exists (n,n_c) \in E\}$, $C_E(n)$ to be the child edges of $n$, i.e.~$\{(n,n_c) \; | \; n_c \in C_N(n)\}$ and $p_N(n)$ and $p_E(n)$ to be the corresponding parent functions, e.g.~$n_c \in C_N(n) \Leftrightarrow n = p_N(n_c)$. Edges have immutable weights in $\mathbb{N}^+$, as for the previous method. Each node $n$ has a distance value $d(n)$, a set of arrows $A(n)$, each element of which is a node $n'$ indicating an arrow from $n$ to $n'$, and a flag $checkParent(n)$ (false by default) indicating whether or not to check for an upwards route from $n$ in step $2$ of the method. We additionally define the following helper functions: $adjacentEdges(n)$ determines the set of edges that have $n$ as an endpoint, $farEnd(e,n)$ determines the node at the far end of edge $e$ from node $n$, and $reverseArrow(e,n)$ determines whether or not there is an arrow on the node at the far end of $e$ from $n$ that points towards $n$, i.e.~$n \in A(farEnd(e,n))$. For brevity of notation, we also define a function $farEnds(E',n)$ that maps $farEnd$ over the edge set $E'$.
+To specify the method, let $T = (N,E)$ again be the rooted MST on which the method is to operate (this time without the dummy root edge added by the CN method). We define $C_N(n)$ to be the child nodes of node $n$, i.e.~$\{n_c \; | \; \exists (n,n_c) \in E\}$, $C_E(n)$ to be the child edges of $n$, i.e.~$\{(n,n_c) \; | \; n_c \in C_N(n)\}$ and $p_N(n)$ and $p_E(n)$ to be the corresponding parent functions, e.g.~$n_c \in C_N(n) \Leftrightarrow n = p_N(n_c)$. Edges have immutable weights in $\mathbb{N}^+$, as for the previous method. Each node $n$ has a distance value $d(n)$, a set of arrows $A(n)$ (each element of which is a node $n'$ indicating an arrow from $n$ to $n'$) and a flag $checkParent(n)$ (false by default), indicating whether or not to check for an upwards route from $n$ in step $2$ of the method. We additionally define the following helper functions: $adjacentEdges(n)$ determines the set of edges that have $n$ as an endpoint, $farEnd(e,n)$ determines the node at the far end of edge $e$ from node $n$, and $reverseArrow(e,n)$ determines whether or not there is an arrow on the node at the far end of $e$ from $n$ that points towards $n$, i.e.~$n \in A(farEnd(e,n))$. For brevity, we also define a function $farEnds(E',n)$ that maps $farEnd$ over the edge set $E'$.
 
-For each waterfall pass, the three sub-passes of the method are invoked sequentially on the root node $n_r$ of $T$, each proceeding recursively as follows (in which we always denote the current node, initially $n_r$ for each sub-pass, as $n$):
+For each waterfall pass, the three sub-passes of the method are invoked sequentially on the root node $n_r$ of $T$ as follows (in which we consistently denote the current node, initially $n_r$ for each sub-pass, as $n$):
 
 %---
 \begin{stusubfig}{!t}
@@ -558,7 +558,7 @@ For each waterfall pass, the three sub-passes of the method are invoked sequenti
 	%
 	\subfigure[There is no flow from the parent node]
 	{\includegraphics[height=4cm]{segmentation-waterfall-smg-resolutioncases-b.png}}%
-\caption[Case analysis for the resolution step of the SG method]{Case analysis for the resolution step of the SG method (the circled node is the one currently under consideration in each case)}
+\caption[Case analysis for step 2(a) of the SG method]{Case analysis for step 2(a) of the SG method (the circled node is the one currently under consideration in each case)}
 \label{fig:segmentation-waterfall-smg-resolutioncases}
 \end{stusubfig}
 %---
@@ -590,18 +590,18 @@ For each waterfall pass, the three sub-passes of the method are invoked sequenti
 	\subfigure[NF/AI]{\includegraphics[height=5cm]{segmentation-waterfall-smg-mergecases-nfai.png}}%
 	\hspace{4mm}
 	\subfigure[NF/AO]{\includegraphics[height=5cm]{segmentation-waterfall-smg-mergecases-nfao.png}}%
-\caption[Case analysis for the edge contraction step of the SG method]{Case analysis for the edge contraction step of the SG method (a blue edge indicates that the edge would be contracted; a red edge indicates that it wouldn't). The labels are AI = ambiguously in, AO = ambiguously out, NF = no flow, UI = unambiguously in and UO = unambiguously out.}
+\caption[Case analysis for step 2(b) of the SG method]{Case analysis for step 2(b) of the SG method (a blue edge indicates that the edge would be contracted; a red edge indicates that it wouldn't). The labels are AI = ambiguously in, AO = ambiguously out, NF = no flow, UI = unambiguously in and UO = unambiguously out.}
 \label{fig:segmentation-waterfall-smg-mergecases}
 \end{stusubfig}
 %---
 
 %---
 \begin{stusubfig}{!t}
-	\subfigure[The initial tree]{\includegraphics[width=.28\linewidth]{segmentation-waterfall-smg-example-initial.png}}%
+	\subfigure[The initial tree]{\includegraphics[width=.25\linewidth]{segmentation-waterfall-smg-example-initial.png}}%
 	\hspace{4mm}%
-	\subfigure[After the first pass]{\includegraphics[width=.28\linewidth]{segmentation-waterfall-smg-example-pass1.png}}%
+	\subfigure[After step $1$]{\includegraphics[width=.25\linewidth]{segmentation-waterfall-smg-example-pass1.png}}%
 	\hspace{4mm}%
-	\subfigure[After the second pass]{\includegraphics[width=.28\linewidth]{segmentation-waterfall-smg-example-pass2.png}}%
+	\subfigure[After step $2$]{\includegraphics[width=.25\linewidth]{segmentation-waterfall-smg-example-pass2.png}}%
 \caption[The SG method running on a real example]{The SG method running on a real example: the arrows on the nodes indicate the flow direction, blue edges are those that will be contracted and red edges are those that won't be.}
 \label{fig:segmentation-waterfall-smg-example}
 \end{stusubfig}
@@ -620,9 +620,9 @@ For each waterfall pass, the three sub-passes of the method are invoked sequenti
 steepestEdges(n) = \argmin_{}\{w(e) \; | \; e \in adjacentEdges(n)\}
 \]
 %
-Then, if $steepestEdges(n) = \{e\}$, we set $A(n)$ to be $\{farEnd(e,n)\}$.
+Then if $steepestEdges(n) = \{e\}$, we set $A(n)$ to be $\{farEnd(e,n)\}$.
 
-\item Otherwise, consider all the lowest-valued child edges (i.e.~ignore the parent for now, even if it is also a lowest-valued edge) that satisfy the condition that there is no arrow on the node at the other end of the edge pointing along the edge towards this node. Formally, we define the set $escapableChildEdges(n)$ of such edges as:
+\item Otherwise, consider all the lowest-valued child edges (i.e.~ignore the parent for now, even if it is also a lowest-valued edge) that satisfy the condition that there is no arrow on the node at the other end of the edge pointing along the edge towards $n$. Formally, we define the set $escapableChildEdges(n)$ of such edges as:
 %
 \[
 \{e \in steepestEdges(n) \backslash \{p_E(n)\} \; | \; \neg reverseArrow(e,n)\}
@@ -639,7 +639,7 @@ and
 d(n) \leftarrow \min_{}\{d'(e) \; | \; e \in escapableChildEdges(n)\}.
 \]
 
-\item Finally, if the parent edge of $n$ was a lowest-valued edge (i.e.~$p_E(n) \in steepestEdges(n)$), then set $checkParent(n)$ to true to mark the parent edge as a potential path of steepest descent for further processing in the second sub-pass (see Figures~\ref{fig:segmentation-waterfall-smg-pass1cases}(d) and (f), in which an open-headed arrow is used to mark the parent edge for later processing).
+\item Finally, if the parent edge of $n$ was a lowest-weighted edge (i.e.~$p_E(n) \in steepestEdges(n)$), then we set $checkParent(n)$ to true to mark the parent edge as a potential path of steepest descent for further processing in the second sub-pass (see Figures~\ref{fig:segmentation-waterfall-smg-pass1cases}(d) and (f), in which an open-headed arrow is used to mark the parent edge).
 \end{enumerate}
 
 \item \emph{Down Sub-Pass.}
@@ -670,13 +670,15 @@ We performed three experiments to compare the methods: the first quantifies the 
 \subsection{Similarity of Results}
 \label{subsec:experiments-similarity}
 
-In order to demonstrate that our new methods produce results that are similar to those of the existing state-of-the-art, we quantitatively compared the partition hierarchies output by all three methods on the publicly-available dataset of $151$ images proposed by Gulshan et al.\ \cite{gulshan10} (see Figure~\ref{fig:sheep} for an example result). This dataset was chosen because it was of a suitable size and provided an interesting variety of different images (it was originally compiled using images from the GrabCut dataset \cite{rother04}, the PASCAL VOC'09 segmentation challenge \cite{everingham09} and the alpha-matting dataset \cite{rhemann09}). Since the images in the dataset are in colour, we first converted them to greyscale using the ImageMagick \cite{imagemagick} command:
+In order to demonstrate that our new methods produce results that are similar to those of the existing state-of-the-art, we quantitatively compared the partition hierarchies output by all three methods on the publicly-available dataset of $151$ images proposed by Gulshan et al.\ \cite{gulshan10} (see Figure~\ref{fig:sheep} for an example result). This dataset was chosen because it was of a suitable size and provided an interesting variety of different images (it was originally compiled using images from the GrabCut dataset \cite{rother04}, the PASCAL VOC'09 segmentation challenge \cite{everingham09} and the alpha-matting dataset \cite{rhemann09}). Since the images in the dataset are in colour, we first converted them to greyscale using the ImageMagick \cite{imagemagick} command\footnotemark{}:
 %
 \begin{alltt}\begin{center}
 convert <colour filename> -separate -average <greyscale filename>
 \end{center}\end{alltt}
 %
 Each of the three methods was then used to produce a hierarchy of partitions for each greyscale image. In each case, the gradient magnitude of the input image was initially smoothed using anisotropic diffusion filtering \cite{perona90} and the first output partition was produced using our implementation of Meijster and Roerdink's watershed algorithm \cite{meijster98}.
+
+\footnotetext{It bears noting in passing that there are many different ways of converting colour images to greyscale. Whilst the choice makes little difference for our purposes here, we chose this method, which computes $(r + g + b) / 3$, because it is intuitive and avoids biasing the result in favour of any particular colour channel.}
 
 %---
 \begin{stusubfig}{!t}
@@ -716,16 +718,6 @@ Each of the three methods was then used to produce a hierarchy of partitions for
 
 The partition hierarchies produced for each image were compared pairwise by extending the \emph{global consistency error} (GCE) measure proposed in \cite{martin01} from pairs of partitions to pairs of hierarchies. The original measure was specifically designed to compare partitions of the same image and be tolerant of one partition refining the other (e.g.~by splitting regions or merging them together), so it is a good fit for comparing partitions at the same level output by the various waterfall methods. We chose it over the \emph{local consistency error} (LCE) measure proposed in the same paper because it is a stricter test of similarity and thus can be used to more effectively demonstrate the similar outputs of the three waterfall methods. Both the GCE and the LCE produce a real number in the range $[0..1]$ signifying the extent to which the two compared partitions are `similar' (with $0$ being `most similar' and $1$ being `most different').
 
-%---
-\begin{stusubfig}{!t}
-	\subfigure[]{\includegraphics[width=.45\linewidth]{maxgce.png}}%
-	\hspace{4mm}%
-	\subfigure[]{\includegraphics[width=.45\linewidth]{maxgcediff.png}}%
-\caption{A quantitative comparison of the hierarchies output by the waterfall methods using the MaxGCE measure defined in \S\ref{subsec:experiments-similarity}, with Marcotegui's method as a `ground truth' result: (a) the vast majority of the hierarchies produced by the CN and SG methods are very similar (MaxGCE $< 0.1$) to those produced by Marcotegui's method; (b) the hierarchies produced by the SG method are closer to the Marcotegui results than are those produced by the CN method.}
-\label{fig:quantitative-comparison}
-\end{stusubfig}
-%---
-
 We initially follow \cite{martin01} and define the GCE between partitions in terms of the \emph{local refinement error} at each pixel. Let $S_1$ and $S_2$ be two partitions of the same input image $I$ (with $n$ pixels), and for any given pixel $\mathbf{p_i}$, let $R(S,\mathbf{p_i})$ be the set of pixels corresponding to the region in partition $S$ that contains $\mathbf{p_i}$. The (directed) local refinement error $E$ between partition $S_1$ and partition $S_2$ at pixel $\mathbf{p_i}$ is then defined to be:
 %
 \[
@@ -752,6 +744,16 @@ GCE((...,S_i^1,S_i^1,...),(...,S_i^2,S_i^2,...)) = GCE((...,S_i^1,...),(...,S_i^
 %
 A suitable $\Phi$ that satisfies this requirement is the $\max$ operator, since the similarity value it produces will not change as a result of adding additional copies of existing partitions; moreover, because the produced value represents an upper bound on the dissimilarity between partitions at the same level in the hierarchies, a low result provides an effective means of showing that two hierarchies in general are suitably similar (a downside of using $\max$ is that high results become harder to interpret, but our results were similar enough for this not to be an issue here). We refer to the hierarchy-based GCE with $\Phi \eqdef \max$ as the MaxGCE in what follows.
 
+%---
+\begin{stusubfig}{!t}
+	\subfigure[]{\includegraphics[width=.45\linewidth]{maxgce.png}}%
+	\hspace{4mm}%
+	\subfigure[]{\includegraphics[width=.45\linewidth]{maxgcediff.png}}%
+\caption{A quantitative comparison of the hierarchies output by the waterfall methods using the MaxGCE measure defined in \S\ref{subsec:experiments-similarity}, with Marcotegui's method as a `ground truth' result: (a) the vast majority of the hierarchies produced by the CN and SG methods are very similar (MaxGCE $< 0.1$) to those produced by Marcotegui's method; (b) the hierarchies produced by the SG method are closer to the Marcotegui results than are those produced by the CN method.}
+\label{fig:quantitative-comparison}
+\end{stusubfig}
+%---
+
 Using the MaxGCE, we compared the results of both the CN and SG waterfall methods to those of Marcotegui's method, using the latter as a `ground truth' result. As shown in Figure~\ref{fig:quantitative-comparison}(a), the vast majority of the results for both methods have a MaxGCE of less than $0.1$ with respect to Marcotegui's method, which is roughly comparable to the GCE values for different human segmentations of the same images in the original paper \cite{martin01}. As shown in Figure~\ref{fig:quantitative-comparison}(b), the results for the SG method are almost always closer to the Marcotegui results than are those for the CN method.
 
 As expected, the outputs of all three methods were very similar: what differences there are are due to the ways in which the different methods handle non-minimal plateaux. The greater relative similarity between the results of the SG and Marcotegui methods in comparison to those of the CN method is an indication that our implementation of Marcotegui's method is somewhat less arbitrary in its handling of non-minimal plateaux than is our implementation of the CN method (bearing in mind that the SG method was deliberately designed to handle non-minimal plateaux fairly).
@@ -759,15 +761,15 @@ As expected, the outputs of all three methods were very similar: what difference
 \subsection{Performance}
 \label{subsec:experiments-performance}
 
-%---
-\stufigex{width=.95\linewidth}{timings.png}{Timing results for the three methods on sub-images of an abdominal CT scan. The experiment was run on a single 2.4GHz Pentium 4 CPU. The overall scan was of size $512 \times 512 \times 132$, and each point on the graph represents how long (in seconds) a specific method took to run on a sub-image of size $512 \times 512 \times n$.}{fig:timings}{!t}
-%---
-
 In order to evaluate how well the methods scale with increasing input size, we timed each of them when used to segment increasingly large sub-images from a 3D abdominal CT scan\footnotemark{}. The overall scan was of size $512 \times 512 \times 132$, and we tested the methods on sub-images of size $512 \times 512 \times n$, for various different values of $n$. There was an upper bound of $n \le 40$ due to memory constraints. The experiment was run on a single 2.4GHz Pentium 4 CPU. Unlike in the output experiments, in this experiment the input image was not smoothed (since smoothing is time-consuming and affects each method equally). The first output partition was again produced using the Meijster/Roerdink watershed. The results are shown in Figure~\ref{fig:timings}.
+
+\footnotetext{Specifically, this was the `BT' scan we obtained from the Churchill Hospital, Oxford.}
 
 Each of the three methods is linear in $n$ (minor variations are accounted for by the fact that the abdominal CT slices themselves differ), but their constant factors vary. Both of the new methods presented in this paper (CN and SG) consistently outperformed our implementation of Marcotegui's method: the SG method by around $16$\% and the CN method by around $32$\%. In the interests of fairness, it is important to note that this comparison is evidently subject to the quality of our implementation of Marcotegui's method. We have attempted to make the comparison as fair as possible by implementing Marcotegui's method efficiently, but given that the difference comes down to constant factors, the comparison is bound to be somewhat dependent on implementation detail. It does however seem plausible that a simple, tree-based approach such as the CN method might outperform a more complicated graph-based one; as such, the results as presented seem reasonable, if in no way conclusive.
 
-\footnotetext{Specifically, this was the `BT' scan we obtained from the Churchill Hospital, Oxford.}
+%---
+\stufigex{width=.95\linewidth}{timings.png}{Timing results for the three methods on sub-images of an abdominal CT scan. The experiment was run on a single 2.4GHz Pentium 4 CPU. The overall scan was of size $512 \times 512 \times 132$, and each point on the graph represents how long (in seconds) a specific method took to run on a sub-image of size $512 \times 512 \times n$.}{fig:timings}{!t}
+%---
 
 \subsection{Non-Minimal Plateaux Behaviour}
 \label{subsec:experiments-plateaux}
@@ -786,7 +788,7 @@ Each of the three methods is linear in $n$ (minor variations are accounted for b
 \end{stusubfig}
 %---
 
-In order to demonstrate the differences in non-minimal plateaux behaviour exhibited by the three methods, we ran each of them on a manually-constructed test image (see Figure~\ref{fig:plateaux-behaviour}(a)). The expectation was that the first partition in each case (the watershed result, not shown) would contain the $7$ thin bars in the image, and that the second partitions of the three methods (the results of the first waterfall passes) would exhibit interesting differences with respect to the $3$ light grey bars in the image. Indeed, as shown in Figures~\ref{fig:plateaux-behaviour}(b)-(d), the SG method avoids merging the light grey bars into surrounding regions, in contrast to the Marcotegui and CN methods, which arbitrarily merge them in one direction or the other. It should be noted that the precise decisions made by the Marcotegui and CN methods regarding the way in which to merge the bars depends on implementation details, as previously noted. As such, the results for those methods here should only be considered illustrative, in that other implementations may produce slightly different (but still biased) results.
+In order to demonstrate the differences in non-minimal plateaux behaviour exhibited by the three methods, we ran each of them on a manually-constructed test image (see Figure~\ref{fig:plateaux-behaviour}(a)). The expectation was that the first partition in each case (the watershed result, not shown) would contain the $7$ thin bars in the image, and that the second partitions of the three methods (the results of the first waterfall passes) would exhibit interesting differences with respect to the $3$ light grey bars in the image. Indeed, as shown in Figures~\ref{fig:plateaux-behaviour}(b)--(d), the SG method avoids merging the light grey bars into surrounding regions, in contrast to the Marcotegui and CN methods, which arbitrarily merge them in one direction or the other. It should be noted that the precise decisions made by the Marcotegui and CN methods regarding the way in which to merge the bars depends on implementation details, as previously noted. As such, the results for those methods here should only be considered illustrative, in that other implementations may produce slightly different (but still biased) results.
 
 %#####################
 \section{Discussion}
