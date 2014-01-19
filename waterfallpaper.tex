@@ -186,7 +186,7 @@ The waterfall transform is a hierarchical segmentation technique based on the wa
 \end{abstract}
 
 \begin{keyword}
-image segmentation \sep waterfall algorithm
+image segmentation \sep waterfall transform
 \end{keyword}
 
 \end{frontmatter}
@@ -333,7 +333,7 @@ Marcotegui's method \cite{marcotegui05} is a fast and effective example of such 
 
 At the start of Marcotegui's method, the first input partition (produced from the gradient magnitude of the input using the watershed transform) is converted into its RAG representation and an MST is built from the RAG (see \S{}A.2 of \cite{golodetz11} for implementation details). This MST is then subjected to a sequence of waterfall passes. Each waterfall pass performs a flooding-based watershed on the MST to decide which regions should be merged and contracts appropriate edges in the MST to effect this (contracting an edge means combining the nodes at either end of the edge and removing the edge itself from the MST)\footnotemark{}. In detail, this involves the following steps:
 
-\footnotetext{It may be noted in passing that the use of edge contraction to merge regions in graph-based image segmentation algorithms is a ubiquitous technique that is by no means restricted to the waterfall (e.g.~see \cite{lezoray12}), since it is more efficient to simply merge together two nodes in a graph than to combine the two regions they represent by e.g.~unioning sets of pixels.}
+\footnotetext{It should be noted that the use of edge contraction to merge regions in graph-based image segmentation algorithms is a ubiquitous technique that is by no means restricted to the waterfall (e.g.~see \cite{lezoray12}), since it is more efficient to simply merge together two nodes in a graph than to combine the two regions they represent by e.g.~unioning sets of pixels.}
 
 %---
 \begin{stusubfig}{p}
@@ -387,13 +387,13 @@ At the start of Marcotegui's method, the first input partition (produced from th
 
 \item \emph{Determination of the local minima of the MST.} A local minimum of a weighted graph $G$ is a connected subgraph of $G$ whose edges have equal weight and whose adjacent edges in $G$ have strictly higher weights. Figure~\ref{fig:segmentation-waterfall-marcotegui-localminima}(a) shows an example graph and its local minima. Algorithmically, we iterate over the edges in the MST and flood out from each one to determine (i) whether it's part of a local minimum and (ii) the extent of the minimum if so.
 
-\item \emph{Contraction of the local minima.} This is equivalent to merging minimal plateaux in a landscape into single points to which water runs down. See Figure~\ref{fig:segmentation-waterfall-marcotegui-localminima}(b). For clarity, we represent contraction in the figures by assigning the nodes at the ends of an contracted edge the same colour rather than removing the edge itself.
+\item \emph{Contraction of the local minima.} This is equivalent to merging minimal plateaux in a landscape into single points to which water runs down. See Figure~\ref{fig:segmentation-waterfall-marcotegui-localminima}(b). For clarity, we represent contraction in the figures by assigning the nodes at the ends of a contracted edge the same colour rather than removing the edge itself.
 
 \item \emph{Propagation.} We flood out from the nodes that now represent the local minima (`marker nodes') along the edges, in non-decreasing order of edge weight, starting from the edges directly adjacent to the marker nodes. Each edge will either join a marker to another marker, in which case it should be ignored (since contracting it would merge two catchment basins), or it will join a marker to a non-marker, in which case it should be contracted. See Figure~\ref{fig:segmentation-waterfall-marcotegui-propagation}.
 
 \end{enumerate}
 
-\noindent It is important to note that the order in which edges should be processed during the propagation step is not well-defined (note that multiple edges can have the same weight and thus be candidates for contraction simultaneously). A straightforward implementation of the propagation step would use a priority queue and pop a lowest adjacent edge for consideration each time: thus the next edge to be considered ends up depending fundamentally on the way the priority queue is implemented. The consequence of this is that non-minimal plateaux in the MST are handled in a rather arbitrary way. This is not necessarily a problem in practice -- there tend to be only a small number of non-minimal plateaux in most MSTs, so it doesn't seriously affect the end result -- but it still seems undesirable to have the segmentation output depend so closely on the implementation of an internal data structure which may in principle be subject to change. This issue is dealt with in \S\ref{sec:golodetz}.
+\noindent It is important to note that the order in which edges should be processed during the propagation step is not well-defined (note that multiple edges can have the same weight and thus be candidates for contraction simultaneously). A straightforward implementation of the propagation step would use a priority queue and pop a lowest adjacent edge for consideration each time: thus the next edge to be considered ends up depending fundamentally on the way the priority queue is implemented. The consequence of this is that non-minimal plateaux in the MST are handled in a rather arbitrary way. This is not necessarily a problem in practice -- there tend to be only a small number of non-minimal plateaux in most realistic MSTs, so it doesn't seriously affect the end result -- but it still seems undesirable to have the segmentation output depend so closely on the implementation of an internal data structure which may in principle be subject to change. This issue is dealt with in \S\ref{sec:golodetz}.
 
 %############################
 \section{CN Method}
@@ -474,7 +474,7 @@ Each pass of the method is then invoked on $e_r$ and proceeds recursively as fol
 
 \item We recurse on all the children of $e$ (i.e.~the edges in $C(e)$).
 
-\item A child edge $c_{\min}$ with minimum weight is chosen (if one or more of the children with minimum weight is a guard edge, one of those is chosen in preference to a non-guard). Formally, let $\mbox{SC}(e)$ be a result of sorting $C(e)$ first by weight (in non-decreasing order) and then by flag ($\mathcal{G}$ before $\mathcal{NG}$), and let $\pi_1,...,\pi_k$ be the corresponding permutation of $1,...,k$, i.e.
+\item A child edge $c_{\min}$ with minimum weight is chosen (if one or more of the children with minimum weight is a guard edge, one of those is chosen in preference to a non-guard). Formally, let $\mbox{SC}(e)$ be a possible result of sorting $C(e)$ first by weight (in non-decreasing order) and then by flag ($\mathcal{G}$ before $\mathcal{NG}$), and let $\pi_1,...,\pi_k$ be the corresponding permutation of $1,...,k$, i.e.
 %
 \[
 SC(e) = (c_{\pi_1},...,c_{\pi_k})
@@ -482,9 +482,7 @@ SC(e) = (c_{\pi_1},...,c_{\pi_k})
 %
 Then $c_{\min}$ is chosen to be $c_{\pi_1}$. Note that $c_{\min}$ is not uniquely specified because there may be more than one valid way of sorting $C(e)$ to produce $\mbox{SC}(e)$.
 
-\item If $w(e) < w(c_{\min})$ then $e$ is marked as a non-guard edge (i.e.~$f(e) \leftarrow \mathcal{NG}$); otherwise, $e$ is marked as a guard ($f(e) \leftarrow \mathcal{G}$) and $c_{\min}$ is marked as a non-guard ($f(c_{\min}) \leftarrow \mathcal{NG}$).
-
-\item There are now two possibilities. If $w(e) < w(c_{\min})$, i.e.~the current edge (the parent edge) $e = (n_p,n_c)$ is strictly the lowest edge leading out of its child node $n_c$, then the implied flow from $n_c$ is entirely along $e$ (see Figure~\ref{fig:segmentation-waterfall-nicholls-cases}(a)), in which case $e$ should be marked as a non-guard edge (i.e.~$f(e) \leftarrow \mathcal{NG}$). Conversely, if $w(e) \ge w(c_{\min})$ then at least part of the implied flow from the node is along $c_{\min}$ (see Figure~\ref{fig:segmentation-waterfall-nicholls-cases}(b)), in which case $e$ should be marked as a guard ($f(e) \leftarrow \mathcal{G}$) and $c_{\min}$ as a non-guard ($f(c_{\min}) \leftarrow \mathcal{NG}$). Note that in this case, the method arbitrarily assumes that all the implied flow is along $c_{\min}$, even though some of it may be along other edges leading out of $n_c$.
+\item There are now two possibilities. If $w(e) < w(c_{\min})$, i.e.~the current edge $e = (n_p,n_c)$ is strictly the lowest edge leading out of its child node $n_c$, then the implied flow from $n_c$ is entirely along $e$ (see Figure~\ref{fig:segmentation-waterfall-nicholls-cases}(a)), in which case $e$ should be marked as a non-guard edge (i.e.~$f(e) \leftarrow \mathcal{NG}$). Conversely, if $w(e) \ge w(c_{\min})$ then at least part of the implied flow from the node is along $c_{\min}$ (see Figure~\ref{fig:segmentation-waterfall-nicholls-cases}(b)), in which case $e$ should be marked as a guard ($f(e) \leftarrow \mathcal{G}$) and $c_{\min}$ as a non-guard ($f(c_{\min}) \leftarrow \mathcal{NG}$). Note that in this case, the method arbitrarily assumes that all the implied flow is along $c_{\min}$, even though some of it may be along other edges leading out of $n_c$.
 
 \item All non-guard children (i.e.~$\{c \in C(e) \; | \; f(c) = \mathcal{NG}\}$) are then contracted.
 
