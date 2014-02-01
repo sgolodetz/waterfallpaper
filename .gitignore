@@ -4,5 +4,6 @@
 *.log
 *.pdf
 *.spl
+*.swp
 *.tps
 diffs*/
