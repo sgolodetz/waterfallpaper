@@ -205,7 +205,7 @@ There are various existing ways of implementing the waterfall. The initial paper
 
 \pagebreak
 
-\textbf{This paper therefore presents two new tree-based methods for the waterfall}. The Simplified Waterfall (SW) method\footnote{Due to C Nicholls.} is especially simple to implement and performs well, even though it does not deal consistently with non-minimal plateaux. The Balanced Waterfall (BW) method\footnote{Due to S Golodetz.} is somewhat less simple to implement (although still easier to implement than Marcotegui's method) but deals consistently with non-minimal plateaux. We perform experiments to contrast the results of these methods with those of Marcotegui's approach, and time them to compare their performance.
+\textbf{This paper therefore presents two new tree-based methods for the waterfall}. The Simplified Waterfall (SW) method\footnote{Due to C Nicholls.} is especially simple to implement and performs well, even though it does not deal consistently with non-minimal plateaux. The Balanced Waterfall (BW) method\footnote{Due to S Golodetz.} is somewhat harder to implement (although still easier to implement than Marcotegui's method) but deals consistently with non-minimal plateaux. We perform experiments to contrast the results of these methods with those of Marcotegui's approach, and time them to compare their performance.
 
 \textbf{This paper is organised as follows:} in \S\ref{sec:background}, we briefly review the watershed and waterfall transforms and take a detailed look at Marcotegui's approach to the waterfall; in \S\ref{sec:nicholls} and \S\ref{sec:golodetz}, we present our new waterfall methods; in \S\ref{sec:experiments}, we perform experiments to contrast our new methods with Marcotegui's approach; and in \S\ref{sec:discussion}, we discuss the results of our experiments.
 
@@ -457,7 +457,7 @@ The Simplified Waterfall (SW) method initially roots the MST (see Figure~\ref{fi
 To specify the method, let $T = (N,E)$ be the rooted MST on which the method is to operate, with node set $N = (n_i)$ and edge set $E = \{(n_p,n_c)\}$ such that $n_p$ is the parent of $n_c$. We define $C(e)$ to be the children of edge $e$ in some unspecified but fixed order, i.e.
 %
 \[
-C(e) = (c_1,...,c_k) = ((n_c,\_) \; | \; e = (n_p,n_c))
+C(e) = (c_1,...,c_k) = ((n_c,n') \in E \; | \; e = (n_p,n_c))
 \]
 %
 Each edge $e$ has an immutable weight $w(e) \in \mathbb{N}^+$ and a mutable flag $f(e) \in \{\mathcal{G},\mathcal{NG}\}$, where $f(e) = \mathcal{G}$ denotes that $e$ is a guard edge and $f(e) = \mathcal{NG}$ denotes that it is a non-guard. The root edge is denoted $e_r$ and satisfies $w(e_r) = \infty$, as mentioned above.
@@ -797,7 +797,7 @@ In order to demonstrate the differences in non-minimal plateaux behaviour exhibi
 
 Our first experiment (see \S\ref{subsec:experiments-similarity}) showed that all three methods produce broadly similar results, and in particular results that are all acceptable as the input to further processing steps such as feature identification algorithms. As shown in our second experiment (see \S\ref{subsec:experiments-performance}), the SW method was $> 30$\% faster than our implementation of Marcotegui's method; moreover, it is a simple, tree-based approach that can be implemented as a single recursive function. However, on average the dissimilarity between the SW and Marcotegui results was greater than that between the BW and Marcotegui results, which might be significant in some contexts (Figure~\ref{fig:sheep} provides an illustrative example of the effect this greater dissimilarity can have in practice). It should be noted that for our purposes in \emph{millipede}, we found these differences to have negligible impact. The BW method was $> 15$\% faster than our implementation of Marcotegui's method, and is fairly straightforward to implement (although not as easy as the SW method). It produces results that are much closer to the Marcotegui approach, although the more consistent handling of non-minimal plateaux causes slight (expected) differences in the results, as highlighted by our final experiment in \S\ref{subsec:experiments-plateaux}.
 
-Overall, we believe that all three of the methods discussed are fast, effective ways of implementing the waterfall. The primary advantages offered by our new methods are that they are both somewhat faster and easier to implement than Marcotegui's method. The BW method also handles non-minimal plateaux more consistently than either of the other methods. Based on our experiments, we would recommend the SW method in situations where speed and ease of implementation are the primary considerations, and the BW method if it is important to obtain results that are close to the original Marcotegui approach but that treat non-minimal plateaux in a more consistent way. Marcotegui's method itself also remains a good choice, and it seems plausible that a more optimised implementation of it than ours could reduce the observed differences in timing.
+Overall, we believe that all three of the methods discussed are fast, effective ways of implementing the waterfall. The primary advantages offered by our new methods are that they are both somewhat faster and easier to implement than Marcotegui's method. The BW method also handles non-minimal plateaux more consistently than either of the other methods. Based on our experiments, we would recommend the SW method in situations where speed and ease of implementation are the primary considerations, and the BW method if it is important to obtain results that are close to the original Marcotegui approach but that treat non-minimal plateaux in a more consistent way.
 
 %######################
 \section{Conclusions}
@@ -811,7 +811,7 @@ In this paper, we have presented two new, tree-based methods for the classical w
 \label{sec:acknowledgements}
 %###########################
 
-We are profoundly grateful to Dr.\ Zoe Traill of the Churchill Hospital, Oxford, both for providing us with abdominal CT scans and for giving up her time to help us interpret them. We also gratefully acknowledge the support of the UK Engineering and Physical Sciences Research Council (EPSRC) in funding Stuart Golodetz's doctoral work via a Doctoral Training Account (DTA). We would additionally like to thank our anonymous reviewers for their constructive comments regarding this paper.
+We are profoundly grateful to Dr.\ Zoe Traill of the Churchill Hospital, Oxford, both for providing us with abdominal CT scans and for giving up her time to help us interpret them. We also gratefully acknowledge the support of the UK Engineering and Physical Sciences Research Council (EPSRC) in funding Stuart Golodetz's doctoral work via a Doctoral Training Account (DTA), and the support of the John Fell OUP Research Fund in funding Chris Nicholls' internship. We would additionally like to thank our anonymous reviewers for their constructive comments regarding this paper.
 
 \bibliographystyle{elsarticle-num}
 \bibliography{existingwork,mypapers,overseg}
