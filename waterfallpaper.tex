@@ -419,12 +419,12 @@ Despite the speed and effectiveness of Marcotegui's method, it can be somewhat i
 
 %---
 \begin{stusubfig}{p}
-	\subfigure[The considered edge is the unique lowest edge]
+	\subfigure[The considered edge is a lowest edge]
 	{\includegraphics[height=4.5cm]{segmentation-waterfall-nicholls-cases-b.png}}%
 	%
 	\hspace{4mm}%
 	%
-	\subfigure[The considered edge is not the unique lowest edge]
+	\subfigure[The considered edge is not a lowest edge]
 	{\includegraphics[height=4.5cm]{segmentation-waterfall-nicholls-cases-a.png}}%
 \caption[Case analysis for step 2(c) of the SW method]{Case analysis for step 2(c) of the SW method: black edges are non-guards, red edges are guards, blue edges are those which have been contracted and the green edge is $e = (n_p,n_c)$, the edge under active consideration. The arrow (on the node $n_c$) indicates the direction in which the method presumes water to flow.}
 \label{fig:segmentation-waterfall-nicholls-cases}
@@ -483,7 +483,7 @@ SC(e) = (c_{\pi_1},...,c_{\pi_k})
 %
 Then $c_{\min}$ is chosen to be $c_{\pi_1}$. Note that $c_{\min}$ is not uniquely specified because there may be more than one possible way of sorting $C(e)$ to produce $\mbox{SC}(e)$.
 
-\item There are now two possibilities. If $w(e) < w(c_{\min})$, i.e.~the current edge $e = (n_p,n_c)$ is strictly the lowest edge leading out of its child node $n_c$, then the implied flow from $n_c$ is entirely along $e$ (see Figure~\ref{fig:segmentation-waterfall-nicholls-cases}(a)), in which case $e$ should be marked as a non-guard edge (i.e.~$f(e) \leftarrow \mathcal{NG}$). Conversely, if $w(e) \ge w(c_{\min})$ then at least part of the implied flow from the node is along $c_{\min}$ (see Figure~\ref{fig:segmentation-waterfall-nicholls-cases}(b)), in which case $e$ should be marked as a guard (i.e.~$f(e) \leftarrow \mathcal{G}$) and $c_{\min}$ as a non-guard (i.e.~$f(c_{\min}) \leftarrow \mathcal{NG}$). Note that in this case, the method arbitrarily assumes that all the implied flow is along $c_{\min}$, even though some of it may be along other edges leading out of $n_c$.
+\item There are now two possibilities. If $w(e) \le w(c_{\min})$\footnotemark{}, i.e.~the current edge $e = (n_p,n_c)$ is one of the lowest edges leading out of its child node $n_c$, then at least part of the implied flow from $n_c$ is along $e$ (see Figure~\ref{fig:segmentation-waterfall-nicholls-cases}(a)), in which case $e$ should be marked as a non-guard edge (i.e.~$f(e) \leftarrow \mathcal{NG}$). Conversely, if $w(e) > w(c_{\min})$ then none of the implied flow from the node is along $e$ and at least part of it is along $c_{\min}$ (see Figure~\ref{fig:segmentation-waterfall-nicholls-cases}(b)), in which case $e$ should be marked as a guard (i.e.~$f(e) \leftarrow \mathcal{G}$) and $c_{\min}$ as a non-guard (i.e.~$f(c_{\min}) \leftarrow \mathcal{NG}$). Note that in both cases, the method arbitrarily assumes that all of the implied flow is along a single edge leading out of $n_c$, even though there may be multiple edges leading out of $n_c$ that share the same lowest weight.
 
 \item All non-guard children (i.e.~$\{c \in C(e) \; | \; f(c) = \mathcal{NG}\}$) are then contracted.
 
@@ -491,7 +491,9 @@ Then $c_{\min}$ is chosen to be $c_{\pi_1}$. Note that $c_{\min}$ is not uniquel
 
 \end{enumerate}
 %
-Figure~\ref{fig:segmentation-waterfall-nicholls-example} illustrates how the method works on the same graph used to illustrate Marcotegui's method above. The assumption that all the implied flow is along $c_{\min}$ when $w(e) \ge w(c_{\min})$ is this method's way of dealing with non-minimal plateaux in the MST. As with the Marcotegui method's dependence on a priority queue implementation, this is a slightly arbitrary way of handling non-minimal plateaux: in particular, the selected direction of implied flow from a particular node depends on both where the MST is rooted, and the way in which $C(e)$ is sorted when choosing $c_{\min}$. The method also discounts the possibility that part of the implied flow is along the parent. All of this affects which specific edges are contracted. As with Marcotegui's method, this tends not to significantly degrade the end result, but it still in principle seems desirable to devise a method that does not depend on such implementation details. In the following section, we therefore present an alternative tree-based method that handles non-minimal plateaux in the MST more robustly.
+Figure~\ref{fig:segmentation-waterfall-nicholls-example} illustrates how the method works on the same graph used to illustrate Marcotegui's method above (particular attention is drawn to the handling of the non-minimal plateau containing two edges with weight $5$). The assumption that all of the implied flow from a node is along a single edge is this method's way of dealing with non-minimal plateaux in the MST. As with the Marcotegui method's dependence on a priority queue implementation, this is a slightly arbitrary way of handling non-minimal plateaux: in particular, the selected direction of implied flow from a particular node depends on both where the MST is rooted and the way in which $C(e)$ is sorted when choosing $c_{\min}$. All of this affects which specific edges are contracted. As with Marcotegui's method, this tends not to significantly degrade the end result, but it still in principle seems desirable to devise a method that does not depend on such implementation details. In the following section, we therefore present an alernative tree-based method that handles non-minimal plateaux in the MST more robustly.
+
+\footnotetext{As an interesting aside, we also investigated the use of the condition $w(e) < w(c_{\min})$ here as an alternative. This leads to a different version of the Simplified Waterfall that is in general less robust in its treatment of non-minimal plateaux than the version described in this paper. We focus on the primary version here since it yields more reliable results.}
 
 %#############################
 \section{The Balanced Waterfall (BW) Method}
