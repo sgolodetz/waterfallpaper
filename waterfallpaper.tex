@@ -448,7 +448,7 @@ Despite the speed and effectiveness of Marcotegui's method, it can be somewhat i
 	\subfigure[Level 1]{\includegraphics[width=.2\linewidth]{segmentation-waterfall-nicholls-example-g.png}}%
 	\hspace{4mm}%
 	\subfigure[Result]{\includegraphics[width=.2\linewidth]{segmentation-waterfall-nicholls-example-h.png}}%
-\caption[The SW method in action]{The SW method in action (considering all the edges in each level at a time for space reasons): black edges are non-guards, red edges are guards, blue edges are those which have been contracted and green edges are ones under active consideration.}
+\caption[The SW method in action]{The SW method in action (considering all the edges in each level at a time for space reasons): black edges are non-guards, red edges are guards, blue edges are those which have been contracted and green edges are ones under active consideration. Note that in this example, the SW method's treatment of non-minimal plateaux has resulted in a $5$ edge being retained when it would have been contracted by Marcotegui's method.}
 \label{fig:segmentation-waterfall-nicholls-example}
 \end{stusubfig}
 %---
@@ -483,7 +483,7 @@ SC(e) = (c_{\pi_1},...,c_{\pi_k})
 %
 Then $c_{\min}$ is chosen to be $c_{\pi_1}$. Note that $c_{\min}$ is not uniquely specified because there may be more than one possible way of sorting $C(e)$ to produce $\mbox{SC}(e)$.
 
-\item There are now two possibilities. If $w(e) \le w(c_{\min})$\footnotemark{}, i.e.~the current edge $e = (n_p,n_c)$ is one of the lowest edges leading out of its child node $n_c$, then at least part of the implied flow from $n_c$ is along $e$ (see Figure~\ref{fig:segmentation-waterfall-nicholls-cases}(a)), in which case $e$ should be marked as a non-guard edge (i.e.~$f(e) \leftarrow \mathcal{NG}$). Conversely, if $w(e) > w(c_{\min})$ then none of the implied flow from the node is along $e$ and at least part of it is along $c_{\min}$ (see Figure~\ref{fig:segmentation-waterfall-nicholls-cases}(b)), in which case $e$ should be marked as a guard (i.e.~$f(e) \leftarrow \mathcal{G}$) and $c_{\min}$ as a non-guard (i.e.~$f(c_{\min}) \leftarrow \mathcal{NG}$). Note that in both cases, the method arbitrarily assumes that all of the implied flow is along a single edge leading out of $n_c$, even though there may be multiple edges leading out of $n_c$ that share the same lowest weight.
+\item There are now two possibilities. If $w(e) \le w(c_{\min})$\footnotemark{}, i.e.~the current edge $e = (n_p,n_c)$ is one of the lowest edges leading out of its child node $n_c$, then at least part of the implied flow from $n_c$ is along $e$ (see Figure~\ref{fig:segmentation-waterfall-nicholls-cases}(a)), in which case we mark $e$ as a non-guard edge (i.e.~$f(e) \leftarrow \mathcal{NG}$). Conversely, if $w(e) > w(c_{\min})$ then none of the implied flow from the node is along $e$ and at least part of it is along $c_{\min}$ (see Figure~\ref{fig:segmentation-waterfall-nicholls-cases}(b)), in which case we mark $e$ as a guard (i.e.~$f(e) \leftarrow \mathcal{G}$) and $c_{\min}$ as a non-guard (i.e.~$f(c_{\min}) \leftarrow \mathcal{NG}$). Note that in both cases, the method arbitrarily assumes that all of the implied flow is along a single edge leading out of $n_c$, even though there may be multiple edges leading out of $n_c$ that share the same lowest weight.
 
 \item All non-guard children (i.e.~$\{c \in C(e) \; | \; f(c) = \mathcal{NG}\}$) are then contracted.
 
