@@ -625,7 +625,7 @@ For each waterfall pass, the three sub-passes of the method are invoked sequenti
 %
 Then if $\funcname{steepestEdges}(n) = \{e\}$, we set $A(n)$ to be $\{\funcname{farEnd}(e,n)\}$.
 
-\item Otherwise, consider all the lowest-valued child edges (i.e.~ignore the parent for now, even if it is also a lowest-valued edge) that satisfy the condition that there is no arrow on the node at the other end of the edge pointing along the edge towards $n$. Formally, we define the set $\funcname{escapableChildEdges}(n)$ of such edges as:
+\item Otherwise, consider all the lowest-weighted child edges (i.e.~ignore the parent for now, even if it is also a lowest-weighted edge) that satisfy the condition that there is no arrow on the node at the other end of the edge pointing along the edge towards $n$. Formally, we define the set $\funcname{escapableChildEdges}(n)$ of such edges as:
 %
 \[
 \{e \in \funcname{steepestEdges}(n) \backslash \{p_E(n)\} \; | \; \neg \funcname{reverseArrow}(e,n)\}
