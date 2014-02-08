@@ -5,5 +5,6 @@
 *.pdf
 *.spl
 *.swp
+*.tex~
 *.tps
 diffs*/

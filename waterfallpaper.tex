@@ -1,4 +1,4 @@
-\documentclass[preprint,a4paper]{elsarticle}
+\documentclass[review,a4paper]{elsarticle}
 
 \usepackage{afterpage}
 \usepackage{alltt}
@@ -183,7 +183,7 @@ tabsize=4
 %\address[iw]{Improbable Worlds, 10 Norwich Street, London EC4A 1BD}
 
 \begin{abstract}
-The waterfall transform is a hierarchical segmentation technique based on the watershed transform from the field of mathematical morphology. Watershed-based techniques are useful in numerous fields ranging from image segmentation to cell-and-portal generation for games. The waterfall helps mitigate the problem of over-segmentation that commonly occurs when applying the basic watershed transform. It can also be used as a core part of a method for constructing \emph{image partition forests}, a tree-based, multi-scale representation of an image. The best existing method for the waterfall is fast and effective, but our experience has been that it is not as straightforward to implement as might be desired. Furthermore, it does not deal consistently with the issue of non-minimal plateaux. This paper therefore proposes two new tree-based methods for the waterfall. Both are easier to implement than the existing state-of-the-art approach, and in our implementations were both faster by a constant factor. The Simplified Waterfall (SW) method focuses on simplicity and ease of implementation; the Balanced Waterfall (BW) method focuses on robust handling of non-minimal plateaux. We perform experiments on both 2D and 3D images to contrast the new methods with each other and with the existing state-of-the-art, and show that both achieve a noticeable speed-up whilst producing equivalent results.
+The waterfall transform is a hierarchical segmentation technique based on the watershed transform from the field of mathematical morphology. Watershed-based techniques are useful in numerous fields ranging from image segmentation to cell-and-portal generation for games. The waterfall helps mitigate the problem of over-segmentation that commonly occurs when applying the basic watershed transform. It can also be used as a core part of a method for constructing \emph{image partition forests}, a tree-based, multi-scale representation of an image. The best existing method for the waterfall is fast and effective, but our experience has been that it is not as straightforward to implement as might be desired. Furthermore, it does not deal consistently with the issue of non-minimal plateaux. This paper therefore proposes two new tree-based methods for the waterfall. Both are easier to implement than the existing state-of-the-art, and in our implementations were both faster by a constant factor. The Simplified Waterfall (SW) method focuses on simplicity and ease of implementation; the Balanced Waterfall (BW) method focuses on robust handling of non-minimal plateaux. We perform experiments on both 2D and 3D images to contrast the new methods with each other and with the existing state-of-the-art, and show that both achieve a noticeable speed-up whilst producing equivalent results.
 \end{abstract}
 
 \begin{keyword}
@@ -204,11 +204,11 @@ There are various existing ways of implementing the waterfall. The initial paper
 \stufigex{height=10cm}{ipfs-ctconcept.png}{A stack of nested partitions produced by the watershed and waterfall for an example image. The input image (a slice from a CT scan of the abdomen) is the lowest image in the stack. It was subjected to a gradient magnitude filter and smoothed using anisotropic diffusion filtering \cite{perona90} before performing the watershed.}{fig:ipfs-ctconcept}{!t}
 %---
 
-\pagebreak
+%\pagebreak
 
-\textbf{This paper therefore presents two new tree-based methods for the waterfall}. The Simplified Waterfall (SW) method\footnote{Due to C Nicholls.} is especially simple to implement and performs well, even though it does not deal consistently with non-minimal plateaux. The Balanced Waterfall (BW) method\footnote{Due to S Golodetz.} is somewhat harder to implement (although still easier to implement than Marcotegui's method) but deals consistently with non-minimal plateaux. We perform experiments to contrast the results of these methods with those of Marcotegui's approach, and time them to compare their performance.
+This paper therefore presents two new tree-based methods for the waterfall. The Simplified Waterfall (SW) method is especially simple to implement and performs well, even though it does not deal consistently with non-minimal plateaux. The Balanced Waterfall (BW) method is somewhat harder to implement (although still easier to implement than Marcotegui's method) but deals consistently with non-minimal plateaux. We perform experiments to contrast the results of these methods with those of Marcotegui's approach, and time them to compare their performance.
 
-\textbf{This paper is organised as follows:} in \S\ref{sec:background}, we briefly review the watershed and waterfall transforms and take a detailed look at Marcotegui's approach to the waterfall; in \S\ref{sec:nicholls} and \S\ref{sec:golodetz}, we present our new waterfall methods; in \S\ref{sec:experiments}, we perform experiments on both 2D and 3D images to contrast our new methods with Marcotegui's approach; and in \S\ref{sec:discussion}, we discuss the results of our experiments.
+This paper is organised as follows: in \S\ref{sec:background}, we briefly review the watershed and waterfall transforms and take a detailed look at Marcotegui's approach to the waterfall; in \S\ref{sec:nicholls} and \S\ref{sec:golodetz}, we present our new waterfall methods; in \S\ref{sec:experiments}, we perform experiments on both 2D and 3D images to contrast our new methods with Marcotegui's approach; and in \S\ref{sec:discussion}, we discuss the results of our experiments.
 
 %#####################
 \section{Background}
@@ -338,14 +338,14 @@ At the start of Marcotegui's method, the first input partition (produced from th
 
 %---
 \begin{stusubfig}{p}
-	\subfigure[An example graph and its local minima (drawn in red)]
+	\subfigure[]
 	{\includegraphics[width=.3\linewidth]{segmentation-waterfall-marcotegui-graphlocalminima.png}}%
 	%
 	\hspace{4mm}%
 	%
-	\subfigure[Contracting/colouring the local minima (the edges to be contracted are drawn in blue)]
+	\subfigure[]
 	{\includegraphics[width=.3\linewidth]{segmentation-waterfall-marcotegui-localminimaelision.png}}%	
-\caption{Finding and contracting a graph's local minima for Marcotegui's method}
+\caption{Finding and contracting a graph's local minima for Marcotegui's method: (a) the graph from \cite{marcotegui05} and its local minima (drawn in red); (b) contracting/colouring the local minima (the edges to be contracted are drawn in blue).}
 \label{fig:segmentation-waterfall-marcotegui-localminima}
 \end{stusubfig}
 %---
@@ -377,12 +377,14 @@ At the start of Marcotegui's method, the first input partition (produced from th
 	%
 	\hspace{4mm}%
 	%
-	\subfigure[Contract the other 5 edge; all remaining edges will not be contracted]
+	\subfigure[Contract another 5 edge]
 	{\includegraphics[width=.3\linewidth]{segmentation-waterfall-marcotegui-propagation-f.png}}%
 \caption{The propagation step of Marcotegui's method, illustrated on the graph in \cite{marcotegui05}: blue edges have already been contracted, green edges are under consideration, and red edges will not be contracted.}
 \label{fig:segmentation-waterfall-marcotegui-propagation}
 \end{stusubfig}
 %---
+
+\afterpage{\clearpage}
 
 \begin{enumerate}
 
