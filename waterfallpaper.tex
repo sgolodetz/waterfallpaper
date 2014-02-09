@@ -183,7 +183,7 @@ tabsize=4
 %\address[iw]{Improbable Worlds, 10 Norwich Street, London EC4A 1BD}
 
 \begin{abstract}
-The waterfall transform is a hierarchical segmentation technique based on the watershed transform from the field of mathematical morphology. Watershed-based techniques are useful in numerous fields ranging from image segmentation to cell-and-portal generation for games. The waterfall helps mitigate the problem of over-segmentation that commonly occurs when applying the basic watershed transform. It can also be used as a core part of a method for constructing \emph{image partition forests}, a tree-based, multi-scale representation of an image. The best existing method for the waterfall is fast and effective, but our experience has been that it is not as straightforward to implement as might be desired. Furthermore, it does not deal consistently with the issue of non-minimal plateaux. This paper therefore proposes two new tree-based methods for the waterfall. Both are easier to implement than the existing state-of-the-art, and in our implementations were both faster by a constant factor. The Simplified Waterfall (SW) method focuses on simplicity and ease of implementation; the Balanced Waterfall (BW) method focuses on robust handling of non-minimal plateaux. We perform experiments on both 2D and 3D images to contrast the new methods with each other and with the existing state-of-the-art, and show that both achieve a noticeable speed-up whilst producing equivalent results.
+The waterfall transform is a hierarchical segmentation technique based on the watershed transform from the field of mathematical morphology. Watershed-based techniques are useful in numerous fields ranging from image segmentation to cell-and-portal generation for games. The waterfall helps mitigate the problem of over-segmentation that commonly occurs when applying the basic watershed transform. It can also be used as a core part of a method for constructing \emph{image partition forests}, a tree-based, multi-scale representation of an image. The best existing method for the waterfall is fast and effective, but our experience has been that it is not as straightforward to implement as might be desired. Furthermore, it does not deal consistently with the issue of non-minimal plateaux. This paper therefore proposes two new tree-based methods for the waterfall. Both are easier to implement than the existing state-of-the-art, and in our implementations were both faster by a constant factor. The Simplified Waterfall (SW) method focuses on simplicity and ease of implementation; the Balanced Waterfall (BW) method focuses on robust handling of non-minimal plateaux. We perform experiments on both 2D and 3D images to contrast the new methods with each other and with the existing state-of-the-art, and show that both achieve a noticeable speed-up whilst producing similar results.
 \end{abstract}
 
 \begin{keyword}
@@ -217,7 +217,7 @@ This paper is organised as follows: in \S\ref{sec:background}, we briefly review
 
 \subsection{The Watershed Transform}
 
-At a very abstract level, the watershed transform involves dividing a landscape into its catchment basins, where a catchment basin is an area of the landscape from which water runs down to the same point (namely one of the landscape's local minima). A watershed is a boundary between adjacent catchment basins. In each domain in which the watershed transform is used, a conceptual mapping needs to be made to allow the entity being segmented to be viewed as a landscape: for example, 2D greyscale images can be viewed as a height map, where the grey value of the image at coordinates $(x,y)$ gives the height of the `landscape' at that point. In order to produce meaningful segmentations, the watershed is often performed on the gradient magnitude of an input image, on the basis that in many domains, features of interest can be expected to have similar grey values throughout their extent. Methods that implement the watershed transform fall into two categories:
+At a very abstract level, the watershed transform involves dividing a landscape into its catchment basins, where a catchment basin is an area of the landscape from which water runs down to the same point (namely one of the landscape's local minima). A watershed is a boundary between adjacent catchment basins. In each domain in which the watershed transform is used, a conceptual mapping needs to be made to allow the entity being segmented to be viewed as a landscape: for example, 2D greyscale images can be viewed as a height map, where the grey value of the image at coordinates $(x,y)$ gives the height of the `landscape' at that point. In order to produce meaningful segmentations, the watershed is often performed on the gradient magnitude of an input landscape, on the basis that in many domains, features of interest can be expected to have similar heights throughout their extent. Methods that implement the watershed transform fall into two categories:
 
 \begin{enumerate}
 
@@ -383,8 +383,6 @@ At the start of Marcotegui's method, the first input partition (produced from th
 \label{fig:segmentation-waterfall-marcotegui-propagation}
 \end{stusubfig}
 %---
-
-\afterpage{\clearpage}
 
 \begin{enumerate}
 
@@ -574,7 +572,7 @@ For each waterfall pass, the three sub-passes of the method are invoked sequenti
 	\hspace{4mm}
 	\subfigure[UI/UO]{\includegraphics[height=5cm]{segmentation-waterfall-smg-mergecases-uiuo.png}}%
 	\hspace{4mm}
-	\subfigure[UO/AO]{\includegraphics[height=5cm]{segmentation-waterfall-smg-mergecases-uiao.png}}%
+	\subfigure[UI/AO]{\includegraphics[height=5cm]{segmentation-waterfall-smg-mergecases-uiao.png}}%
 	\hspace{4mm}
 	\subfigure[UI/NF]{\includegraphics[height=5cm]{segmentation-waterfall-smg-mergecases-uinf.png}}%
 	\hspace{4mm}
@@ -633,7 +631,7 @@ Then if $\funcname{steepestEdges}(n) = \{e\}$, we set $A(n)$ to be $\{\funcname{
 \{e \in \funcname{steepestEdges}(n) \backslash \{p_E(n)\} \; | \; \neg \funcname{reverseArrow}(e,n)\}
 \]
 %
-If there are no such child edges (i.e.~$\funcname{escapableChildEdges}(n) = \emptyset$), then $n$ is unescapable along a child edge and its distance value $d(n)$ should be set to $\infty$ (see Figures~\ref{fig:segmentation-waterfall-smg-pass1cases}(c) and (d)). Otherwise, we assign to each edge $e \in \funcname{escapableChildEdges}(n)$ a temporary distance value $d'(e) = 1 + d(\funcname{farEnd}(e,n))$, i.e.~a value $1$ greater than the value on the node at the other end of the edge. (The value on the far node will be $0$ for nodes from which there is a unique path of steepest descent, and non-zero otherwise.) We pick all the child edges whose distance value is minimal and add arrows from $n$ pointing along them (these indicate the initial paths of steepest descent from $n$). We also store the minimum distance value as $d(n)$ (see Figures~\ref{fig:segmentation-waterfall-smg-pass1cases}(e) and (f)). Formally, we write
+If there are no such child edges (i.e.~$\funcname{escapableChildEdges}(n) = \emptyset$), then $n$ is unescapable along a child edge and its distance value $d(n)$ should be set to $\infty$ (see Figures~\ref{fig:segmentation-waterfall-smg-pass1cases}(c) and (d)). Otherwise, we assign to each edge $e \in \funcname{escapableChildEdges}(n)$ a temporary distance value $d'(e) = 1 + d(\funcname{farEnd}(e,n))$, i.e.~a value $1$ greater than the value on the node at the other end of the edge. (The value on the far node will be $0$ for nodes from which there is a unique path of steepest descent, and non-zero otherwise.) We pick all the escapable child edges whose distance value is minimal and add arrows from $n$ pointing along them (these indicate the initial paths of steepest descent from $n$). We also store the minimum distance value as $d(n)$ (see Figures~\ref{fig:segmentation-waterfall-smg-pass1cases}(e) and (f)). Formally, we write
 %
 \[
 A(n) \leftarrow \funcname{farEnds}(\argmin_{}\{d'(e) \; | \; e \in \funcname{escapableChildEdges}(n)\}, n)
