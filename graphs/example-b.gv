@@ -12,9 +12,9 @@ digraph
 	n20 -> n30 [label=2];
 	n21 -> n31 [label=5];
 	n31 -> n40 [label=5];
-	n40 -> n50 [label=4, color=green];
-	n40 -> n51 [label=2, color=green];
-	n40 -> n52 [label=20, color=green];
+	n40 -> n50 [label=4, color=green, style=dashed];
+	n40 -> n51 [label=2, color=green, style=dashed];
+	n40 -> n52 [label=20, color=green, style=dashed];
 	n52 -> n60 [label=4];
 	n52 -> n61 [label=4];
 

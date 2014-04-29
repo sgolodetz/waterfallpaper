@@ -15,8 +15,8 @@ digraph
 	n40 -> n50 [label=4];
 	n40 -> n51 [label=2];
 	n40 -> n52 [label=20];
-	n52 -> n60 [label=4, color=green];
-	n52 -> n61 [label=4, color=green];
+	n52 -> n60 [label=4, color=green, style=dashed];
+	n52 -> n61 [label=4, color=green, style=dashed];
 
 	r [style=invisible];
 }
