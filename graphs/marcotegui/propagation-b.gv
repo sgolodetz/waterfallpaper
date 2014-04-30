@@ -1,8 +1,8 @@
 digraph
 {
 	compound = true;
-	node [shape=circle, style=filled, color=black, label=""];
-	edge [dir=both, arrowtail=none, arrowhead=none];
+	node [shape=circle, style=filled, color=black, label="", regular];
+	edge [dir=both, arrowtail=none, arrowhead=none, fontsize=18];
 
 	n0 -> n1 [label=3, color=blue, penwidth=3];
 	n1 -> n2 [label=2, color=blue, penwidth=3];
@@ -18,14 +18,14 @@ digraph
 	n11 -> n12 [label=4, color=blue, penwidth=3];
 	n11 -> n13 [label=4, color=blue, penwidth=3];
 
-	n0 [color=purple];
-	n1 [color=purple];
-	n2 [color=purple];
-	n4 [color=yellow];
-	n6 [color=yellow];
-	n8 [color=cyan];
-	n10 [color=cyan];
-	n11 [color=pink];
-	n12 [color=pink];
-	n13 [color=pink];
+	n0 [color=purple, shape=square];
+	n1 [color=purple, shape=square];
+	n2 [color=purple, shape=square];
+	n4 [color=yellow, shape=diamond];
+	n6 [color=yellow, shape=diamond];
+	n8 [color=cyan, shape=triangle];
+	n10 [color=cyan, shape=triangle];
+	n11 [color=pink, shape=octagon];
+	n12 [color=pink, shape=octagon];
+	n13 [color=pink, shape=octagon];
 }
