@@ -1,8 +1,8 @@
 digraph
 {
 	compound = true;
-	node [shape=circle, style=filled, label=""];
-	edge [dir=both, arrowtail=none, arrowhead=none, arrowsize=1.5];
+	node [shape=circle, style=filled, label="", fontsize=18];
+	edge [dir=both, arrowtail=none, arrowhead=none, arrowsize=1.5, fontsize=18];
 
 	/* AaXI, where A = no. of ends ambiguous with flow along the edge, a = no. of ends ambiguous with flow not along the edge,
 	   X = no. of ends non-escapable (no outflow), I = no. of inward-pointing arrows
@@ -24,7 +24,7 @@ digraph
 	subgraph cluster1 /* A0a0X0I1 */
 	{
 		n1g -> n1p;
-		n1p -> n1n [color=blue, arrowtail=inv, penwidth=3];
+		n1p -> n1n [color=blue, arrowtail=inv, penwidth=3, style=dashed];
 		n1n -> n1c [arrowtail=inv];
 
 		n1g [style=invisible];
@@ -34,7 +34,7 @@ digraph
 	subgraph cluster2 /* A0a0X0I2 */
 	{
 		n2g -> n2p;
-		n2p -> n2n [color=blue, arrowtail=inv, arrowhead=inv, penwidth=3];
+		n2p -> n2n [color=blue, arrowtail=inv, arrowhead=inv, penwidth=3, style=dashed];
 		n2n -> n2c;
 
 		n2g [style=invisible];
@@ -57,7 +57,7 @@ digraph
 	subgraph cluster4 /* A0a0X1I1 */
 	{
 		n4g -> n4p;
-		n4p -> n4n [color=blue, arrowtail=inv, penwidth=3];
+		n4p -> n4n [color=blue, arrowtail=inv, penwidth=3, style=dashed];
 		n4n -> n4c0 [arrowhead=inv];
 		n4n -> n4c1 [arrowhead=inv];
 
@@ -70,7 +70,7 @@ digraph
 	subgraph cluster5 /* A0a0X2I0 */
 	{
 		n5g -> n5p [arrowtail=inv];
-		n5p -> n5n [color=blue, penwidth=3];
+		n5p -> n5n [color=blue, penwidth=3, style=dashed];
 		n5p -> n5s [arrowhead=inv];
 		n5n -> n5c0 [arrowhead=inv];
 		n5n -> n5c1 [arrowhead=inv];
@@ -99,7 +99,7 @@ digraph
 	subgraph cluster7 /* A0a1X0I1 */
 	{
 		n7g -> n7p;
-		n7p -> n7n [color=blue, arrowtail=inv, penwidth=3];
+		n7p -> n7n [color=blue, arrowtail=inv, penwidth=3, style=dashed];
 		n7n -> n7c0 [arrowtail=inv];
 		n7n -> n7c1 [arrowtail=inv];
 
