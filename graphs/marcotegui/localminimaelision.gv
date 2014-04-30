@@ -2,7 +2,7 @@ digraph
 {
 	compound = true;
 	node [shape=circle, style=filled, color=black, label="", regular];
-	edge [dir=both, arrowtail=none, arrowhead=none, fontsize=18];
+	edge [dir=both, arrowtail=none, arrowhead=none, fontsize=24];
 
 	n0 -> n1 [label=3];
 	n1 -> n2 [label=2, color=blue, penwidth=3, style=dotted];
@@ -12,7 +12,7 @@ digraph
 	n4 -> n6 [label=2, color=blue, penwidth=3, style=dotted];
 	n5 -> n7 [label=5];
 	n7 -> n8 [label=5];
-	n8 -> n9 [label=4];
+	n8 -> n9 [headlabel=4, labeldistance=2.5, labelangle=30];
 	n8 -> n10 [label=2, color=blue, penwidth=3, style=dotted];
 	n8 -> n11 [label=20];
 	n11 -> n12 [label=4, color=blue, penwidth=3, style=dotted];
