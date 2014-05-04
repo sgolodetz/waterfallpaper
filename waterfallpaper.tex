@@ -345,7 +345,7 @@ At the start of Marcotegui's method, the first input partition (produced from th
 	%
 	\subfigure[]
 	{\includegraphics[width=.32\linewidth]{segmentation-waterfall-marcotegui-localminimaelision.png}}%	
-\caption{Finding and contracting a graph's local minima for Marcotegui's method: (a) the graph from \cite{marcotegui05} and its local minima (drawn in red/dashed); (b) contracting/colouring the local minima (the edges to be contracted are drawn in blue/dotted).}
+\caption{Finding and contracting a graph's local minima for Marcotegui's method: (a) the graph from \cite{marcotegui05} and its local minima (drawn in red/dashed); (b) contracting the local minima (the edges to be contracted are drawn in blue/dotted).}
 \label{fig:segmentation-waterfall-marcotegui-localminima}
 \end{stusubfig}
 %---
@@ -388,7 +388,7 @@ At the start of Marcotegui's method, the first input partition (produced from th
 
 \item \emph{Determination of the local minima of the MST.} A local minimum of a weighted graph $G$ is a connected subgraph of $G$ whose edges have equal weight and whose adjacent edges in $G$ have strictly higher weights. Figure~\ref{fig:segmentation-waterfall-marcotegui-localminima}(a) shows an example graph and its local minima. Algorithmically, we iterate over the edges in the MST and flood out from each one to determine (i) whether it's part of a local minimum and (ii) the extent of the minimum if so.
 
-\item \emph{Contraction of the local minima.} This is equivalent to merging minimal plateaux in a landscape into single points to which water runs down. See Figure~\ref{fig:segmentation-waterfall-marcotegui-localminima}(b). For clarity, we represent contraction in the figures by assigning the nodes at the ends of a contracted edge the same colour rather than removing the edge itself.
+\item \emph{Contraction of the local minima.} This is equivalent to merging minimal plateaux in a landscape into single points to which water runs down. See Figure~\ref{fig:segmentation-waterfall-marcotegui-localminima}(b). For clarity, we represent contraction in the figures by assigning the nodes at the ends of a contracted edge the same colour/shape rather than removing the edge itself.
 
 \item \emph{Propagation.} We flood out from the nodes that now represent the local minima (`marker nodes') along the edges, in non-decreasing order of edge weight, starting from the edges directly adjacent to the marker nodes. Each edge will either join a marker to another marker, in which case it should be ignored (since contracting it would merge two catchment basins), or it will join a marker to a non-marker, in which case it should be contracted. See Figure~\ref{fig:segmentation-waterfall-marcotegui-propagation}.
 
