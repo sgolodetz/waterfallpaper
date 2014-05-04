@@ -6,15 +6,15 @@ digraph
 
 	n0 -> n1 [label=3, color=blue, style=dotted];
 	n1 -> n2 [label=2, color=blue, style=dotted];
-	n1 -> n3 [label=20, color=red];
+	n1 -> n3 [label=20, color=red, penwidth=5];
 	n3 -> n4 [label=4, color=blue, style=dotted];
-	n3 -> n5 [label=10, color=red];
+	n3 -> n5 [label=10, color=red, penwidth=5];
 	n4 -> n6 [label=2, color=blue, style=dotted];
 	n5 -> n7 [label=5, color=blue, style=dotted];
 	n7 -> n8 [label=5, color=blue, style=dotted];
 	n8 -> n9 [headlabel=4, labeldistance=2.5, labelangle=30, color=blue, style=dotted];
 	n8 -> n10 [label=2, color=blue, style=dotted];
-	n8 -> n11 [label=20, color=red];
+	n8 -> n11 [label=20, color=red, penwidth=5];
 	n11 -> n12 [label=4, color=blue, style=dotted];
 	n11 -> n13 [label=4, color=blue, style=dotted];
 
