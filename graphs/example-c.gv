@@ -1,7 +1,7 @@
 digraph
 {
 	node [shape=circle, label=""];
-	edge [dir=both, arrowtail=none, arrowhead=none, penwidth=3, fontsize=18];
+	edge [dir=both, arrowtail=none, arrowhead=none, penwidth=3, fontsize=24];
 
 	r -> n00 [label="&infin;"];
 	n00 -> n10 [label=3];
@@ -14,7 +14,7 @@ digraph
 	n31 -> n40 [label=5, color=green, style=dashed];
 	n40 -> n50 [label=4];
 	n40 -> n51 [label=2];
-	n40 -> n52 [label=20, color=red, style=bold];
+	n40 -> n52 [label=20, color=red, penwidth=5];
 	n52 -> n60 [label=4, color=blue, style=dotted];
 	n52 -> n61 [label=4, color=blue, style=dotted];
 
