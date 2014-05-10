@@ -1,0 +1,34 @@
+digraph
+{
+	compound = true;
+	node [shape=circle, label=""];
+	edge [dir=both, arrowtail=none, arrowhead=none, arrowsize=1.5, fontsize=24];
+
+	subgraph cluster1before
+	{
+		n1g -> n1p [label=4, color=green, style=dashed, penwidth=3];
+		n1p -> n1c0 [label=3, color=red, penwidth=5];
+		n1p -> n1c1 [label=3];
+		n1p -> n1c2 [label=2];
+		n1p -> n1c3 [label=2, color=red, penwidth=5];
+		n1p -> n1c4 [label=2, color=red, penwidth=5];
+		n1c0 -> n1d0 [label=1, color=blue, style=dotted, penwidth=3];
+		n1c3 -> n1d3 [label=1, color=blue, style=dotted, penwidth=3];
+		n1c4 -> n1d4 [label=1, color=blue, style=dotted, penwidth=3];
+	}
+
+	subgraph cluster1after
+	{
+		n1g_ -> n1p_ [label=4, color=red, penwidth=5];
+		n1p_ -> n1c0_ [label=3, color=red, penwidth=5];
+		n1p_ -> n1c1_ [label=3, color=blue, style=dotted, penwidth=3];
+		n1p_ -> n1c2_ [label=2, color=blue, style=dotted, penwidth=3];
+		n1p_ -> n1c3_ [label=2, color=blue, arrowtail=inv, style=dotted, penwidth=3];
+		n1p_ -> n1c4_ [label=2, color=red, penwidth=5];
+		n1c0_ -> n1d0_ [label=1, color=blue, style=dotted, penwidth=3];
+		n1c3_ -> n1d3_ [label=1, color=blue, style=dotted, penwidth=3];
+		n1c4_ -> n1d4_ [label=1, color=blue, style=dotted, penwidth=3];
+	}
+
+	n1p -> n1p_ [arrowhead=normal, color=red, ltail=cluster1before, lhead=cluster1after, constraint=false];
+}

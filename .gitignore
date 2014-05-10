@@ -2,9 +2,10 @@
 *.bbl
 *.blg
 *.log
-*.pdf
 *.spl
 *.swp
 *.tex~
 *.tps
+.DS_Store
+waterfallpaper.pdf
 diffs*/

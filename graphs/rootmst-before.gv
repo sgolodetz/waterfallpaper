@@ -1,11 +1,11 @@
 digraph
 {
-	node [shape=circle];
-	edge [dir=both, arrowtail=none, arrowhead=none];
+	node [shape=circle, fontsize=18];
+	edge [dir=both, arrowtail=none, arrowhead=none, fontsize=18];
 
-	a -> b [label=2];
-	a -> c [label=3];
-	b -> d [label=5];
+	a -> b [headlabel=2, labeldistance=2, labelangle=20];
+	a -> c [headlabel=3, labeldistance=2, labelangle=20];
+	b -> d [headlabel=5, labeldistance=2.2, labelangle=20];
 	b -> e [label=3];
-	d -> f [label=1];
+	d -> f [headlabel=1, labeldistance=2, labelangle=20];
 }
